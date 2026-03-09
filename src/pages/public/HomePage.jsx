@@ -84,7 +84,7 @@ function HomePage() {
 
       {/* ── Collections ── */}
       <section className="max-w-7xl mx-auto px-4 py-12">
-        <h2 className="text-3xl font-bold mb-8 text-center italic" style={{ color: NAVY }}>
+        <h2 className="text-3xl font-bold mb-8 text-center italic" style={{ color: PURPLE }}>
           Nos collections
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -147,7 +147,7 @@ function HomePage() {
           <span className="font-bold text-xs uppercase tracking-widest mb-3 block" style={{ color: PURPLE }}>
             Assistance
           </span>
-          <h2 className="text-3xl font-black italic" style={{ color: NAVY }}>
+          <h2 className="text-3xl font-black italic" style={{ color: PURPLE }}>
             Questions les plus posées
           </h2>
         </div>
