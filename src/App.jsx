@@ -19,43 +19,42 @@ import AdminLoginPage from './pages/admin/AdminLoginPage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminProductsPage from './pages/admin/AdminProductsPage'
 import AdminOrdersPage from './pages/admin/AdminOrdersPage'
-import { Home, ShoppingBag, Grid, User } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useCart } from './context/CartContext'
 
-// Track chaque changement de page
 function PageTracker() {
   const location = useLocation()
   useEffect(() => { trackPageView() }, [location.pathname])
   return null
 }
 
-// Barre de navigation mobile bas (comme le design)
+// Bottom nav exacte du design : Home / Shop / Workshop / Account
 function BottomNav() {
-  const location = useLocation()
+  const location  = useLocation()
   const { itemCount } = useCart()
-  const navigate = useNavigate()
 
   const links = [
-    { to: '/',         icon: Home,        label: 'Accueil' },
-    { to: '/products', icon: ShoppingBag, label: 'Boutique' },
-    { to: '/cart',     icon: Grid,        label: 'Panier', badge: itemCount },
-    { to: '/about',    icon: User,        label: 'À propos' },
+    { to: '/',         icon: 'home',         label: 'Home' },
+    { to: '/products', icon: 'storefront',   label: 'Shop' },
+    { to: '/cart',     icon: 'auto_fix_high',label: 'Workshop', badge: itemCount },
+    { to: '/about',    icon: 'person',       label: 'Account' },
   ]
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 flex lg:hidden
+    <div className="fixed bottom-0 left-0 right-0 z-50 flex gap-2
                     border-t border-mauve/20 bg-bg-light/95 backdrop-blur-md
-                    px-4 pb-4 pt-2 shadow-[0_-5px_20px_rgba(0,0,0,0.08)]">
-      {links.map(({ to, icon: Icon, label, badge }) => {
+                    px-4 pb-4 pt-2 shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
+      {links.map(({ to, icon, label, badge }) => {
         const active = location.pathname === to
         return (
           <Link key={to} to={to}
             className={`flex flex-1 flex-col items-center justify-center gap-1
                         transition-colors duration-200
-                        ${active ? 'text-primary' : 'text-text-soft hover:text-mauve'}`}>
+                        ${active ? 'text-primary' : 'text-mauve/60 hover:text-mauve'}`}>
             <div className="relative flex h-8 items-center justify-center">
-              <Icon size={20} strokeWidth={active ? 2.5 : 1.5} />
+              <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
+                {icon}
+              </span>
               {badge > 0 && (
                 <span className="absolute -top-1 -right-2 w-4 h-4 bg-primary text-white
                                  text-[9px] font-bold flex items-center justify-center rounded-full">
@@ -63,7 +62,7 @@ function BottomNav() {
                 </span>
               )}
             </div>
-            <p className="text-[10px] font-semibold leading-normal">{label}</p>
+            <p className="text-[10px] font-medium leading-normal">{label}</p>
           </Link>
         )
       })}
@@ -99,12 +98,8 @@ function App() {
                 fontSize: '14px',
                 boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
               },
-              success: {
-                iconTheme: { primary: '#ec5b13', secondary: '#fff' },
-              },
-              error: {
-                iconTheme: { primary: '#ce8db1', secondary: '#221610' },
-              },
+              success: { iconTheme: { primary: '#ec5b13', secondary: '#fff' } },
+              error:   { iconTheme: { primary: '#ce8db1', secondary: '#221610' } },
             }}
           />
           <Routes>
