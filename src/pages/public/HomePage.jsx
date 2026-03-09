@@ -45,24 +45,27 @@ function HomePage() {
 
       {/* ── Hero ── */}
       <header className="px-4 py-6 pt-20">
-        <div className="relative overflow-hidden rounded-xl bg-charcoal aspect-[16/9] md:aspect-[21/9]
-                        flex items-center justify-center">
-          <div className="absolute inset-0 bg-cover bg-center opacity-60"
+        <div className="relative overflow-hidden rounded-xl bg-charcoal
+                        flex items-center justify-center min-h-[320px] md:min-h-[420px]">
+          {/* Background */}
+          <div className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: `linear-gradient(to bottom, rgba(75,32,56,0.4), rgba(34,22,16,0.8)),
+              backgroundImage: `linear-gradient(to bottom, rgba(75,32,56,0.5), rgba(34,22,16,0.85)),
                 url('https://lh3.googleusercontent.com/aida-public/AB6AXuD7mbrzcJIgPI4so6KZXOZrLt625iDsmVMNKbME08QxBZnctKkEtwLSA_NPMWbwFFlExJicldH3lQtemlzfC6Py94SqibdIAC7Vf2nu5nAcIpmIsVUTEoen7_svmTPCAhKw8COVf4swHtfMmCpYgQgjEK6WlkO8k2Wwhgz4kEJ6qNYMCxkWN33k5ECSbnzNe05dgxARO4FWu6NTHuc9Pa3mn_wqtXaLaZ6HqSD4kKJK4zDEoGpIacVMQk3tNO2y3n2YqexR2LJ8dFbg')`,
             }}
           />
+          {/* Sparkle */}
           <div className="absolute top-10 right-10 text-gold/40 animate-pulse text-5xl select-none">✦</div>
 
-          <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-2xl">
-            <span className="text-gold uppercase tracking-[0.3em] text-xs font-semibold mb-2">
+          {/* Content — centré parfaitement */}
+          <div className="relative z-10 w-full flex flex-col items-center text-center px-6 py-16 max-w-2xl mx-auto">
+            <span className="text-gold uppercase tracking-[0.3em] text-xs font-semibold mb-3">
               Heritage Meets Magic
             </span>
-            <h1 className="text-white text-4xl md:text-6xl font-black leading-tight mb-4 italic">
+            <h1 className="text-white text-4xl md:text-6xl font-black leading-tight mb-5 italic">
               Old Money Meets Magic
             </h1>
-            <p className="text-white/80 text-sm md:text-lg mb-8 leading-relaxed">
+            <p className="text-white/75 text-sm md:text-base mb-8 leading-relaxed max-w-lg">
               Discover our magical workshop blending Algerian heritage with whimsical fairy charm.
               Hand-crafted treasures for the soulful collector.
             </p>
@@ -120,35 +123,12 @@ function HomePage() {
         </div>
       </section>
 
-      {/* ── Human and Soulful ── */}
-      <section className="px-4 py-12 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row gap-8 items-center bg-bg-light
-                        rounded-3xl overflow-hidden border border-mauve/5">
-          <div className="w-full md:w-1/2">
-            <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4fCYOWoauLIR5CbhcJBGSyTTBTiSK0hjhNsBZkXr862JHA-RMJVrzAZ2wtKwp4t0jSIGjdS6veo4SBvWe0A3pW7iKa5fm8UcNbU96d_sBMbujLImX7vacRRsybq1bMHDiyX7wcSivlLz7sCPxZtUyeCY1Jt5yFjc8fnw-w00vpt-UsHn_vI-XwGwIWpZGd4Qg0Wu_GR-B_Ec4jqbeWDQbfNYZFpJ-A5fRlmp-Jow7bq47bnsry-Iy6SeJMUAjITCIzz06W-d1a7GA"
-              alt="Artisan hand crafting magical items"
-              className="w-full h-[400px] object-cover"
-            />
-          </div>
-          <div className="w-full md:w-1/2 p-8 md:p-12">
-            <span className="text-primary font-bold text-sm uppercase tracking-widest mb-4 block">
-              Human and Soulful
-            </span>
-            <h2 className="text-3xl font-bold text-mauve mb-6 italic leading-snug">
-              Each piece tells a story of heritage and enchantment.
-            </h2>
-            <p className="text-text-soft mb-8 leading-relaxed">
-              We believe objects should carry the soul of their maker. Our collaborative
-              process ensures your personality shines through every golden stitch and ink drop.
-            </p>
-            <Link to="/about"
-              className="text-mauve font-bold border-b-2 border-gold pb-1
-                         hover:text-primary transition-colors inline-flex items-center gap-2">
-              Learn our Story ✦
-            </Link>
-          </div>
-        </div>
+      {/* ── Produits ── */}
+      <section className="max-w-7xl mx-auto px-4 py-12">
+        <h2 className="text-mauve text-3xl font-bold mb-8 text-center italic">
+          Our Latest Creations
+        </h2>
+        <ProductGrid products={products} loading={loading} />
       </section>
 
       {/* Spacer bottom nav */}

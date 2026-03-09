@@ -28,16 +28,15 @@ function PageTracker() {
   return null
 }
 
-// Bottom nav exacte du design : Home / Shop / Workshop / Account
+// Bottom nav — 3 boutons : Home / Shop / Workshop
 function BottomNav() {
-  const location  = useLocation()
+  const location      = useLocation()
   const { itemCount } = useCart()
 
   const links = [
-    { to: '/',         icon: 'home',         label: 'Home' },
-    { to: '/products', icon: 'storefront',   label: 'Shop' },
-    { to: '/cart',     icon: 'auto_fix_high',label: 'Workshop', badge: itemCount },
-    { to: '/about',    icon: 'person',       label: 'Account' },
+    { to: '/',         icon: 'home',          label: 'Home' },
+    { to: '/products', icon: 'storefront',    label: 'Shop' },
+    { to: '/cart',     icon: 'auto_fix_high', label: 'Workshop', badge: itemCount },
   ]
 
   return (
