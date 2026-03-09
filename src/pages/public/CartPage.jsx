@@ -22,9 +22,12 @@ function CartPage() {
       await api.post('/orders', {
         customerInfo,
         items: items.map(item => ({
-          product: item.productId, name: item.name,
-          size: item.size, doubleSided: item.doubleSided,
-          quantity: item.quantity, price: item.price,
+          product:     item.productId,
+          name:        item.name,
+          size:        item.size,
+          doubleSided: item.doubleSided,
+          quantity:    item.quantity,
+          price:       item.price,
         })),
         total,
       })
@@ -56,7 +59,7 @@ function CartPage() {
     <div className="min-h-screen"
       style={{ background: 'linear-gradient(160deg,#f5f3ff 0%,#ede9fe 50%,#e0e7ff 100%)' }}>
 
-      {/* Header compact */}
+      {/* Header */}
       <div className="pt-20 pb-6 px-4"
         style={{ borderBottom: '1px solid rgba(124,58,237,0.1)' }}>
         <div className="max-w-5xl mx-auto">
@@ -77,7 +80,7 @@ function CartPage() {
           <div className="lg:col-span-3 space-y-3">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-bold" style={{ color: NAVY }}>
-                {items.length} article{items.length !== 1 ? 's' : ''}
+                {items.length} référence{items.length !== 1 ? 's' : ''}
               </p>
               <button onClick={clearCart}
                 className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors">
@@ -86,10 +89,10 @@ function CartPage() {
             </div>
             {items.map(item => <CartItem key={item.key} item={item} />)}
 
-            {/* Résumé total mobile */}
-            <div className="lg:hidden bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mt-4">
+            {/* Total mobile */}
+            <div className="lg:hidden bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mt-2">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-500">Total estimé</span>
+                <span className="text-sm text-gray-500">Total</span>
                 <span className="font-black text-2xl" style={{ color: PURPLE }}>
                   {total.toLocaleString('fr-DZ')}
                   <span className="text-sm font-normal text-gray-400 ml-1">DA</span>
@@ -98,11 +101,11 @@ function CartPage() {
             </div>
           </div>
 
-          {/* Sidebar commande */}
+          {/* Sidebar */}
           <div className="lg:col-span-2">
             <div className="sticky top-24 space-y-4">
 
-              {/* Récap total desktop */}
+              {/* Récap desktop */}
               <div className="hidden lg:block bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
                 <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: PURPLE }}>
                   Récapitulatif
@@ -111,8 +114,9 @@ function CartPage() {
                   {items.map(item => (
                     <div key={item.key} className="flex justify-between text-sm">
                       <span className="text-gray-500 truncate mr-4 flex-1">
-                        {item.name} ×{item.quantity.toLocaleString()}
-                        {item.doubleSided && <span className="text-xs text-gray-400 ml-1">(r-v)</span>}
+                        {item.name}
+                        <span className="text-gray-400 ml-1">× {item.quantity.toLocaleString()}</span>
+                        {item.doubleSided && <span className="text-gray-400 ml-1">(r-v)</span>}
                       </span>
                       <span className="font-bold whitespace-nowrap" style={{ color: NAVY }}>
                         {(item.price * item.quantity).toLocaleString('fr-DZ')} DA
@@ -131,7 +135,7 @@ function CartPage() {
                 <p className="text-gray-400 text-xs mt-1 text-right">Paiement à la livraison</p>
               </div>
 
-              {/* Formulaire livraison */}
+              {/* Formulaire */}
               <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
                 <p className="text-xs font-bold uppercase tracking-widest mb-5" style={{ color: PURPLE }}>
                   📦 Informations de livraison
