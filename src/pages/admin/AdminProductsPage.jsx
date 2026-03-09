@@ -6,68 +6,55 @@ import toast from 'react-hot-toast'
 
 const NAVY   = '#1e1b4b'
 const PURPLE = '#7c3aed'
+const CAT_LABELS = { Board: 'Boites', Bags: 'Sacs', Autocollants: 'Cartes', Paper: 'Papier' }
 
 function AdminProductsPage() {
-  const [products, setProducts]     = useState([])
-  const [loading, setLoading]       = useState(true)
-  const [search, setSearch]         = useState('')
-  const [showForm, setShowForm]     = useState(false)
+  const [products, setProducts]   = useState([])
+  const [loading, setLoading]     = useState(true)
+  const [search, setSearch]       = useState('')
+  const [showForm, setShowForm]   = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
-  const [deletingId, setDeletingId] = useState(null)
+  const [deletingId, setDeletingId]         = useState(null)
   const [deleteConfirm, setDeleteConfirm]   = useState(null)
 
   const fetchProducts = async () => {
     setLoading(true)
-    try {
-      const res = await api.get('/products')
-      setProducts(res.data || [])
-    } catch { toast.error('Erreur chargement produits') }
+    try { const res = await api.get('/products'); setProducts(res.data || []) }
+    catch { toast.error('Erreur chargement produits') }
     finally { setLoading(false) }
   }
 
   useEffect(() => { fetchProducts() }, [])
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     setDeletingId(id)
-    try {
-      await api.delete(`/products/${id}`)
-      toast.success('Produit supprimé')
-      setProducts(p => p.filter(x => x._id !== id))
-    } catch { toast.error('Erreur suppression') }
+    try { await api.delete(`/products/${id}`); toast.success('Produit supprimé'); setProducts(p => p.filter(x => x._id !== id)) }
+    catch { toast.error('Erreur suppression') }
     finally { setDeletingId(null); setDeleteConfirm(null) }
   }
 
   const handleFormSuccess = () => { setShowForm(false); setEditingProduct(null); fetchProducts() }
   const openCreate = () => { setEditingProduct(null); setShowForm(true) }
-  const openEdit   = (p) => { setEditingProduct(p);   setShowForm(true) }
+  const openEdit   = p  => { setEditingProduct(p);   setShowForm(true) }
 
-  const filtered = products.filter(p =>
-    !search || p.name?.toLowerCase().includes(search.toLowerCase())
-  )
-
-  const minPrice = (product) => {
-    if (product.sizes?.length) return Math.min(...product.sizes.map(s => s.price ?? 0))
-    return 0
-  }
+  const filtered = products.filter(p => !search || p.name?.toLowerCase().includes(search.toLowerCase()))
+  const minPrice = p => p.sizes?.length ? Math.min(...p.sizes.map(s => s.price ?? 0)) : 0
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
 
-      {/* En-tête */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: PURPLE }}>Catalogue</p>
           <h1 className="text-3xl font-black italic" style={{ color: NAVY }}>Produits</h1>
         </div>
         <button onClick={openCreate}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white font-bold text-sm
-                     transition-all hover:opacity-90 shadow-lg"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white font-bold text-sm shadow-lg"
           style={{ background: PURPLE }}>
           <Plus size={16} /> Ajouter un produit
         </button>
       </div>
 
-      {/* Recherche */}
       <div className="relative max-w-sm">
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input type="text" value={search} onChange={e => setSearch(e.target.value)}
@@ -82,7 +69,6 @@ function AdminProductsPage() {
         )}
       </div>
 
-      {/* Liste */}
       {loading ? (
         <div className="flex justify-center py-16">
           <Loader2 size={32} className="animate-spin" style={{ color: PURPLE }} />
@@ -98,8 +84,8 @@ function AdminProductsPage() {
             <div key={product._id}
               className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md
                          transition-all border border-gray-100 group">
-              {/* Image */}
-              <div className="h-44 overflow-hidden bg-gray-50">
+              {/* Image pleine largeur */}
+              <div className="w-full overflow-hidden bg-gray-50" style={{ aspectRatio: '4/3' }}>
                 {product.images?.[0] ? (
                   <img src={product.images[0]} alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -108,13 +94,12 @@ function AdminProductsPage() {
                 )}
               </div>
 
-              {/* Infos */}
               <div className="p-4">
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <h3 className="font-bold text-sm truncate flex-1" style={{ color: NAVY }}>{product.name}</h3>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white flex-shrink-0"
                     style={{ background: PURPLE }}>
-                    {product.category}
+                    {CAT_LABELS[product.category] || product.category}
                   </span>
                 </div>
 
@@ -123,12 +108,9 @@ function AdminProductsPage() {
                     {minPrice(product).toLocaleString('fr-DZ')}
                     <span className="text-xs font-normal text-gray-400 ml-1">DA</span>
                   </span>
-                  <span className="text-xs text-gray-400">
-                    {product.sizes?.length ?? 0} taille{product.sizes?.length !== 1 ? 's' : ''}
-                  </span>
+                  <span className="text-xs text-gray-400">{product.sizes?.length ?? 0} taille{product.sizes?.length !== 1 ? 's' : ''}</span>
                 </div>
 
-                {/* Badges extras */}
                 <div className="flex gap-2 mb-4 flex-wrap">
                   {product.colors?.length > 0 && (
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 font-medium">
@@ -142,7 +124,6 @@ function AdminProductsPage() {
                   )}
                 </div>
 
-                {/* Actions */}
                 <div className="flex gap-2">
                   <button onClick={() => openEdit(product)}
                     className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl
@@ -173,22 +154,18 @@ function AdminProductsPage() {
               onClick={() => { setShowForm(false); setEditingProduct(null) }} />
             <div className="relative bg-white rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden">
               <div className="flex items-center justify-between px-6 py-4"
-                style={{ background: NAVY, borderBottom: `1px solid rgba(124,58,237,0.2)` }}>
+                style={{ background: NAVY }}>
                 <h2 className="text-white font-black italic">
                   {editingProduct ? 'Modifier le produit' : 'Nouveau produit'}
                 </h2>
                 <button onClick={() => { setShowForm(false); setEditingProduct(null) }}
-                  className="p-1.5 rounded-lg transition-colors"
-                  style={{ color: 'rgba(255,255,255,0.5)' }}>
+                  className="p-1.5 rounded-lg" style={{ color: 'rgba(255,255,255,0.5)' }}>
                   <X size={18} />
                 </button>
               </div>
               <div className="p-6 max-h-[80vh] overflow-y-auto">
-                <AdminProductForm
-                  initialData={editingProduct}
-                  onSuccess={handleFormSuccess}
-                  onCancel={() => { setShowForm(false); setEditingProduct(null) }}
-                />
+                <AdminProductForm initialData={editingProduct} onSuccess={handleFormSuccess}
+                  onCancel={() => { setShowForm(false); setEditingProduct(null) }} />
               </div>
             </div>
           </div>
@@ -204,23 +181,20 @@ function AdminProductsPage() {
               <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
                 <AlertTriangle size={18} className="text-red-500" />
               </div>
-              <h3 className="font-black text-base" style={{ color: NAVY }}>Supprimer le produit ?</h3>
+              <h3 className="font-black text-base" style={{ color: NAVY }}>Supprimer ?</h3>
             </div>
-            <p className="text-sm text-gray-500 mb-1">
-              <span className="font-bold text-gray-700">{deleteConfirm.name}</span>
+            <p className="text-sm text-gray-500 mb-6">
+              <span className="font-bold text-gray-700">{deleteConfirm.name}</span> sera supprimé définitivement.
             </p>
-            <p className="text-xs text-gray-400 mb-6">Cette action est irréversible.</p>
             <div className="flex gap-3">
-              <button onClick={() => handleDelete(deleteConfirm._id)}
-                disabled={deletingId === deleteConfirm._id}
+              <button onClick={() => handleDelete(deleteConfirm._id)} disabled={deletingId === deleteConfirm._id}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl
-                           text-white font-bold text-sm transition-all hover:opacity-90 bg-red-500">
+                           text-white font-bold text-sm bg-red-500 hover:opacity-90">
                 {deletingId === deleteConfirm._id && <Loader2 size={14} className="animate-spin" />}
                 Supprimer
               </button>
               <button onClick={() => setDeleteConfirm(null)}
-                className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-gray-500
-                           font-semibold text-sm hover:bg-gray-50 transition-all">
+                className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-gray-500 font-semibold text-sm">
                 Annuler
               </button>
             </div>
