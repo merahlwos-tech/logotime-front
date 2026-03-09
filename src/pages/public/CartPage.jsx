@@ -5,12 +5,20 @@ import CartItem from '../../Components/public/CartItem'
 import CheckoutForm from '../../Components/public/CheckoutForm'
 import api from '../../utils/api'
 import toast from 'react-hot-toast'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { trackInitiateCheckout, trackPurchase } from '../../utils/pixel'
 
 function CartPage() {
   const { items, total, clearCart } = useCart()
   const navigate = useNavigate()
   const [submitting, setSubmitting] = useState(false)
+
+  // ── Meta Pixel : InitiateCheckout dès que le panier est ouvert ──
+  useEffect(() => {
+    if (items.length > 0) {
+      trackInitiateCheckout(items, total)
+    }
+  }, [])
 
   const handleOrder = async (customerInfo) => {
     if (items.length === 0) { toast.error('Votre panier est vide'); return }
@@ -24,6 +32,8 @@ function CartPage() {
         })),
         total,
       })
+      // ── Meta Pixel : Purchase ──
+      trackPurchase(items, total)
       clearCart()
       navigate('/confirmation', { replace: true })
     } catch (err) {

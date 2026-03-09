@@ -1,7 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { CartProvider } from './context/CartContext'
 import { AuthProvider } from './context/AuthContext'
+import { trackPageView } from './utils/pixel'
 import Navbar from './Components/ui/Navbar'
 import Footer from './Components/ui/Footer'
 import PrivateRoute from './Components/ui/PrivateRoute'
@@ -17,6 +19,57 @@ import AdminLoginPage from './pages/admin/AdminLoginPage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminProductsPage from './pages/admin/AdminProductsPage'
 import AdminOrdersPage from './pages/admin/AdminOrdersPage'
+import { Home, ShoppingBag, Grid, User } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useCart } from './context/CartContext'
+
+// Track chaque changement de page
+function PageTracker() {
+  const location = useLocation()
+  useEffect(() => { trackPageView() }, [location.pathname])
+  return null
+}
+
+// Barre de navigation mobile bas (comme le design)
+function BottomNav() {
+  const location = useLocation()
+  const { itemCount } = useCart()
+  const navigate = useNavigate()
+
+  const links = [
+    { to: '/',         icon: Home,        label: 'Accueil' },
+    { to: '/products', icon: ShoppingBag, label: 'Boutique' },
+    { to: '/cart',     icon: Grid,        label: 'Panier', badge: itemCount },
+    { to: '/about',    icon: User,        label: 'À propos' },
+  ]
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 flex lg:hidden
+                    border-t border-mauve/20 bg-bg-light/95 backdrop-blur-md
+                    px-4 pb-4 pt-2 shadow-[0_-5px_20px_rgba(0,0,0,0.08)]">
+      {links.map(({ to, icon: Icon, label, badge }) => {
+        const active = location.pathname === to
+        return (
+          <Link key={to} to={to}
+            className={`flex flex-1 flex-col items-center justify-center gap-1
+                        transition-colors duration-200
+                        ${active ? 'text-primary' : 'text-text-soft hover:text-mauve'}`}>
+            <div className="relative flex h-8 items-center justify-center">
+              <Icon size={20} strokeWidth={active ? 2.5 : 1.5} />
+              {badge > 0 && (
+                <span className="absolute -top-1 -right-2 w-4 h-4 bg-primary text-white
+                                 text-[9px] font-bold flex items-center justify-center rounded-full">
+                  {badge}
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] font-semibold leading-normal">{label}</p>
+          </Link>
+        )
+      })}
+    </div>
+  )
+}
 
 function PublicLayout({ children }) {
   return (
@@ -24,6 +77,7 @@ function PublicLayout({ children }) {
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
+      <BottomNav />
     </div>
   )
 }
@@ -31,40 +85,41 @@ function PublicLayout({ children }) {
 function App() {
   return (
     <BrowserRouter>
+      <PageTracker />
       <AuthProvider>
         <CartProvider>
           <Toaster position="top-right"
             toastOptions={{
               style: {
-                background: '#FFFFFF',
-                color: '#3D3530',
-                border: '1px solid #F0EAE0',
+                background: '#221610',
+                color: '#ce8db1',
+                border: '1px solid rgba(75,32,56,0.5)',
                 borderRadius: '12px',
-                fontFamily: 'Nunito, sans-serif',
+                fontFamily: 'Public Sans, sans-serif',
                 fontSize: '14px',
-                boxShadow: '0 4px 24px rgba(139,111,94,0.12)',
+                boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
               },
               success: {
-                iconTheme: { primary: '#A8BBA8', secondary: '#fff' },
+                iconTheme: { primary: '#ec5b13', secondary: '#fff' },
               },
               error: {
-                iconTheme: { primary: '#F2C4CE', secondary: '#3D3530' },
+                iconTheme: { primary: '#ce8db1', secondary: '#221610' },
               },
             }}
           />
           <Routes>
-            <Route path="/" element={<PublicLayout><HomePage /></PublicLayout>} />
-            <Route path="/products" element={<PublicLayout><ProductsPage /></PublicLayout>} />
+            <Route path="/"             element={<PublicLayout><HomePage /></PublicLayout>} />
+            <Route path="/products"     element={<PublicLayout><ProductsPage /></PublicLayout>} />
             <Route path="/products/:id" element={<PublicLayout><ProductDetailPage /></PublicLayout>} />
-            <Route path="/tag/:tag" element={<PublicLayout><TagProductsPage /></PublicLayout>} />
-            <Route path="/cart" element={<PublicLayout><CartPage /></PublicLayout>} />
+            <Route path="/tag/:tag"     element={<PublicLayout><TagProductsPage /></PublicLayout>} />
+            <Route path="/cart"         element={<PublicLayout><CartPage /></PublicLayout>} />
             <Route path="/confirmation" element={<PublicLayout><ConfirmationPage /></PublicLayout>} />
-            <Route path="/about" element={<PublicLayout><AboutPage /></PublicLayout>} />
-            <Route path="/admin/login" element={<AdminLoginPage />} />
+            <Route path="/about"        element={<PublicLayout><AboutPage /></PublicLayout>} />
+            <Route path="/admin/login"  element={<AdminLoginPage />} />
             <Route path="/admin" element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
-              <Route index element={<AdminDashboardPage />} />
+              <Route index           element={<AdminDashboardPage />} />
               <Route path="products" element={<AdminProductsPage />} />
-              <Route path="orders" element={<AdminOrdersPage />} />
+              <Route path="orders"   element={<AdminOrdersPage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

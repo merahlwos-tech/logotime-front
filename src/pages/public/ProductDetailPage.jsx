@@ -6,6 +6,7 @@ import { useCart } from '../../context/CartContext'
 import SizeSelector from '../../Components/public/SizeSelector'
 import QuantitySelector from '../../Components/public/QuantitySelector'
 import toast from 'react-hot-toast'
+import { trackViewContent } from '../../utils/pixel'
 
 function ProductDetailPage() {
   const { id } = useParams()
@@ -27,6 +28,8 @@ function ProductDetailPage() {
         setProduct(res.data)
         const first = res.data.sizes?.find((s) => s.stock > 0)
         if (first) setSelectedSize(first.size)
+        // ── Meta Pixel : ViewContent ──
+        trackViewContent(res.data)
       })
       .catch(() => navigate('/products'))
       .finally(() => setLoading(false))

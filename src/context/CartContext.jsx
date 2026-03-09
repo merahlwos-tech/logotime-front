@@ -2,6 +2,7 @@
 // Contexte global du panier avec persistance localStorage
 
 import { createContext, useContext, useReducer, useEffect } from 'react'
+import { trackAddToCart } from '../utils/pixel'
 
 const CartContext = createContext(null)
 
@@ -92,6 +93,8 @@ export function CartProvider({ children }) {
 
   const addToCart = (product, size, quantity = 1) => {
     dispatch({ type: ACTIONS.ADD, payload: { product, size, quantity } })
+    // ── Meta Pixel : AddToCart ──
+    trackAddToCart(product, size, quantity)
   }
 
   const removeFromCart = (key) => {
