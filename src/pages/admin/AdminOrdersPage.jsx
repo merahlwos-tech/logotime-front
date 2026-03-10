@@ -24,6 +24,13 @@ function OrderDetailModal({ order, onClose, onUpdated }) {
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty]   = useState(false)
 
+  // Bloquer le scroll du body quand le modal est ouvert
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
+
   const handleSave = async () => {
     setSaving(true)
     try {
@@ -51,16 +58,27 @@ function OrderDetailModal({ order, onClose, onUpdated }) {
     hour: '2-digit', minute: '2-digit',
   })
 
-  const currentStatus = STATUS_OPTIONS.find(o => o.value === status)
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(30,27,75,0.7)', backdropFilter: 'blur(4px)' }}
+    /* Backdrop — couvre tout l'écran y compris la barre mobile */
+    <div
+      className="fixed z-50"
+      style={{ inset: 0, background: 'rgba(30,27,75,0.7)', backdropFilter: 'blur(4px)' }}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}>
-      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
 
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 sticky top-0 bg-white z-10"
+      {/*
+        Desktop : modal centré
+        Mobile  : bottom sheet qui remonte depuis le bas
+        On utilise flex column + mt-auto sur mobile pour coller en bas,
+        et m-auto sur desktop pour centrer
+      */}
+      <div className="flex flex-col justify-end sm:justify-center items-center w-full h-full sm:p-4">
+        <div
+          className="bg-white w-full sm:max-w-2xl sm:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col"
+          style={{ maxHeight: '92dvh', maxHeight: '92vh' }}
+          onClick={e => e.stopPropagation()}>
+
+        {/* Header — fixe en haut, ne scroll pas */}
+        <div className="flex items-center justify-between px-6 py-4 flex-shrink-0"
           style={{ borderBottom: `1px solid rgba(124,58,237,0.1)` }}>
           <div>
             <p className="text-xs font-bold uppercase tracking-widest" style={{ color: PURPLE }}>
@@ -74,7 +92,7 @@ function OrderDetailModal({ order, onClose, onUpdated }) {
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 overflow-y-auto flex-1 overscroll-contain">
 
           {/* Client */}
           <div className="bg-gray-50 rounded-2xl p-4">
@@ -204,6 +222,7 @@ function OrderDetailModal({ order, onClose, onUpdated }) {
               </button>
             )}
           </div>
+        </div>
         </div>
       </div>
     </div>
