@@ -82,7 +82,7 @@ function ProductDetailPage() {
             className="flex items-center gap-2 text-sm font-medium mb-8 group transition-colors"
             style={{ color: PURPLE }}>
             <ArrowLeft size={16} className={`transition-transform ${isRTL ? 'rotate-180 group-hover:translate-x-1' : 'group-hover:-translate-x-1'}`} />
-            {lang === 'ar' ? 'رجوع' : 'Retour'}
+            {t('back')}
           </button>
 
           <div className="grid grid-cols-2 gap-16 items-start">
@@ -194,8 +194,8 @@ function ProductDetailPage() {
                       <p className="text-sm font-bold" style={{ color: NAVY }}>{t('doubleSided')}</p>
                       <p className="text-xs text-gray-400 mt-0.5">
                         {product.doubleSidedPrice > 0
-                          ? `+${product.doubleSidedPrice.toLocaleString('fr-DZ')} DA / ${lang === 'ar' ? 'وحدة' : 'unité'}`
-                          : (lang === 'ar' ? 'مشمول' : 'Inclus')}
+                          ? `+${product.doubleSidedPrice.toLocaleString('fr-DZ')} DA / ${t('units')}`
+                          : (t('included'))}
                       </p>
                     </div>
                   </label>
@@ -269,7 +269,7 @@ function ProductDetailPage() {
             className="absolute top-20 left-4 flex items-center gap-2 px-3 py-2 rounded-full
                        text-white text-sm font-medium backdrop-blur-sm"
             style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)' }}>
-            <ArrowLeft size={15} /> {lang === 'ar' ? 'رجوع' : 'Retour'}
+            <ArrowLeft size={15} /> {t('back')}
           </button>
 
           <div className="absolute top-20 right-4">
@@ -294,7 +294,7 @@ function ProductDetailPage() {
             <h1 className="text-white font-black italic text-2xl drop-shadow mb-1">{product.name}</h1>
             <p className="text-white font-black text-lg drop-shadow">
               {unitPrice.toLocaleString('fr-DZ')}
-              <span className="text-xs opacity-70 ml-1">DA / {lang === 'ar' ? 'وحدة' : 'unité'}</span>
+              <span className="text-xs opacity-70 ml-1">DA / {t('units')}</span>
             </p>
           </div>
         </div>
@@ -339,7 +339,7 @@ function ProductDetailPage() {
                 <div>
                   <p className="text-sm font-bold" style={{ color: NAVY }}>{t('doubleSided')}</p>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    {product.doubleSidedPrice > 0 ? `+${product.doubleSidedPrice.toLocaleString('fr-DZ')} DA` : (lang === 'ar' ? 'مشمول' : 'Inclus')}
+                    {product.doubleSidedPrice > 0 ? `+${product.doubleSidedPrice.toLocaleString('fr-DZ')} DA` : (t('included'))}
                   </p>
                 </div>
               </label>

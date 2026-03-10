@@ -72,7 +72,7 @@ function Footer() {
             </div>
             <p className="text-sm leading-relaxed max-w-xs mb-6"
               style={{ color: 'rgba(255,255,255,0.5)' }}>
-              {lang === 'ar'
+            {lang === 'ar'
                 ? 'تغليف احترافي مخصص لعملك — صناديق، أكياس، بطاقات، ورق.'
                 : "Emballages personnalisés pour votre business — boites, sacs, cartes, papier."}
             </p>
@@ -110,7 +110,7 @@ function Footer() {
                 </a>
               </li>
               <li className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                Alger — {t('delivery69')}
+                {lang === 'ar' ? `الجزائر — ${t('delivery69')}` : `Alger — ${t('delivery69')}`}
               </li>
             </ul>
             <a href={`https://wa.me/${WA}`} target="_blank" rel="noreferrer"
