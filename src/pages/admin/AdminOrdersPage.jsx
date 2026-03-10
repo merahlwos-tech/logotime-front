@@ -64,7 +64,7 @@ function OrderDetailModal({ order, onClose, onUpdated }) {
 
   return (
     <div
-      className="fixed z-50 flex flex-col justify-end sm:justify-center sm:items-center sm:p-4"
+      className="fixed z-50 flex flex-col justify-end min-[400px]:justify-center min-[400px]:items-center min-[400px]:p-4"
       style={{
         top: 0, left: 0, right: 0, bottom: 0,
         width: '100%', height: '100%',
@@ -75,12 +75,12 @@ function OrderDetailModal({ order, onClose, onUpdated }) {
       onClick={e => { if (e.target === e.currentTarget) onClose() }}>
 
       <div
-        className="bg-white w-full sm:max-w-2xl sm:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col"
+        className="bg-white w-full min-[400px]:max-w-2xl min-[400px]:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col"
         style={{ maxHeight: '90dvh', maxHeight: '90vh', minHeight: 0 }}
         onClick={e => e.stopPropagation()}>
 
         {/* ── Header ── */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0"
+        <div className="flex items-center justify-between px-4 min-[400px]:px-6 py-3 min-[400px]:py-4 flex-shrink-0"
           style={{ borderBottom: '1px solid rgba(124,58,237,0.1)' }}>
           <div>
             <p className="text-xs font-bold uppercase tracking-widest" style={{ color: PURPLE }}>
@@ -95,10 +95,10 @@ function OrderDetailModal({ order, onClose, onUpdated }) {
         </div>
 
         {/* ── Corps scrollable ── */}
-        <div className="px-4 sm:px-6 py-4 space-y-4 overflow-y-auto flex-1 overscroll-contain">
+        <div className="px-4 min-[400px]:px-6 py-4 space-y-4 overflow-y-auto flex-1 overscroll-contain">
 
           {/* Client */}
-          <div className="bg-gray-50 rounded-xl p-3 sm:p-4">
+          <div className="bg-gray-50 rounded-xl p-3 min-[400px]:p-4">
             <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: PURPLE }}>
               Client
             </p>
@@ -150,7 +150,7 @@ function OrderDetailModal({ order, onClose, onUpdated }) {
                 {order.customerInfo.logoUrls.map((url, idx) => (
                   <div key={idx} className="relative flex-shrink-0">
                     <img src={url} alt={`logo ${idx + 1}`}
-                      className="w-24 h-24 sm:w-28 sm:h-28 object-contain rounded-xl border-2 bg-gray-50"
+                      className="w-24 h-24 min-[400px]:w-28 min-[400px]:h-28 object-contain rounded-xl border-2 bg-gray-50"
                       style={{ borderColor: 'rgba(124,58,237,0.2)' }} />
                     <button onClick={() => downloadLogo(url, idx)}
                       className="absolute -bottom-2 -right-2 flex items-center gap-1 px-2 py-1
@@ -194,7 +194,7 @@ function OrderDetailModal({ order, onClose, onUpdated }) {
           <div className="flex justify-between items-center p-3 sm:p-4 rounded-xl"
             style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.15)' }}>
             <span className="font-bold text-sm" style={{ color: NAVY }}>Total</span>
-            <span className="font-black text-xl sm:text-2xl" style={{ color: PURPLE }}>
+            <span className="font-black text-xl min-[400px]:text-2xl" style={{ color: PURPLE }}>
               {(order.total ?? 0).toLocaleString('fr-DZ')}
               <span className="text-xs font-normal text-gray-400 ml-1">DA</span>
             </span>
@@ -205,11 +205,11 @@ function OrderDetailModal({ order, onClose, onUpdated }) {
             <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: PURPLE }}>
               Statut de la commande
             </p>
-            <div className="grid grid-cols-3 gap-1.5 sm:flex sm:flex-wrap sm:gap-2">
+            <div className="grid grid-cols-3 gap-1.5 min-[400px]:flex min-[400px]:flex-wrap min-[400px]:gap-2">
               {STATUS_OPTIONS.map(opt => (
                 <button key={opt.value}
                   onClick={() => { setStatus(opt.value); setDirty(opt.value !== order.status) }}
-                  className="px-2 sm:px-4 py-2 rounded-xl text-[11px] sm:text-xs font-bold border-2 transition-all text-center"
+                  className="px-2 min-[400px]:px-4 py-2 rounded-xl text-[11px] min-[400px]:text-xs font-bold border-2 transition-all text-center"
                   style={{
                     background:  status === opt.value ? opt.color : 'white',
                     borderColor: status === opt.value ? opt.color : '#e5e7eb',
@@ -221,7 +221,7 @@ function OrderDetailModal({ order, onClose, onUpdated }) {
             </div>
             {dirty && (
               <button onClick={handleSave} disabled={saving}
-                className="mt-3 w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-white font-bold text-sm"
+                className="mt-3 w-full min-[400px]:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-white font-bold text-sm"
                 style={{ background: PURPLE }}>
                 {saving ? <Loader2 size={14} className="animate-spin" /> : null}
                 Enregistrer le statut
