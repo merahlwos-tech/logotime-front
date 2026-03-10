@@ -102,8 +102,8 @@ function Footer() {
               style={{ color: PURPLE }}>{t('contact')}</p>
             <ul className="space-y-2 mb-5">
               <li>
-                <a href={`tel:${PHONE}`} className="text-sm transition-colors"
-                  style={{ color: 'rgba(255,255,255,0.5)' }}
+                <a href={`tel:${PHONE}`} dir="ltr" className="text-sm transition-colors inline-block"
+                  style={{ color: 'rgba(255,255,255,0.5)', unicodeBidi: 'isolate' }}
                   onMouseEnter={e => e.target.style.color = 'white'}
                   onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.5)'}>
                   +213 554 76 74 44
