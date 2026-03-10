@@ -268,7 +268,7 @@ export default function AdminOrderDetailPage() {
             </div>
           </section>
 
-          {/* Logos client */}
+          {/* Logos / fichiers client */}
           {order.customerInfo.logoUrls?.length > 0 && (
             <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
               <div className="flex items-center gap-2 mb-4">
@@ -277,26 +277,56 @@ export default function AdminOrderDetailPage() {
                   <Tag size={14} style={{ color: PURPLE }} />
                 </div>
                 <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: PURPLE }}>
-                  Logo client
+                  Fichiers client
                 </h2>
               </div>
               <div className="flex gap-4 flex-wrap">
-                {order.customerInfo.logoUrls.map((url, idx) => (
-                  <div key={idx} className="relative group">
-                    <img
-                      src={url}
-                      alt={`logo ${idx + 1}`}
-                      className="w-24 h-24 object-contain rounded-xl border-2 bg-gray-50 transition-transform group-hover:scale-105"
-                      style={{ borderColor: 'rgba(124,58,237,0.2)' }}
-                    />
-                    <button
-                      onClick={() => downloadLogo(url, idx)}
-                      className="absolute -bottom-2 -right-2 flex items-center gap-1 px-2 py-1 rounded-lg text-white text-[10px] font-bold shadow-md transition-transform hover:scale-110"
-                      style={{ background: PURPLE }}>
-                      <Download size={10} /> DL
-                    </button>
-                  </div>
-                ))}
+                {order.customerInfo.logoUrls.map((url, idx) => {
+                  const isPdfUrl = url?.toLowerCase().includes('.pdf') || url?.includes('/raw/')
+                  if (isPdfUrl) {
+                    // Affichage PDF : carte avec icône + boutons ouvrir/télécharger
+                    const filename = url.split('/').pop()?.split('?')[0] || `logo-${idx + 1}.pdf`
+                    return (
+                      <div key={idx}
+                        className="flex flex-col items-center justify-between gap-2 p-3 rounded-xl border-2 w-28"
+                        style={{ borderColor: 'rgba(124,58,237,0.2)', background: 'rgba(124,58,237,0.03)' }}>
+                        <FileText size={32} style={{ color: PURPLE }} />
+                        <span className="text-[10px] text-gray-500 text-center leading-tight break-all line-clamp-2">
+                          {filename.length > 18 ? filename.slice(0, 16) + '…' : filename}
+                        </span>
+                        <div className="flex gap-1.5 w-full">
+                          <a href={url} target="_blank" rel="noopener noreferrer"
+                            className="flex-1 flex items-center justify-center py-1 rounded-lg text-[10px] font-bold text-white"
+                            style={{ background: PURPLE }}>
+                            Ouvrir
+                          </a>
+                          <button onClick={() => downloadLogo(url, idx)}
+                            className="w-7 flex items-center justify-center rounded-lg"
+                            style={{ background: 'rgba(124,58,237,0.12)', color: PURPLE }}>
+                            <Download size={11} />
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  }
+                  // Affichage image
+                  return (
+                    <div key={idx} className="relative group">
+                      <img
+                        src={url}
+                        alt={`logo ${idx + 1}`}
+                        className="w-24 h-24 object-contain rounded-xl border-2 bg-gray-50 transition-transform group-hover:scale-105"
+                        style={{ borderColor: 'rgba(124,58,237,0.2)' }}
+                      />
+                      <button
+                        onClick={() => downloadLogo(url, idx)}
+                        className="absolute -bottom-2 -right-2 flex items-center gap-1 px-2 py-1 rounded-lg text-white text-[10px] font-bold shadow-md transition-transform hover:scale-110"
+                        style={{ background: PURPLE }}>
+                        <Download size={10} /> DL
+                      </button>
+                    </div>
+                  )
+                })}
               </div>
             </section>
           )}
