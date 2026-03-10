@@ -20,7 +20,7 @@ function QuantitySelector({ value, onChange }) {
   const select = qty => { onChange(qty); setOpen(false) }
 
   return (
-    <div ref={ref} className="relative inline-block" style={{ minWidth: 160 }}>
+    <div ref={ref} className="relative w-full sm:inline-block sm:w-auto" style={{ minWidth: 0 }}>
       {/* Trigger */}
       <button type="button" onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl

@@ -328,11 +328,11 @@ function AdminOrdersPage() {
         </div>
       </div>
 
-      {/* Filtres statut */}
-      <div className="flex flex-wrap gap-2">
+      {/* Filtres statut — scroll horizontal sur mobile */}
+      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
         {STATUS_FILTERS.map(s => (
           <button key={s} onClick={() => setStatusFilter(s)}
-            className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest rounded-xl border-2 transition-all"
+            className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest rounded-xl border-2 transition-all flex-shrink-0"
             style={{
               background:  statusFilter === s ? PURPLE : 'white',
               borderColor: statusFilter === s ? PURPLE : '#e5e7eb',

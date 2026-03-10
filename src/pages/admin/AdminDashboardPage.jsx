@@ -58,7 +58,7 @@ function AdminDashboardPage() {
     <div className="max-w-5xl mx-auto space-y-8">
 
       {/* En-tête */}
-      <div className="flex items-end justify-between flex-wrap gap-4">
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: PURPLE }}>Vue d'ensemble</p>
           <h1 className="text-3xl font-black italic" style={{ color: NAVY }}>Dashboard</h1>
@@ -116,8 +116,8 @@ function AdminDashboardPage() {
 
       {/* Modal reset */}
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(30,27,75,0.7)', backdropFilter: 'blur(4px)' }}>
+        <div className="fixed z-50 flex items-center justify-center p-4"
+          style={{ top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', background: 'rgba(30,27,75,0.7)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}>
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">

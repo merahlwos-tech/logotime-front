@@ -3,6 +3,7 @@ import { ChevronDown, User, Phone, MapPin, Map, Loader2, Package, Image, X, File
 import wilayas from '../../data/wilayas'
 import { useLang } from '../../context/LanguageContext'
 import { uploadToCloudinary } from '../../utils/uploadCloudinary'
+import toast from 'react-hot-toast'
 
 const NAVY   = '#1e1b4b'
 const PURPLE = '#7c3aed'
@@ -66,10 +67,13 @@ function CheckoutForm({ onSubmit, loading }) {
       setLogoUrls(p  => [...p, ...uploaded])
       setErrors(p => ({ ...p, logo: '' }))
     } catch (err) {
-      const msg = err?.message?.includes('env') || err?.message?.includes('missing')
+      console.error('Cloudinary upload error:', err)
+      const isConfigError = err?.message?.includes('env') || err?.message?.includes('missing')
+      const msg = isConfigError
         ? (lang === 'ar' ? 'خطأ في الإعداد — تحقق من VITE_CLOUDINARY_*' : 'Config Cloudinary manquante (.env)')
-        : (lang === 'ar' ? 'فشل رفع الصورة، حاول مجدداً' : "Échec de l'upload, réessayez")
+        : (lang === 'ar' ? 'فشل رفع الصورة، حاول مجدداً' : "Échec de l'upload — " + (err?.message || 'réessayez'))
       setErrors(p => ({ ...p, logo: msg }))
+      toast.error(msg)
     } finally { setUploading(false) }
   }
 
@@ -89,7 +93,7 @@ function CheckoutForm({ onSubmit, loading }) {
     <form onSubmit={handleSubmit} className="space-y-5" noValidate dir={isRTL ? 'rtl' : 'ltr'}>
 
       {/* Prénom + Nom */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-3">
         <Field label={t('firstName')} icon={User} error={errors.firstName}>
           <input type="text" name="firstName" value={form.firstName}
             onChange={handleChange} autoComplete="given-name"

@@ -43,7 +43,7 @@ function AdminProductsPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
 
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: PURPLE }}>Catalogue</p>
           <h1 className="text-3xl font-black italic" style={{ color: NAVY }}>Produits</h1>
@@ -147,15 +147,15 @@ function AdminProductsPage() {
 
       {/* Modal formulaire */}
       {showForm && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="min-h-screen flex items-start justify-center p-4 pt-8">
-            <div className="absolute inset-0 backdrop-blur-sm"
-              style={{ background: 'rgba(30,27,75,0.6)' }}
-              onClick={() => { setShowForm(false); setEditingProduct(null) }} />
-            <div className="relative bg-white rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden">
-              <div className="flex items-center justify-between px-6 py-4"
+        <div className="fixed z-50 flex flex-col justify-end sm:justify-center sm:items-center sm:p-4"
+          style={{ top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', background: 'rgba(30,27,75,0.7)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
+          onClick={e => { if (e.target === e.currentTarget) { setShowForm(false); setEditingProduct(null) } }}>
+          <div className="bg-white w-full sm:max-w-xl sm:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col overflow-hidden"
+            style={{ maxHeight: '92dvh', maxHeight: '92vh', minHeight: 0 }}
+            onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0"
                 style={{ background: NAVY }}>
-                <h2 className="text-white font-black italic">
+                <h2 className="text-white font-black italic text-sm sm:text-base">
                   {editingProduct ? 'Modifier le produit' : 'Nouveau produit'}
                 </h2>
                 <button onClick={() => { setShowForm(false); setEditingProduct(null) }}
@@ -163,19 +163,18 @@ function AdminProductsPage() {
                   <X size={18} />
                 </button>
               </div>
-              <div className="p-6 max-h-[80vh] overflow-y-auto">
+              <div className="p-4 sm:p-6 overflow-y-auto flex-1 overscroll-contain">
                 <AdminProductForm initialData={editingProduct} onSuccess={handleFormSuccess}
                   onCancel={() => { setShowForm(false); setEditingProduct(null) }} />
               </div>
-            </div>
           </div>
         </div>
       )}
 
       {/* Modal suppression */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(30,27,75,0.7)', backdropFilter: 'blur(4px)' }}>
+        <div className="fixed z-50 flex items-center justify-center p-4"
+          style={{ top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', background: 'rgba(30,27,75,0.7)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}>
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">

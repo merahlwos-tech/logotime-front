@@ -146,7 +146,7 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
         </div>
         <div className="space-y-2">
           {form.sizes.map((s, i) => (
-            <div key={i} className="flex items-center gap-3 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
+            <div key={i} className="flex items-center gap-2 sm:gap-3 bg-gray-50 px-3 sm:px-4 py-3 rounded-xl border border-gray-200">
               <div className="flex-1">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Taille</p>
                 <input value={s.size} onChange={e => updateSize(i, 'size', e.target.value)}
