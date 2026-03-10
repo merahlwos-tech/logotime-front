@@ -18,6 +18,7 @@ import AdminLoginPage from './pages/admin/AdminLoginPage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminProductsPage from './pages/admin/AdminProductsPage'
 import AdminOrdersPage from './pages/admin/AdminOrdersPage'
+import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage'
 
 function PublicLayout({ children }) {
   return (
@@ -62,7 +63,8 @@ function App() {
               <Route path="/admin" element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
                 <Route index        element={<AdminDashboardPage />} />
                 <Route path="products" element={<AdminProductsPage />} />
-                <Route path="orders"   element={<AdminOrdersPage />} />
+                <Route path="orders"      element={<AdminOrdersPage />} />
+                <Route path="orders/:id"  element={<AdminOrderDetailPage />} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

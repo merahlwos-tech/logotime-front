@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Loader2, ChevronDown, ChevronUp, Search, X, Trash2, AlertTriangle, Eye, Download } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Loader2, ChevronDown, ChevronUp, Search, X, Trash2, AlertTriangle, Eye } from 'lucide-react'
 import api from '../../utils/api'
 import toast from 'react-hot-toast'
 
@@ -17,241 +18,6 @@ const STATUS_OPTIONS = [
   { value: 'retour',       label: 'Retour',       color: '#f97316' },
   { value: 'annulé',       label: 'Annulé',       color: '#ef4444' },
 ]
-
-/* ─────────────────────────── MODAL DÉTAIL ─────────────────────────── */
-function OrderDetailModal({ order, onClose, onUpdated }) {
-  const [status, setStatus] = useState(order.status)
-  const [saving, setSaving] = useState(false)
-  const [dirty, setDirty]   = useState(false)
-
-  useEffect(() => {
-    document.body.style.overflow = 'hidden'
-    const onKey = e => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey) }
-  }, [])
-
-  const handleSave = async () => {
-    setSaving(true)
-    try {
-      await api.put(`/orders/${order._id}`, { status })
-      toast.success('Statut mis à jour')
-      setDirty(false)
-      onUpdated({ ...order, status })
-    } catch { toast.error('Erreur mise à jour') }
-    finally { setSaving(false) }
-  }
-
-  const downloadLogo = async (url, idx) => {
-    try {
-      const res = await fetch(url)
-      const blob = await res.blob()
-      const a = document.createElement('a')
-      a.href = URL.createObjectURL(blob)
-      a.download = `logo-${order._id}-${idx + 1}.jpg`
-      a.click()
-    } catch { toast.error('Erreur téléchargement') }
-  }
-
-  const createdAt = new Date(order.createdAt).toLocaleDateString('fr-DZ', {
-    day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  })
-
-  const currentOpt = STATUS_OPTIONS.find(o => o.value === status)
-
-  return (
-    /* Backdrop — 100% inline styles pour max compatibilité Android */
-    <div
-      style={{
-        position: 'fixed', zIndex: 50,
-        top: 0, left: 0, right: 0, bottom: 0,
-        display: 'flex', flexDirection: 'column',
-        justifyContent: 'flex-end',
-        background: 'rgba(30,27,75,0.75)',
-        backdropFilter: 'blur(4px)',
-        WebkitBackdropFilter: 'blur(4px)',
-      }}
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}>
-
-      {/* Sheet — toujours bottom sheet, 92vh max */}
-      <div
-        style={{
-          background: 'white',
-          borderRadius: '16px 16px 0 0',
-          boxShadow: '0 -8px 40px rgba(30,27,75,0.25)',
-          display: 'flex',
-          flexDirection: 'column',
-          maxHeight: '92vh',
-          minHeight: 0,
-          flexShrink: 0,
-        }}
-        onClick={e => e.stopPropagation()}>
-
-        {/* Header — ne rétrécit jamais */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '12px 16px',
-          borderBottom: '1px solid rgba(124,58,237,0.1)',
-          flexShrink: 0,
-        }}>
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-black uppercase tracking-widest truncate" style={{ color: PURPLE }}>
-              #{order._id.slice(-6).toUpperCase()}
-            </p>
-            <p className="text-[11px] text-gray-400 mt-0.5 truncate">{createdAt}</p>
-          </div>
-          {/* Statut badge dans le header */}
-          <span className="mx-3 text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0"
-            style={{ background: `${currentOpt?.color}18`, color: currentOpt?.color }}>
-            {STATUS_LABELS[status]}
-          </span>
-          <button onClick={onClose}
-            className="p-2 rounded-xl hover:bg-gray-100 transition-colors flex-shrink-0">
-            <X size={18} style={{ color: NAVY }} />
-          </button>
-        </div>
-
-        {/* Corps scrollable */}
-        <div style={{
-          padding: '16px',
-          overflowY: 'auto',
-          flex: 1,
-          overscrollBehavior: 'contain',
-          minHeight: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px',
-        }}>
-
-          {/* Client — 2×2 grid */}
-          <div className="rounded-xl p-3" style={{ background: 'rgba(124,58,237,0.04)', border: '1px solid rgba(124,58,237,0.1)' }}>
-            <p className="text-[10px] font-black uppercase tracking-widest mb-2.5" style={{ color: PURPLE }}>Client</p>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
-              <div className="min-w-0">
-                <p className="text-[10px] text-gray-400 mb-0.5">Nom</p>
-                <p className="font-bold text-sm truncate" style={{ color: NAVY }}>
-                  {order.customerInfo.firstName} {order.customerInfo.lastName}
-                </p>
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] text-gray-400 mb-0.5">Téléphone</p>
-                <a href={`tel:${order.customerInfo.phone}`}
-                  className="font-bold text-sm block truncate" style={{ color: PURPLE }}>
-                  {order.customerInfo.phone}
-                </a>
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] text-gray-400 mb-0.5">Wilaya</p>
-                <p className="font-semibold text-sm truncate" style={{ color: NAVY }}>{order.customerInfo.wilaya}</p>
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] text-gray-400 mb-0.5">Commune</p>
-                <p className="font-semibold text-sm truncate" style={{ color: NAVY }}>{order.customerInfo.commune}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Instructions */}
-          {order.customerInfo.description && (
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest mb-1.5" style={{ color: PURPLE }}>
-                Instructions
-              </p>
-              <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 leading-relaxed">
-                {order.customerInfo.description}
-              </div>
-            </div>
-          )}
-
-          {/* Logos */}
-          {order.customerInfo.logoUrls?.length > 0 && (
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: PURPLE }}>Logo client</p>
-              <div className="flex gap-3 flex-wrap">
-                {order.customerInfo.logoUrls.map((url, idx) => (
-                  <div key={idx} className="relative flex-shrink-0">
-                    <img src={url} alt={`logo ${idx + 1}`}
-                      className="w-20 h-20 object-contain rounded-xl border-2 bg-gray-50"
-                      style={{ borderColor: 'rgba(124,58,237,0.2)' }} />
-                    <button onClick={() => downloadLogo(url, idx)}
-                      className="absolute -bottom-2 -right-2 flex items-center gap-1 px-2 py-1 rounded-lg text-white text-[10px] font-bold shadow"
-                      style={{ background: PURPLE }}>
-                      <Download size={10} /> DL
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Articles */}
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: PURPLE }}>Articles</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              {order.items.map((item, i) => (
-                <div key={i} className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-gray-50">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold text-sm truncate" style={{ color: NAVY }}>{item.name}</p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">
-                      {item.size}{item.doubleSided && <span className="ml-2 text-purple-500">• Recto-verso</span>}
-                    </p>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-[11px] text-gray-400">{item.quantity.toLocaleString()} u.</p>
-                    <p className="font-black text-sm" style={{ color: PURPLE }}>
-                      {(item.price * item.quantity).toLocaleString('fr-DZ')} DA
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Total */}
-          <div className="flex justify-between items-center px-4 py-3 rounded-xl"
-            style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.15)' }}>
-            <span className="font-bold text-sm" style={{ color: NAVY }}>Total commande</span>
-            <span className="font-black text-2xl" style={{ color: PURPLE }}>
-              {(order.total ?? 0).toLocaleString('fr-DZ')}
-              <span className="text-xs font-normal text-gray-400 ml-1">DA</span>
-            </span>
-          </div>
-
-          {/* Statut */}
-          <div className="pb-2">
-            <p className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: PURPLE }}>
-              Changer le statut
-            </p>
-            <div className="grid grid-cols-3 gap-1.5">
-              {STATUS_OPTIONS.map(opt => (
-                <button key={opt.value}
-                  onClick={() => { setStatus(opt.value); setDirty(opt.value !== order.status) }}
-                  className="py-2 px-1 rounded-xl text-[11px] font-bold border-2 transition-all text-center leading-tight"
-                  style={{
-                    background:  status === opt.value ? opt.color : 'white',
-                    borderColor: status === opt.value ? opt.color : '#e5e7eb',
-                    color:       status === opt.value ? 'white'  : opt.color,
-                  }}>
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-            {dirty && (
-              <button onClick={handleSave} disabled={saving}
-                className="mt-3 w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-bold text-sm"
-                style={{ background: PURPLE }}>
-                {saving ? <Loader2 size={14} className="animate-spin" /> : null}
-                Enregistrer le statut
-              </button>
-            )}
-          </div>
-
-        </div>{ /* fin body */ }
-      </div>
-    </div>
-  )
-}
 
 /* ─────────────────────────── CARD MOBILE ─────────────────────────── */
 function OrderCard({ order, selected, onToggle, onDetail }) {
@@ -303,6 +69,7 @@ function OrderCard({ order, selected, onToggle, onDetail }) {
 
 /* ─────────────────────────── PAGE PRINCIPALE ─────────────────────── */
 function AdminOrdersPage() {
+  const navigate                        = useNavigate()
   const [orders, setOrders]             = useState([])
   const [loading, setLoading]           = useState(true)
   const [search, setSearch]             = useState('')
@@ -310,7 +77,6 @@ function AdminOrdersPage() {
   const [sortField, setSortField]       = useState('createdAt')
   const [sortDir, setSortDir]           = useState('desc')
   const [selected, setSelected]         = useState(new Set())
-  const [detailOrder, setDetailOrder]   = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [deleting, setDeleting]         = useState(false)
 
@@ -322,11 +88,6 @@ function AdminOrdersPage() {
   }
 
   useEffect(() => { fetchOrders() }, [])
-
-  const handleUpdated = updated => {
-    setOrders(prev => prev.map(o => o._id === updated._id ? updated : o))
-    if (detailOrder?._id === updated._id) setDetailOrder(updated)
-  }
 
   const toggleSort = field => {
     if (sortField === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
@@ -454,7 +215,7 @@ function AdminOrdersPage() {
                 order={order}
                 selected={selected.has(order._id)}
                 onToggle={() => toggleOne(order._id)}
-                onDetail={() => setDetailOrder(order)} />
+                onDetail={() => navigate(`/admin/orders/${order._id}`)} />
             ))}
           </div>
 
@@ -528,7 +289,7 @@ function AdminOrdersPage() {
                           </span>
                         </td>
                         <td className="px-3 lg:px-4 py-3">
-                          <button onClick={() => setDetailOrder(order)}
+                          <button onClick={() => navigate(`/admin/orders/${order._id}`)}
                             className="p-2 rounded-xl transition-all hover:scale-110"
                             style={{ background: 'rgba(124,58,237,0.08)', color: PURPLE }}>
                             <Eye size={14} />
@@ -542,11 +303,6 @@ function AdminOrdersPage() {
             </div>
           </div>
         </>
-      )}
-
-      {/* Modal détail */}
-      {detailOrder && (
-        <OrderDetailModal order={detailOrder} onClose={() => setDetailOrder(null)} onUpdated={handleUpdated} />
       )}
 
       {/* Modal suppression */}
