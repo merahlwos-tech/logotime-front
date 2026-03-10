@@ -65,8 +65,11 @@ function CheckoutForm({ onSubmit, loading }) {
       setLogoFiles(p => [...p, ...toUpload])
       setLogoUrls(p  => [...p, ...uploaded])
       setErrors(p => ({ ...p, logo: '' }))
-    } catch {
-      setErrors(p => ({ ...p, logo: t('errorLogo') }))
+    } catch (err) {
+      const msg = err?.message?.includes('env') || err?.message?.includes('missing')
+        ? (lang === 'ar' ? 'خطأ في الإعداد — تحقق من VITE_CLOUDINARY_*' : 'Config Cloudinary manquante (.env)')
+        : (lang === 'ar' ? 'فشل رفع الصورة، حاول مجدداً' : "Échec de l'upload, réessayez")
+      setErrors(p => ({ ...p, logo: msg }))
     } finally { setUploading(false) }
   }
 
