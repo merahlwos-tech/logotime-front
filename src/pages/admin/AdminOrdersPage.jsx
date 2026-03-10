@@ -8,8 +8,14 @@ const NAVY   = '#1e1b4b'
 const PURPLE = '#7c3aed'
 
 const STATUS_FILTERS = ['Tous', 'en attente', 'confirmé', 'en livraison', 'livré', 'retour', 'annulé']
-const STATUS_LABELS  = { 'en attente': 'En attente', confirmé: 'Confirmé', 'en livraison': 'En livraison', livré: 'Livré', retour: 'Retour', annulé: 'Annulé' }
-const STATUS_COLORS  = { 'en attente': '#9ca3af', confirmé: '#3b82f6', 'en livraison': '#f59e0b', livré: '#10b981', retour: '#f97316', annulé: '#ef4444' }
+const STATUS_LABELS  = {
+  'en attente': 'En attente', confirmé: 'Confirmé',
+  'en livraison': 'En livraison', livré: 'Livré', retour: 'Retour', annulé: 'Annulé',
+}
+const STATUS_COLORS  = {
+  'en attente': '#9ca3af', confirmé: '#3b82f6',
+  'en livraison': '#f59e0b', livré: '#10b981', retour: '#f97316', annulé: '#ef4444',
+}
 const STATUS_OPTIONS = [
   { value: 'en attente',   label: 'En attente',   color: '#9ca3af' },
   { value: 'confirmé',     label: 'Confirmé',     color: '#3b82f6' },
@@ -23,38 +29,59 @@ const STATUS_OPTIONS = [
 function OrderCard({ order, selected, onToggle, onDetail }) {
   const currentStatus = STATUS_OPTIONS.find(o => o.value === order.status)
   const dateStr = new Date(order.createdAt).toLocaleDateString('fr-DZ', {
-    day: '2-digit', month: '2-digit', year: '2-digit'
+    day: '2-digit', month: '2-digit', year: '2-digit',
   })
 
   return (
     <div
       className="bg-white rounded-2xl p-4 shadow-sm border transition-all"
       style={{
-        borderColor: selected ? PURPLE : '#f3f4f6',
+        borderColor: selected ? PURPLE : '#f0f0f5',
         background: selected ? 'rgba(124,58,237,0.02)' : 'white',
       }}>
-      {/* Ligne 1 : checkbox + nom + date + œil */}
-      <div className="flex items-center gap-3">
-        <input type="checkbox" checked={selected} onChange={onToggle}
-          className="w-4 h-4 flex-shrink-0 accent-purple-600 cursor-pointer" />
+
+      {/* Ligne 1 : checkbox + nom + œil */}
+      <div className="flex items-start gap-3">
+        <input
+          type="checkbox" checked={selected} onChange={onToggle}
+          className="mt-0.5 w-4 h-4 flex-shrink-0 accent-purple-600 cursor-pointer" />
+
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-sm truncate" style={{ color: NAVY }}>
+          <p className="font-bold text-sm leading-tight" style={{ color: NAVY }}>
             {order.customerInfo.firstName} {order.customerInfo.lastName}
           </p>
-          <p className="text-xs text-gray-400 truncate">{order.customerInfo.phone} · {order.customerInfo.wilaya}</p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {order.customerInfo.phone}
+          </p>
+          <p className="text-xs text-gray-400 truncate">
+            {order.customerInfo.wilaya} · {order.customerInfo.commune}
+          </p>
         </div>
-        <span className="text-[10px] text-gray-400 flex-shrink-0">{dateStr}</span>
-        <button onClick={onDetail}
-          className="p-2 rounded-xl flex-shrink-0"
-          style={{ background: 'rgba(124,58,237,0.08)', color: PURPLE }}>
-          <Eye size={15} />
-        </button>
+
+        <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+          <span className="text-[10px] text-gray-400">{dateStr}</span>
+          <button
+            onClick={onDetail}
+            className="p-2 rounded-xl"
+            style={{ background: 'rgba(124,58,237,0.08)', color: PURPLE }}>
+            <Eye size={15} />
+          </button>
+        </div>
       </div>
 
-      {/* Ligne 2 : statut + total */}
-      <div className="flex items-center justify-between mt-3 pt-3"
+      {/* Ligne 2 : articles résumé */}
+      {order.items?.length > 0 && (
+        <p className="text-xs text-gray-400 mt-2.5 truncate">
+          {order.items.map(i => `${i.quantity.toLocaleString()}× ${i.name}`).join(' · ')}
+        </p>
+      )}
+
+      {/* Ligne 3 : statut + total */}
+      <div
+        className="flex items-center justify-between mt-3 pt-3"
         style={{ borderTop: '1px solid #f3f4f6' }}>
-        <span className="text-xs font-bold px-2.5 py-1 rounded-full"
+        <span
+          className="text-xs font-bold px-2.5 py-1 rounded-full"
           style={{ background: `${currentStatus?.color}18`, color: currentStatus?.color }}>
           {STATUS_LABELS[order.status] || order.status}
         </span>
@@ -69,22 +96,27 @@ function OrderCard({ order, selected, onToggle, onDetail }) {
 
 /* ─────────────────────────── PAGE PRINCIPALE ─────────────────────── */
 function AdminOrdersPage() {
-  const navigate                        = useNavigate()
-  const [orders, setOrders]             = useState([])
-  const [loading, setLoading]           = useState(true)
-  const [search, setSearch]             = useState('')
-  const [statusFilter, setStatusFilter] = useState('Tous')
-  const [sortField, setSortField]       = useState('createdAt')
-  const [sortDir, setSortDir]           = useState('desc')
-  const [selected, setSelected]         = useState(new Set())
+  const navigate                          = useNavigate()
+  const [orders, setOrders]               = useState([])
+  const [loading, setLoading]             = useState(true)
+  const [search, setSearch]               = useState('')
+  const [statusFilter, setStatusFilter]   = useState('Tous')
+  const [sortField, setSortField]         = useState('createdAt')
+  const [sortDir, setSortDir]             = useState('desc')
+  const [selected, setSelected]           = useState(new Set())
   const [deleteConfirm, setDeleteConfirm] = useState(false)
-  const [deleting, setDeleting]         = useState(false)
+  const [deleting, setDeleting]           = useState(false)
 
   const fetchOrders = async () => {
     setLoading(true)
-    try { const res = await api.get('/orders'); setOrders(res.data || []) }
-    catch { toast.error('Erreur chargement commandes') }
-    finally { setLoading(false) }
+    try {
+      const res = await api.get('/orders')
+      setOrders(res.data || [])
+    } catch {
+      toast.error('Erreur chargement commandes')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { fetchOrders() }, [])
@@ -110,11 +142,9 @@ function AdminOrdersPage() {
     })
 
   const allSelected = filtered.length > 0 && filtered.every(o => selected.has(o._id))
-  const toggleAll   = () => {
-    if (allSelected) setSelected(new Set())
-    else setSelected(new Set(filtered.map(o => o._id)))
-  }
-  const toggleOne = id => {
+  const toggleAll   = () =>
+    allSelected ? setSelected(new Set()) : setSelected(new Set(filtered.map(o => o._id)))
+  const toggleOne   = id => {
     const next = new Set(selected)
     next.has(id) ? next.delete(id) : next.add(id)
     setSelected(next)
@@ -127,12 +157,16 @@ function AdminOrdersPage() {
       setOrders(prev => prev.filter(o => !selected.has(o._id)))
       setSelected(new Set())
       toast.success(`${selected.size} commande(s) supprimée(s)`)
-    } catch { toast.error('Erreur suppression') }
-    finally { setDeleting(false); setDeleteConfirm(false) }
+    } catch {
+      toast.error('Erreur suppression')
+    } finally {
+      setDeleting(false)
+      setDeleteConfirm(false)
+    }
   }
 
-  const counts    = orders.reduce((acc, o) => { acc[o.status] = (acc[o.status] || 0) + 1; return acc }, {})
-  const SortIcon  = ({ field }) => sortField !== field
+  const counts   = orders.reduce((acc, o) => { acc[o.status] = (acc[o.status] || 0) + 1; return acc }, {})
+  const SortIcon = ({ field }) => sortField !== field
     ? <ChevronDown size={12} className="opacity-30" />
     : sortDir === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />
 
@@ -142,31 +176,45 @@ function AdminOrdersPage() {
       {/* ── En-tête ── */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: PURPLE }}>Suivi</p>
-          <h1 className="text-2xl sm:text-3xl font-black italic" style={{ color: NAVY }}>Commandes</h1>
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: PURPLE }}>
+            Suivi
+          </p>
+          <h1 className="text-2xl sm:text-3xl font-black italic" style={{ color: NAVY }}>
+            Commandes
+          </h1>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {selected.size > 0 && (
-            <button onClick={() => setDeleteConfirm(true)}
+            <button
+              onClick={() => setDeleteConfirm(true)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-white font-bold text-xs bg-red-500">
-              <Trash2 size={13} /> Supprimer ({selected.size})
+              <Trash2 size={13} />
+              Supprimer ({selected.size})
             </button>
           )}
-          <p className="text-xs text-gray-400 whitespace-nowrap">{filtered.length} / {orders.length}</p>
+          <p className="text-xs text-gray-400 whitespace-nowrap">
+            {filtered.length} / {orders.length}
+          </p>
         </div>
       </div>
 
-      {/* ── Filtres statut — scroll horizontal ── */}
-      <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      {/* ── Filtres statut ── */}
+      <div
+        className="flex gap-2 overflow-x-auto pb-1"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
         {STATUS_FILTERS.map(s => (
-          <button key={s} onClick={() => setStatusFilter(s)}
-            className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded-xl border-2 transition-all flex-shrink-0"
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded-xl border-2 transition-all flex-shrink-0 whitespace-nowrap"
             style={{
               background:  statusFilter === s ? PURPLE : 'white',
               borderColor: statusFilter === s ? PURPLE : '#e5e7eb',
               color:       statusFilter === s ? 'white' : (STATUS_COLORS[s] || NAVY),
             }}>
-            {s === 'Tous' ? `Tous (${orders.length})` : `${STATUS_LABELS[s]} (${counts[s] || 0})`}
+            {s === 'Tous'
+              ? `Tous (${orders.length})`
+              : `${STATUS_LABELS[s]} (${counts[s] || 0})`}
           </button>
         ))}
       </div>
@@ -174,12 +222,15 @@ function AdminOrdersPage() {
       {/* ── Recherche ── */}
       <div className="relative">
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
           placeholder="Nom, téléphone, wilaya..."
-          className="w-full pl-9 pr-9 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm
-                     outline-none focus:border-purple-400 transition-all" />
+          className="w-full pl-9 pr-9 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm outline-none focus:border-purple-400 transition-all" />
         {search && (
-          <button onClick={() => setSearch('')}
+          <button
+            onClick={() => setSearch('')}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
             <X size={12} />
           </button>
@@ -198,20 +249,21 @@ function AdminOrdersPage() {
         </div>
       ) : (
         <>
-          {/* ── MOBILE : cartes ── */}
+          {/* ── MOBILE (< 768px) : cartes ── */}
           <div className="md:hidden space-y-3">
-            {/* Sélectionner tout (mobile) */}
             {filtered.length > 1 && (
-              <div className="flex items-center gap-2 px-1">
-                <input type="checkbox" checked={allSelected} onChange={toggleAll}
-                  className="w-4 h-4 accent-purple-600 cursor-pointer" />
-                <span className="text-xs text-gray-400 font-medium">
+              <label className="flex items-center gap-2 px-1 cursor-pointer">
+                <input
+                  type="checkbox" checked={allSelected} onChange={toggleAll}
+                  className="w-4 h-4 accent-purple-600" />
+                <span className="text-xs text-gray-400 font-medium select-none">
                   {allSelected ? 'Tout désélectionner' : 'Tout sélectionner'}
                 </span>
-              </div>
+              </label>
             )}
             {filtered.map(order => (
-              <OrderCard key={order._id}
+              <OrderCard
+                key={order._id}
                 order={order}
                 selected={selected.has(order._id)}
                 onToggle={() => toggleOne(order._id)}
@@ -219,40 +271,64 @@ function AdminOrdersPage() {
             ))}
           </div>
 
-          {/* ── TABLET/DESKTOP : tableau ── */}
+          {/* ── TABLET / DESKTOP (≥ 768px) : tableau ── */}
           <div className="hidden md:block bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #f3f4f6' }}>
+                  <tr style={{ borderBottom: '1px solid #f3f4f6', background: 'rgba(124,58,237,0.03)' }}>
                     <th className="px-3 lg:px-4 py-3 w-10">
-                      <input type="checkbox" checked={allSelected} onChange={toggleAll}
+                      <input
+                        type="checkbox" checked={allSelected} onChange={toggleAll}
                         className="w-4 h-4 rounded cursor-pointer accent-purple-600" />
                     </th>
-                    <th className="px-3 lg:px-4 py-3 text-left text-xs font-bold uppercase tracking-widest" style={{ color: PURPLE }}>Client</th>
-                    <th className="px-3 lg:px-4 py-3 text-left text-xs font-bold uppercase tracking-widest hidden lg:table-cell" style={{ color: PURPLE }}>Wilaya</th>
-                    <th className="px-3 lg:px-4 py-3 text-left text-xs font-bold uppercase tracking-widest hidden xl:table-cell" style={{ color: PURPLE }}>Articles</th>
-                    <th className="px-3 lg:px-4 py-3 text-xs font-bold uppercase tracking-widest cursor-pointer select-none text-right"
-                      style={{ color: PURPLE }} onClick={() => toggleSort('total')}>
-                      <span className="flex items-center justify-end gap-1">Total <SortIcon field="total" /></span>
+                    <th className="px-3 lg:px-4 py-3 text-left text-xs font-bold uppercase tracking-widest" style={{ color: PURPLE }}>
+                      Client
                     </th>
-                    <th className="px-3 lg:px-4 py-3 text-left text-xs font-bold uppercase tracking-widest cursor-pointer select-none"
-                      style={{ color: PURPLE }} onClick={() => toggleSort('createdAt')}>
-                      <span className="flex items-center gap-1">Date <SortIcon field="createdAt" /></span>
+                    <th className="px-3 lg:px-4 py-3 text-left text-xs font-bold uppercase tracking-widest hidden lg:table-cell" style={{ color: PURPLE }}>
+                      Wilaya
                     </th>
-                    <th className="px-3 lg:px-4 py-3 text-left text-xs font-bold uppercase tracking-widest" style={{ color: PURPLE }}>Statut</th>
-                    <th className="px-3 lg:px-4 py-3 w-10"></th>
+                    <th className="px-3 lg:px-4 py-3 text-left text-xs font-bold uppercase tracking-widest hidden xl:table-cell" style={{ color: PURPLE }}>
+                      Articles
+                    </th>
+                    <th
+                      className="px-3 lg:px-4 py-3 text-xs font-bold uppercase tracking-widest cursor-pointer select-none text-right"
+                      style={{ color: PURPLE }}
+                      onClick={() => toggleSort('total')}>
+                      <span className="flex items-center justify-end gap-1">
+                        Total <SortIcon field="total" />
+                      </span>
+                    </th>
+                    <th
+                      className="px-3 lg:px-4 py-3 text-left text-xs font-bold uppercase tracking-widest cursor-pointer select-none"
+                      style={{ color: PURPLE }}
+                      onClick={() => toggleSort('createdAt')}>
+                      <span className="flex items-center gap-1">
+                        Date <SortIcon field="createdAt" />
+                      </span>
+                    </th>
+                    <th className="px-3 lg:px-4 py-3 text-left text-xs font-bold uppercase tracking-widest" style={{ color: PURPLE }}>
+                      Statut
+                    </th>
+                    <th className="px-3 lg:px-4 py-3 w-10" />
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map(order => {
-                    const currentStatus = STATUS_OPTIONS.find(o => o.value === order.status)
+                    const cs = STATUS_OPTIONS.find(o => o.value === order.status)
                     return (
-                      <tr key={order._id}
+                      <tr
+                        key={order._id}
                         className="transition-colors hover:bg-gray-50"
-                        style={{ borderBottom: '1px solid #f9fafb', background: selected.has(order._id) ? 'rgba(124,58,237,0.03)' : 'transparent' }}>
+                        style={{
+                          borderBottom: '1px solid #f9fafb',
+                          background: selected.has(order._id) ? 'rgba(124,58,237,0.03)' : 'transparent',
+                        }}>
                         <td className="px-3 lg:px-4 py-3">
-                          <input type="checkbox" checked={selected.has(order._id)} onChange={() => toggleOne(order._id)}
+                          <input
+                            type="checkbox"
+                            checked={selected.has(order._id)}
+                            onChange={() => toggleOne(order._id)}
                             className="w-4 h-4 rounded cursor-pointer accent-purple-600" />
                         </td>
                         <td className="px-3 lg:px-4 py-3">
@@ -280,16 +356,20 @@ function AdminOrdersPage() {
                           </span>
                         </td>
                         <td className="px-3 lg:px-4 py-3 text-gray-400 text-xs whitespace-nowrap">
-                          {new Date(order.createdAt).toLocaleDateString('fr-DZ', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                          {new Date(order.createdAt).toLocaleDateString('fr-DZ', {
+                            day: '2-digit', month: '2-digit', year: '2-digit',
+                          })}
                         </td>
                         <td className="px-3 lg:px-4 py-3">
-                          <span className="text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap"
-                            style={{ background: `${currentStatus?.color}15`, color: currentStatus?.color }}>
+                          <span
+                            className="text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap"
+                            style={{ background: `${cs?.color}15`, color: cs?.color }}>
                             {STATUS_LABELS[order.status] || order.status}
                           </span>
                         </td>
                         <td className="px-3 lg:px-4 py-3">
-                          <button onClick={() => navigate(`/admin/orders/${order._id}`)}
+                          <button
+                            onClick={() => navigate(`/admin/orders/${order._id}`)}
                             className="p-2 rounded-xl transition-all hover:scale-110"
                             style={{ background: 'rgba(124,58,237,0.08)', color: PURPLE }}>
                             <Eye size={14} />
@@ -305,11 +385,15 @@ function AdminOrdersPage() {
         </>
       )}
 
-      {/* Modal suppression */}
+      {/* ── Confirmation suppression ── */}
       {deleteConfirm && (
-        <div className="fixed z-50 flex items-center justify-center p-4"
-          style={{ top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%',
-                   background: 'rgba(30,27,75,0.7)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{
+            background: 'rgba(30,27,75,0.7)',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
+          }}>
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl mx-4">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
@@ -321,12 +405,15 @@ function AdminOrdersPage() {
             </div>
             <p className="text-sm text-gray-400 mb-6">Cette action est irréversible.</p>
             <div className="flex gap-3">
-              <button onClick={handleDeleteSelected} disabled={deleting}
+              <button
+                onClick={handleDeleteSelected}
+                disabled={deleting}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white font-bold text-sm bg-red-500">
                 {deleting && <Loader2 size={14} className="animate-spin" />}
                 Supprimer
               </button>
-              <button onClick={() => setDeleteConfirm(false)}
+              <button
+                onClick={() => setDeleteConfirm(false)}
                 className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-gray-500 font-semibold text-sm">
                 Annuler
               </button>
