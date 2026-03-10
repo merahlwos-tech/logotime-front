@@ -40,7 +40,9 @@ function Navbar() {
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
+          <Link to="/"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="flex items-center gap-2.5 flex-shrink-0">
             <img src="/logo.jpg" alt="BrandPack" className="w-9 h-9 rounded-full object-contain" />
             <span className="font-black italic text-white text-lg leading-none hidden sm:block">
               BrandPack

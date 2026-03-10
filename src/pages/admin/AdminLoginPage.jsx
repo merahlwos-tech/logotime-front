@@ -1,28 +1,25 @@
-// src/pages/admin/AdminLoginPage.jsx
-// Page de connexion admin
-
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Eye, EyeOff, Lock, Zap, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
 
+const NAVY   = '#1e1b4b'
+const PURPLE = '#7c3aed'
+
 function AdminLoginPage() {
   const { login } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const from = location.state?.from?.pathname || '/admin'
+  const navigate  = useNavigate()
+  const location  = useLocation()
+  const from      = location.state?.from?.pathname || '/admin'
 
-  const [form, setForm] = useState({ username: '', password: '' })
+  const [form, setForm]       = useState({ username: '', password: '' })
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.username || !form.password) {
-      toast.error('Identifiants requis')
-      return
-    }
+    if (!form.username || !form.password) { toast.error('Identifiants requis'); return }
     setLoading(true)
     try {
       await login(form.username, form.password)
@@ -35,110 +32,130 @@ function AdminLoginPage() {
     }
   }
 
-  return (
-    <div className="min-h-screen bg-brand-black flex items-center justify-center px-4 relative overflow-hidden">
+  const inputCls = (extra = '') =>
+    `w-full px-4 py-3.5 rounded-xl border-2 text-sm outline-none transition-all bg-white/5
+     text-white placeholder-white/20 border-white/10
+     focus:border-purple-500 focus:bg-white/8 ${extra}`
 
-      {/* Background décoratif */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute inset-0 opacity-[0.03]"
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
+      style={{ background: NAVY }}>
+
+      {/* ── Blobs décoratifs ── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Blob violet haut-droite */}
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full opacity-20"
+          style={{ background: PURPLE, filter: 'blur(80px)' }} />
+        {/* Blob violet bas-gauche */}
+        <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full opacity-15"
+          style={{ background: PURPLE, filter: 'blur(100px)' }} />
+        {/* Grille subtile */}
+        <div className="absolute inset-0 opacity-[0.025]"
           style={{
-            backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
-          }}
-        />
-        <div className="absolute top-0 left-0 w-full h-1 bg-brand-red" />
-        <div
-          className="absolute -left-20 top-1/2 -translate-y-1/2 font-display text-[20vw]
-                      leading-none select-none"
-          style={{ color: 'transparent', WebkitTextStroke: '1px rgba(255,255,255,0.03)' }}
-        >
-          ADMIN
-        </div>
+            backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
+          }} />
       </div>
 
-      <div className="relative w-full max-w-md animate-slide-up">
+      <div className="relative w-full max-w-sm">
 
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-3 mb-10">
-          <div
-            className="w-10 h-10 bg-brand-red flex items-center justify-center"
-            style={{ clipPath: 'polygon(0 0, 100% 0, 100% 75%, 75% 100%, 0 100%)' }}
-          >
-            <Zap size={16} className="text-white fill-white" />
+        {/* ── Logo ── */}
+        <div className="flex flex-col items-center mb-10">
+          <div className="relative mb-4">
+            <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-2xl ring-2"
+              style={{ ringColor: 'rgba(124,58,237,0.4)', boxShadow: `0 0 40px rgba(124,58,237,0.35)` }}>
+              <img src="/logo.jpg" alt="BrandPack"
+                className="w-full h-full object-cover" />
+            </div>
+            {/* Point vert "en ligne" */}
+            <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2"
+              style={{ borderColor: NAVY }} />
           </div>
-          <span className="font-display text-3xl tracking-widest text-brand-white">SOLEKICKS</span>
+          <h1 className="font-black italic text-white text-2xl tracking-tight">BrandPack</h1>
+          <p className="text-xs mt-1 font-medium tracking-widest uppercase"
+            style={{ color: 'rgba(255,255,255,0.3)' }}>
+            Espace Administrateur
+          </p>
         </div>
 
-        {/* Card */}
-        <div className="bg-brand-gray-900 border border-brand-gray-700 p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <Lock size={16} className="text-brand-red" />
-            <h1 className="font-heading font-bold tracking-widest uppercase text-sm text-brand-gray-300">
-              Espace Administrateur
-            </h1>
-          </div>
+        {/* ── Card ── */}
+        <div className="rounded-2xl p-7"
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            backdropFilter: 'blur(12px)',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
+          }}>
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+
+            {/* Identifiant */}
             <div>
-              <label className="block text-brand-gray-500 text-xs font-heading font-semibold
-                                 tracking-widest uppercase mb-2">
+              <label className="block text-xs font-bold uppercase tracking-widest mb-2"
+                style={{ color: 'rgba(255,255,255,0.4)' }}>
                 Identifiant
               </label>
               <input
                 type="text"
                 value={form.username}
-                onChange={(e) => setForm((p) => ({ ...p, username: e.target.value }))}
+                onChange={e => setForm(p => ({ ...p, username: e.target.value }))}
                 placeholder="admin"
                 autoComplete="username"
-                className="input-field"
+                className={inputCls()}
               />
             </div>
 
+            {/* Mot de passe */}
             <div>
-              <label className="block text-brand-gray-500 text-xs font-heading font-semibold
-                                 tracking-widest uppercase mb-2">
+              <label className="block text-xs font-bold uppercase tracking-widest mb-2"
+                style={{ color: 'rgba(255,255,255,0.4)' }}>
                 Mot de passe
               </label>
               <div className="relative">
                 <input
                   type={showPass ? 'text' : 'password'}
                   value={form.password}
-                  onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
+                  onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
                   placeholder="••••••••"
                   autoComplete="current-password"
-                  className="input-field pr-12"
+                  className={inputCls('pr-12')}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPass((s) => !s)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-gray-500
-                             hover:text-brand-white transition-colors"
-                  aria-label={showPass ? 'Cacher le mot de passe' : 'Afficher le mot de passe'}
+                  onClick={() => setShowPass(s => !s)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg transition-colors"
+                  style={{ color: 'rgba(255,255,255,0.3)' }}
+                  onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
+                  onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.3)'}
                 >
                   {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
+            {/* Bouton */}
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full flex items-center justify-center gap-3 mt-6"
-            >
-              {loading ? (
-                <>
-                  <Loader2 size={14} className="animate-spin" />
-                  Connexion...
-                </>
-              ) : (
-                'SE CONNECTER'
-              )}
+              className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl
+                         font-bold text-sm text-white transition-all mt-2
+                         hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+              style={{
+                background: loading
+                  ? 'rgba(124,58,237,0.5)'
+                  : `linear-gradient(135deg, ${PURPLE}, #6d28d9)`,
+                boxShadow: loading ? 'none' : `0 8px 24px rgba(124,58,237,0.4)`,
+              }}>
+              {loading
+                ? <><Loader2 size={16} className="animate-spin" /> Connexion...</>
+                : 'Se connecter'}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-brand-gray-700 text-xs font-body mt-6">
+        {/* ── Footer ── */}
+        <p className="text-center text-xs mt-6"
+          style={{ color: 'rgba(255,255,255,0.15)' }}>
           Accès restreint — Personnel autorisé uniquement
         </p>
       </div>
