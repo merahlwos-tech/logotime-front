@@ -70,7 +70,7 @@ function Footer() {
           </p>
           <ul className="space-y-3">
             {[
-              { to: '/',                               label: 'Accueil' },
+              { to: '/',                               label: 'Test' },
               { to: '/products?category=Bags',         label: 'Sacs' },
               { to: '/products?category=Board',        label: 'Boites & Cartons' },
               { to: '/products?category=Autocollants', label: 'Cartes' },
