@@ -73,7 +73,14 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
     } catch { toast.error('Erreur upload') }
     finally { setUploading(false) }
   }
-  const removeImage = url => setForm(p => ({ ...p, images: p.images.filter(i => i !== url) }))
+  const removeImage = async url => {
+    setForm(p => ({ ...p, images: p.images.filter(i => i !== url) }))
+    try {
+      await api.delete('/upload', { data: { url } })
+    } catch (err) {
+      console.error('Erreur suppression R2:', err)
+    }
+  }
 
   const validate = () => {
     const e = {}
