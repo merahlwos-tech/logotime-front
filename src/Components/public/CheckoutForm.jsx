@@ -22,7 +22,7 @@ function Field({ label, icon: Icon, error, children }) {
 }
 
 function CheckoutForm({ onSubmit, loading }) {
-  const { t, isRTL } = useLang()
+  const { t, isRTL, lang } = useLang()
   const [form, setForm]         = useState({ firstName: '', lastName: '', phone: '', wilaya: '', commune: '', description: '' })
   const [errors, setErrors]     = useState({})
   const [logoFiles, setLogoFiles]   = useState([])
