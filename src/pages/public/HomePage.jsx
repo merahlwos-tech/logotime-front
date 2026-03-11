@@ -202,6 +202,20 @@ function HomePage() {
               <Link key={cat} to={`/products?category=${cat}`} className="group cursor-pointer block">
                 <div className="flex flex-col items-center">
 
+                  {/* ── Label EN HAUT — badge violet style "Passez votre commande" ── */}
+                  <div className="relative -mb-4 z-10">
+                    <span
+                      className="flex items-center gap-2 px-5 py-2 rounded-2xl text-sm font-bold
+                                 text-white shadow-lg uppercase tracking-wide leading-none
+                                 transition-all duration-300 group-hover:scale-105"
+                      style={{
+                        background: PURPLE,
+                        boxShadow: '0 4px 16px rgba(124,58,237,0.35)',
+                      }}>
+                      {label}
+                    </span>
+                  </div>
+
                   {/* Photo */}
                   <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl transition-all duration-500
                                   group-hover:-translate-y-2 group-hover:shadow-2xl"
@@ -217,20 +231,6 @@ function HomePage() {
                     {/* Hover overlay subtil */}
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       style={{ background: 'rgba(124,58,237,0.08)' }} />
-                  </div>
-
-                  {/* ── Label EN DEHORS — badge violet style "Passez votre commande" ── */}
-                  <div className="relative -mt-4 z-10">
-                    <span
-                      className="flex items-center gap-2 px-5 py-2 rounded-2xl text-sm font-bold
-                                 text-white shadow-lg uppercase tracking-wide leading-none
-                                 transition-all duration-300 group-hover:scale-105"
-                      style={{
-                        background: PURPLE,
-                        boxShadow: '0 4px 16px rgba(124,58,237,0.35)',
-                      }}>
-                      {label}
-                    </span>
                   </div>
 
                 </div>
