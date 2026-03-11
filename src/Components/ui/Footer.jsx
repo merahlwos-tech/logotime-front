@@ -4,15 +4,16 @@ import { useNavigate } from 'react-router-dom'
 import { MessageCircle } from 'lucide-react'
 import { useLang } from '../../context/LanguageContext'
 
-const NAVY   = '#1e1b4b'
+/* ── Palette ── */
+const BG     = '#3b3278'   /* mauve doux */
 const PURPLE = '#7c3aed'
 const PHONE  = '+213554767444'
 const WA     = '213554767444'
 
 function AdminSecretAccess() {
-  const [clicks, setClicks]     = useState(0)
+  const [clicks, setClicks]       = useState(0)
   const [showInput, setShowInput] = useState(false)
-  const [value, setValue]       = useState('')
+  const [value, setValue]         = useState('')
   const navigate = useNavigate()
 
   const handleClick = () => {
@@ -37,7 +38,7 @@ function AdminSecretAccess() {
         <input autoFocus type="text" value={value} onChange={handleChange}
           onBlur={() => { setShowInput(false); setValue(''); setClicks(0) }}
           className="absolute bottom-6 right-0 w-24 bg-white text-xs px-2 py-1 rounded-lg outline-none shadow-lg"
-          style={{ color: NAVY }} placeholder="..." />
+          style={{ color: BG }} placeholder="..." />
       )}
     </div>
   )
@@ -45,6 +46,8 @@ function AdminSecretAccess() {
 
 function Footer() {
   const { t, lang } = useLang()
+
+  const fontCls = lang === 'ar' ? 'font-arabic' : ''
 
   const LINKS = [
     { label: t('boxes'), to: '/products?category=Board' },
@@ -55,7 +58,9 @@ function Footer() {
   ]
 
   return (
-    <footer style={{ background: NAVY, borderTop: `1px solid rgba(124,58,237,0.2)` }}>
+    <footer
+      className={fontCls}
+      style={{ background: BG, borderTop: '1px solid rgba(124,58,237,0.18)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
 
@@ -65,27 +70,26 @@ function Footer() {
               <img src="/icon.jpg" alt="BrandPack" className="w-10 h-10 rounded-full object-contain" />
               <div>
                 <p className="font-black italic text-white text-xl leading-none">BrandPack</p>
-                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                  for packaging
-                </p>
+                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>for packaging</p>
               </div>
             </div>
             <p className="text-sm leading-relaxed max-w-xs mb-6"
-              style={{ color: 'rgba(255,255,255,0.5)' }}>
-            {lang === 'ar'
+              style={{ color: 'rgba(255,255,255,0.55)' }}>
+              {lang === 'ar'
                 ? 'تغليف احترافي مخصص لعملك — صناديق، أكياس، بطاقات، ورق.'
-                : "Emballages personnalisés pour votre business — boites, sacs, cartes, papier."}
+                : 'Emballages personnalisés pour votre business — boites, sacs, cartes, papier.'}
             </p>
           </div>
 
           {/* Liens */}
           <div>
             <p className="text-xs font-bold uppercase tracking-widest mb-4"
-              style={{ color: PURPLE }}>{t('quickLinks')}</p>
+              style={{ color: 'rgba(167,139,250,0.9)' }}>{t('quickLinks')}</p>
             <ul className="space-y-2">
               {LINKS.map(l => (
                 <li key={l.to}>
-                  <Link to={l.to} className="text-sm transition-colors hover:opacity-100"
+                  <Link to={l.to}
+                    className="text-sm transition-colors"
                     style={{ color: 'rgba(255,255,255,0.5)' }}
                     onMouseEnter={e => e.target.style.color = 'white'}
                     onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.5)'}>
@@ -96,13 +100,14 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Contact + WhatsApp */}
+          {/* Contact */}
           <div>
             <p className="text-xs font-bold uppercase tracking-widest mb-4"
-              style={{ color: PURPLE }}>{t('contact')}</p>
+              style={{ color: 'rgba(167,139,250,0.9)' }}>{t('contact')}</p>
             <ul className="space-y-2 mb-5">
               <li>
-                <a href={`tel:${PHONE}`} dir="ltr" className="text-sm transition-colors inline-block"
+                <a href={`tel:${PHONE}`} dir="ltr"
+                  className="text-sm transition-colors inline-block"
                   style={{ color: 'rgba(255,255,255,0.5)', unicodeBidi: 'isolate' }}
                   onMouseEnter={e => e.target.style.color = 'white'}
                   onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.5)'}>

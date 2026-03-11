@@ -8,46 +8,6 @@ import toast from 'react-hot-toast'
 const NAVY   = '#1e1b4b'
 const PURPLE = '#7c3aed'
 
-/* Fichiers acceptés : images courantes + PDF */
-const ACCEPT = 'image/jpeg,image/png,image/webp,image/gif,image/svg+xml,application/pdf'
-const MAX_FILES = 2
-const MAX_SIZE_MB = 20
-
-function isPdf(file) {
-  return file?.type === 'application/pdf' || file?.name?.toLowerCase().endsWith('.pdf')
-}
-
-function FileThumbnail({ file, url, onRemove }) {
-  if (isPdf(file)) {
-    return (
-      <div
-        className="relative flex flex-col items-center justify-center w-20 h-20 rounded-xl border-2 bg-purple-50 gap-1"
-        style={{ borderColor: PURPLE }}>
-        <FileText size={22} style={{ color: PURPLE }} />
-        <span className="text-[9px] font-bold text-purple-600 px-1 text-center leading-tight truncate w-full text-center">
-          {file.name.length > 12 ? file.name.slice(0, 10) + '…' : file.name}
-        </span>
-        <button
-          type="button" onClick={onRemove}
-          className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-          <X size={10} className="text-white" />
-        </button>
-      </div>
-    )
-  }
-  return (
-    <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 border-2"
-      style={{ borderColor: PURPLE }}>
-      <img src={URL.createObjectURL(file)} alt="logo" className="w-full h-full object-cover" />
-      <button
-        type="button" onClick={onRemove}
-        className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-        <X size={10} className="text-white" />
-      </button>
-    </div>
-  )
-}
-
 function Field({ label, icon: Icon, error, children }) {
   return (
     <div>
@@ -64,11 +24,11 @@ function Field({ label, icon: Icon, error, children }) {
 
 function CheckoutForm({ onSubmit, loading }) {
   const { t, isRTL, lang } = useLang()
-  const [form, setForm]       = useState({ firstName: '', lastName: '', phone: '', wilaya: '', commune: '', description: '' })
-  const [errors, setErrors]   = useState({})
-  const [logoFiles, setLogoFiles] = useState([])
-  const [logoUrls, setLogoUrls]   = useState([])
-  const [uploading, setUploading] = useState(false)
+  const [form, setForm]         = useState({ firstName: '', lastName: '', phone: '', wilaya: '', commune: '', description: '' })
+  const [errors, setErrors]     = useState({})
+  const [logoFiles, setLogoFiles]   = useState([])
+  const [logoUrls, setLogoUrls]     = useState([])
+  const [uploading, setUploading]   = useState(false)
 
   const inputCls = err =>
     `w-full px-4 py-3 rounded-xl border-2 text-sm outline-none transition-all bg-white
@@ -94,34 +54,24 @@ function CheckoutForm({ onSubmit, loading }) {
     setErrors(p => ({ ...p, [name]: ''    }))
   }, [])
 
-  const handleFileSelect = async (files) => {
+  const handleLogoSelect = async (files) => {
     if (!files?.length) return
-    const remaining = MAX_FILES - logoFiles.length
+    // Silently ignore if already at 2
+    const remaining = 2 - logoFiles.length
     if (remaining <= 0) return
-
-    const toProcess = Array.from(files).slice(0, remaining)
-
-    // Vérification taille
-    const oversized = toProcess.find(f => f.size > MAX_SIZE_MB * 1024 * 1024)
-    if (oversized) {
-      const msg = `Fichier trop lourd (max ${MAX_SIZE_MB} Mo) : ${oversized.name}`
-      setErrors(p => ({ ...p, logo: msg }))
-      toast.error(msg)
-      return
-    }
-
+    const toUpload = Array.from(files).slice(0, remaining)
     setUploading(true)
     try {
-      const uploaded = await Promise.all(toProcess.map(uploadToCloudinary))
-      setLogoFiles(p => [...p, ...toProcess])
+      const uploaded = await Promise.all(toUpload.map(uploadToCloudinary))
+      setLogoFiles(p => [...p, ...toUpload])
       setLogoUrls(p  => [...p, ...uploaded])
       setErrors(p => ({ ...p, logo: '' }))
     } catch (err) {
       console.error('Cloudinary upload error:', err)
       const isConfigError = err?.message?.includes('env') || err?.message?.includes('missing')
       const msg = isConfigError
-        ? 'Config Cloudinary manquante (.env)'
-        : "Échec de l'upload — " + (err?.message || 'réessayez')
+        ? (lang === 'ar' ? 'خطأ في الإعداد — تحقق من VITE_CLOUDINARY_*' : 'Config Cloudinary manquante (.env)')
+        : (lang === 'ar' ? 'فشل رفع الصورة، حاول مجدداً' : "Échec de l'upload — " + (err?.message || 'réessayez'))
       setErrors(p => ({ ...p, logo: msg }))
       toast.error(msg)
     } finally { setUploading(false) }
@@ -186,62 +136,39 @@ function CheckoutForm({ onSubmit, loading }) {
           className={inputCls(errors.commune)} />
       </Field>
 
-      {/* Logo / PDF */}
-      <Field
-        label={lang === 'ar' ? 'الشعار (صورة أو PDF، 2 ملفات بحد أقصى)' : 'Logo (image ou PDF, 2 fichiers max)'}
-        icon={Image}
-        error={errors.logo}>
-
-        {/* Aperçu des fichiers ajoutés */}
+      {/* Logo */}
+      <Field label={t('logoPhotos')} icon={Image} error={errors.logo}>
+        {/* Aperçu */}
         {logoFiles.length > 0 && (
-          <div className="flex gap-2 mb-3 flex-wrap">
+          <div className="flex gap-2 mb-3">
             {logoFiles.map((file, idx) => (
-              <FileThumbnail key={idx} file={file} url={logoUrls[idx]} onRemove={() => removeLogo(idx)} />
+              <div key={idx} className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 border-2"
+                style={{ borderColor: PURPLE }}>
+                <img src={URL.createObjectURL(file)} alt="logo"
+                  className="w-full h-full object-cover" />
+                <button type="button" onClick={() => removeLogo(idx)}
+                  className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-500 rounded-full
+                             flex items-center justify-center">
+                  <X size={10} className="text-white" />
+                </button>
+              </div>
             ))}
           </div>
         )}
 
-        {/* Zone de drop / sélection (cachée quand 2 fichiers atteints) */}
-        {logoFiles.length < MAX_FILES && (
-          <label
-            className={`flex flex-col items-center justify-center gap-2 w-full py-5 rounded-xl
-                        border-2 border-dashed cursor-pointer transition-all text-sm font-medium
-                        ${uploading ? 'opacity-60 pointer-events-none' : 'hover:border-purple-400 hover:bg-purple-50'}`}
+        {/* Zone upload — cachée silencieusement si 2 photos atteintes */}
+        {logoFiles.length < 2 && (
+          <label className={`flex items-center justify-center gap-2 w-full py-4 rounded-xl
+                            border-2 border-dashed cursor-pointer transition-all text-sm font-medium
+                            ${uploading ? 'opacity-60 pointer-events-none' : 'hover:border-purple-400 hover:bg-purple-50'}`}
             style={{ borderColor: errors.logo ? '#fca5a5' : 'rgba(124,58,237,0.3)', color: PURPLE }}>
-            <input
-              type="file"
-              accept={ACCEPT}
-              multiple
-              className="hidden"
-              onChange={e => handleFileSelect(e.target.files)} />
-
-            {uploading ? (
-              <><Loader2 size={18} className="animate-spin" /> {t('processing')}</>
-            ) : (
-              <>
-                <div className="flex items-center gap-3">
-                  <Image size={18} />
-                  <FileText size={18} />
-                </div>
-                <span className="text-xs text-center leading-relaxed" style={{ color: '#6b7280' }}>
-                  {lang === 'ar'
-                    ? 'اختر صورة (JPG, PNG, WebP) أو ملف PDF'
-                    : 'Image (JPG, PNG, WebP) ou fichier PDF'}
-                  <br />
-                  <span style={{ color: PURPLE, fontWeight: 700 }}>
-                    {logoFiles.length}/{MAX_FILES} fichier{MAX_FILES > 1 ? 's' : ''} · max {MAX_SIZE_MB} Mo
-                  </span>
-                </span>
-              </>
-            )}
+            <input type="file" accept="image/*" multiple className="hidden"
+              onChange={e => handleLogoSelect(e.target.files)} />
+            {uploading
+              ? <><Loader2 size={16} className="animate-spin" /> {t('processing')}</>
+              : <><Image size={16} /> {t('logoPhotos').split('(')[0].trim()}</>}
           </label>
         )}
-
-        <p className="mt-1.5 text-[11px] text-gray-400">
-          {lang === 'ar'
-            ? 'سيُطبع شعارك على التغليف'
-            : 'Votre logo sera imprimé sur l\'emballage'}
-        </p>
       </Field>
 
       {/* Description */}

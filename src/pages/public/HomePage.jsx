@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Package } from 'lucide-react'
 import { useLang } from '../../context/LanguageContext'
 
-const NAVY        = '#1e1b4b'
-const PURPLE      = '#7c3aed'
+const NAVY         = '#1e1b4b'
+const PURPLE       = '#7c3aed'
 const PURPLE_SOFT  = 'rgba(124,58,237,0.65)'
 const PURPLE_XSOFT = 'rgba(124,58,237,0.35)'
 
@@ -21,9 +21,9 @@ const STEPS_FR = [
   { n: '3', title: 'Soumettez votre demande',    desc: "Ajoutez le produit à votre panier, renseignez vos informations de livraison et confirmez votre commande. On s'occupe du reste !" },
 ]
 const STEPS_AR = [
-  { n: '1', title: 'اختر منتجك',            desc: 'تصفّح فئاتنا واختر المنتج الذي يناسب احتياجاتك، ثم حدّد الحجم والكمية.' },
-  { n: '2', title: 'خصّص تصميمك',           desc: 'ارفع ملف تصميمك الخاص واختر عدد الألوان وخيارات الطباعة الأخرى.' },
-  { n: '3', title: 'قدّم طلبك',             desc: 'أضف المنتج إلى سلتك، أدخل معلومات التوصيل وأكّد طلبك. نحن نتكفل بالباقي!' },
+  { n: '1', title: 'اختر منتجك',   desc: 'تصفّح فئاتنا واختر المنتج الذي يناسب احتياجاتك، ثم حدّد الحجم والكمية.' },
+  { n: '2', title: 'خصّص تصميمك', desc: 'ارفع ملف تصميمك الخاص واختر عدد الألوان وخيارات الطباعة الأخرى.' },
+  { n: '3', title: 'قدّم طلبك',   desc: 'أضف المنتج إلى سلتك، أدخل معلومات التوصيل وأكّد طلبك. نحن نتكفل بالباقي!' },
 ]
 
 const FAQS_FR = [
@@ -35,12 +35,12 @@ const FAQS_FR = [
   { q: 'Vos emballages sont-ils résistants ?',             a: 'Absolument. Nos cartons sont testés pour des charges importantes. La qualité est notre priorité.' },
 ]
 const FAQS_AR = [
-  { q: 'هل تُوصّلون لكل الجزائر؟',           a: 'نعم، نوصّل لـ 69 ولاية. المدة عادةً من 2 إلى 5 أيام عمل.' },
-  { q: 'ما طريقة الدفع المقبولة؟',            a: 'الدفع عند الاستلام فقط (نقداً). تدفع حين تستلم طلبك.' },
-  { q: 'هل يمكنني طلب تغليف مخصص بشعاري؟',   a: 'نعم! يمكن تخصيص منتجاتنا بشعارك. تواصل معنا عبر واتساب.' },
-  { q: 'ما هو الحد الأدنى للطلب؟',            a: 'لا يوجد حد أدنى للمنتجات الجاهزة. للطلبات الخاصة قد يُطبّق حد أدنى.' },
-  { q: 'كيف أتابع طلبي؟',                     a: 'يتصل بك فريقنا هاتفياً بعد التأكيد لإعلامك بموعد التسليم.' },
-  { q: 'هل تغليفكم متين؟',                    a: 'بالتأكيد. كراتيننا مُختبَرة لتحمّل أحمال كبيرة. الجودة أولويتنا.' },
+  { q: 'هل تُوصّلون لكل الجزائر؟',         a: 'نعم، نوصّل لـ 69 ولاية. المدة عادةً من 2 إلى 5 أيام عمل.' },
+  { q: 'ما طريقة الدفع المقبولة؟',          a: 'الدفع عند الاستلام فقط (نقداً). تدفع حين تستلم طلبك.' },
+  { q: 'هل يمكنني طلب تغليف مخصص بشعاري؟', a: 'نعم! يمكن تخصيص منتجاتنا بشعارك. تواصل معنا عبر واتساب.' },
+  { q: 'ما هو الحد الأدنى للطلب؟',          a: 'لا يوجد حد أدنى للمنتجات الجاهزة. للطلبات الخاصة قد يُطبّق حد أدنى.' },
+  { q: 'كيف أتابع طلبي؟',                   a: 'يتصل بك فريقنا هاتفياً بعد التأكيد لإعلامك بموعد التسليم.' },
+  { q: 'هل تغليفكم متين؟',                  a: 'بالتأكيد. كراتيننا مُختبَرة لتحمّل أحمال كبيرة. الجودة أولويتنا.' },
 ]
 
 function FAQItem({ q, a }) {
@@ -68,32 +68,100 @@ function HomePage() {
   const navigate = useNavigate()
   const { lang, isRTL } = useLang()
 
-  const steps = lang === 'ar' ? STEPS_AR : STEPS_FR
-  const faqs  = lang === 'ar' ? FAQS_AR  : FAQS_FR
+  const steps   = lang === 'ar' ? STEPS_AR : STEPS_FR
+  const faqs    = lang === 'ar' ? FAQS_AR  : FAQS_FR
+  const fontCls = lang === 'ar' ? 'font-arabic' : ''
 
   return (
-    <div className="min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}
+    <div className={`min-h-screen ${fontCls}`} dir={isRTL ? 'rtl' : 'ltr'}
       style={{ background: 'linear-gradient(160deg, #f5f3ff 0%, #ede9fe 50%, #e0e7ff 100%)' }}>
 
-      {/* ── Hero ── */}
-      <header className="px-4 py-6 pt-20">
-        <div className="relative overflow-hidden rounded-xl flex items-center justify-center min-h-[320px] md:min-h-[420px]"
+      {/* ── HERO ── */}
+      <header className="px-4 pt-20 pb-6">
+
+        {/* ── Desktop : 2 colonnes côte à côte ── */}
+        <div className="hidden md:flex items-center gap-0 rounded-2xl overflow-hidden max-w-7xl mx-auto"
+          style={{ minHeight: 420, background: 'white', boxShadow: '0 8px 40px rgba(124,58,237,0.12)' }}>
+
+          {/* Texte */}
+          <div className={`flex-1 px-10 lg:px-16 py-12 flex flex-col justify-center ${isRTL ? 'items-end text-right' : 'items-start text-left'}`}>
+            <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-6"
+              style={{ background: 'rgba(124,58,237,0.1)', color: PURPLE }}>
+              <Package size={12} />
+              {lang === 'ar' ? 'تغليف مخصص · توصيل لكل الجزائر' : 'Emballage sur mesure · Livraison Algérie'}
+            </span>
+
+            <h1 className="font-black leading-tight mb-5"
+              style={{ color: NAVY, fontSize: 'clamp(2rem, 3.5vw, 3rem)' }}>
+              {lang === 'ar'
+                ? <>التغليف الذي<br /><span style={{ color: PURPLE }}>يصنع الفرق</span></>
+                : <>L'emballage qui<br /><span style={{ color: PURPLE }}>fait la différence</span></>}
+            </h1>
+
+            <p className="text-sm leading-relaxed mb-8 max-w-sm"
+              style={{ color: 'rgba(30,27,75,0.6)' }}>
+              {lang === 'ar'
+                ? 'كراتين، أكياس، بطاقات وورق مطبوع بشعارك — جودة عالية، دفع عند الاستلام.'
+                : 'Cartons, sacs, cartes et papier imprimés à votre image — qualité premium, paiement à la livraison.'}
+            </p>
+
+            <div className={`flex gap-3 flex-wrap ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <button onClick={() => navigate('/products')}
+                className="px-7 py-3 rounded-full font-bold text-white text-sm shadow-lg transition-all hover:scale-105 hover:opacity-90"
+                style={{ background: PURPLE }}>
+                {lang === 'ar' ? 'اكتشف منتجاتنا' : 'Voir nos produits'}
+              </button>
+              <a href="https://wa.me/213554767444" target="_blank" rel="noreferrer"
+                className="px-7 py-3 rounded-full font-bold text-sm border-2 transition-all hover:scale-105"
+                style={{ borderColor: PURPLE, color: PURPLE, background: 'transparent' }}>
+                WhatsApp
+              </a>
+            </div>
+
+            {/* Stats */}
+            <div className={`flex gap-8 mt-10 pt-8 ${isRTL ? 'flex-row-reverse' : ''}`}
+              style={{ borderTop: '1px solid rgba(124,58,237,0.12)' }}>
+              {[
+                { val: '500+', label: lang === 'ar' ? 'عميل راضٍ' : 'Clients satisfaits' },
+                { val: '69',   label: lang === 'ar' ? 'ولاية' : 'Wilayas' },
+                { val: '100%', label: lang === 'ar' ? 'دفع عند الاستلام' : 'Paiement livraison' },
+              ].map(s => (
+                <div key={s.val} className={isRTL ? 'text-right' : ''}>
+                  <p className="text-2xl font-black" style={{ color: PURPLE }}>{s.val}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{s.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Photo — pleine hauteur, pas de filtre violet */}
+          <div className="w-[42%] lg:w-[45%] self-stretch flex-shrink-0">
+            <img
+              src="/main.jpg"
+              alt="BrandPack emballages"
+              className="w-full h-full object-cover"
+              style={{ minHeight: 420 }}
+            />
+          </div>
+        </div>
+
+        {/* ── Mobile : hero image plein écran ── */}
+        <div className="md:hidden relative overflow-hidden rounded-xl flex items-center justify-center min-h-[300px]"
           style={{ background: NAVY }}>
           <div className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `linear-gradient(to bottom, rgba(30,27,75,0.5), rgba(30,27,75,0.88)), url('/main.jpg')` }}
+            style={{ backgroundImage: `linear-gradient(to bottom, rgba(30,27,75,0.45), rgba(30,27,75,0.82)), url('/main.jpg')` }}
           />
-          <div className="absolute top-10 right-10 opacity-30 animate-pulse text-5xl select-none" style={{ color: PURPLE }}>✦</div>
-          <div className="relative z-10 w-full flex flex-col items-center text-center px-6 py-16 max-w-2xl mx-auto">
-            <h1 className="text-white text-4xl md:text-6xl font-black leading-tight mb-5 italic">
+          <div className="relative z-10 w-full flex flex-col items-center text-center px-6 py-14 max-w-2xl mx-auto">
+            <h1 className="text-white text-3xl font-black leading-tight mb-4 italic">
               {lang === 'ar' ? 'التغليف الذي يصنع الفرق' : "L'emballage qui fait la différence"}
             </h1>
-            <p className="text-white/75 text-sm md:text-base mb-8 leading-relaxed max-w-lg">
+            <p className="text-white/75 text-sm mb-7 leading-relaxed max-w-xs">
               {lang === 'ar'
-                ? 'اكتشف مجموعتنا من التغليف عالي الجودة — كراتين، أكياس، بطاقات وأوراق — توصيل لكل الجزائر.'
-                : "Découvrez notre gamme d'emballages de qualité — cartons, sacs, cartes et papiers — livrés partout en Algérie."}
+                ? 'كراتين، أكياس، بطاقات وورق — توصيل لكل الجزائر.'
+                : 'Cartons, sacs, cartes et papier — livrés partout en Algérie.'}
             </p>
             <button onClick={() => navigate('/products')}
-              className="px-8 py-3 rounded-full font-bold transition-all transform hover:scale-105 text-white shadow-lg"
+              className="px-8 py-3 rounded-full font-bold text-white text-sm shadow-lg transition-all hover:scale-105"
               style={{ background: PURPLE }}>
               {lang === 'ar' ? 'اكتشف المتجر' : 'Découvrir la boutique'}
             </button>
@@ -101,20 +169,31 @@ function HomePage() {
         </div>
       </header>
 
-      {/* ── Collections ── */}
+      {/* ── NOS PRODUITS ── */}
       <section className="max-w-7xl mx-auto px-4 py-12">
-        <h2 className="text-3xl font-bold mb-8 text-center italic" style={{ color: PURPLE }}>
-          {lang === 'ar' ? 'مجموعاتنا' : 'Nos collections'}
-        </h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className={`flex items-center gap-3 mb-8 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <div className="h-px flex-1" style={{ background: 'rgba(124,58,237,0.15)' }} />
+          <h2 className="text-2xl md:text-3xl font-black italic whitespace-nowrap" style={{ color: PURPLE }}>
+            {lang === 'ar' ? 'منتجاتنا' : 'Nos produits'}
+          </h2>
+          <div className="h-px flex-1" style={{ background: 'rgba(124,58,237,0.15)' }} />
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {CAT_IMAGES.map(({ label_fr, label_ar, cat, image }) => (
             <Link key={cat} to={`/products?category=${cat}`} className="group cursor-pointer">
-              <div className="relative aspect-[3/4] overflow-hidden rounded-xl transition-transform duration-500 group-hover:-translate-y-2"
-                style={{ boxShadow: `0 4px 20px rgba(124,58,237,0.2)` }}>
-                <img src={image} alt={lang === 'ar' ? label_ar : label_fr} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 flex items-end p-6"
-                  style={{ background: `linear-gradient(to top, rgba(30,27,75,0.85), transparent)` }}>
-                  <p className="text-white text-xl font-bold italic tracking-wide">
+              <div className="relative aspect-[3/4] overflow-hidden rounded-2xl transition-all duration-500 group-hover:-translate-y-2"
+                style={{ boxShadow: '0 4px 20px rgba(124,58,237,0.12)' }}>
+                {/* Image sans filtre violet */}
+                <img
+                  src={image}
+                  alt={lang === 'ar' ? label_ar : label_fr}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                {/* Label en bas avec léger dégradé sombre pour lisibilité */}
+                <div className="absolute inset-x-0 bottom-0 h-1/3 flex items-end p-4"
+                  style={{ background: 'linear-gradient(to top, rgba(15,10,40,0.72), transparent)' }}>
+                  <p className="text-white text-lg font-black">
                     {lang === 'ar' ? label_ar : label_fr}
                   </p>
                 </div>
@@ -174,7 +253,7 @@ function HomePage() {
           </h2>
         </div>
         <div className="space-y-3">
-          {faqs.map((faq) => <FAQItem key={faq.q} q={faq.q} a={faq.a} />)}
+          {faqs.map(faq => <FAQItem key={faq.q} q={faq.q} a={faq.a} />)}
         </div>
       </section>
 
