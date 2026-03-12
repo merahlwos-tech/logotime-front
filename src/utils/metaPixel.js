@@ -161,17 +161,19 @@ export function trackInitiateCheckout(items, total) {
  */
 export function trackPurchase(items, total) {
   const eventId  = generateEventId()
-  const numItems = items.reduce((s, i) => s + i.quantity, 0)
 
-  // Meta Pixel (navigateur) n'accepte pas DZD pour Purchase
-  // Les vraies valeurs DZD sont envoyées par le CAPI serveur
-  fbq('track', 'Purchase', {
-    content_ids:  items.map(i => i.productId),
-    contents:     items.map(i => ({ id: i.productId, quantity: i.quantity })),
-    num_items:    numItems,
-    value:        0,
-    currency:     'USD',
-  }, { eventID: eventId })
+  // Temporairement commenté pour tester le CAPI Purchase en mode test Meta
+  // (le fbq déduplicait l'événement CAPI et l'empêchait d'apparaître dans l'onglet test)
+  // À remettre en production avec test_event_code commenté dans metaCAPI.js
+  //
+  // const numItems = items.reduce((s, i) => s + i.quantity, 0)
+  // fbq('track', 'Purchase', {
+  //   content_ids:  items.map(i => i.productId),
+  //   contents:     items.map(i => ({ id: i.productId, quantity: i.quantity })),
+  //   num_items:    numItems,
+  //   value:        0,
+  //   currency:     'USD',
+  // }, { eventID: eventId })
 
   return eventId
 }
