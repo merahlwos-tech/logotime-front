@@ -161,19 +161,68 @@ export function trackInitiateCheckout(items, total) {
  */
 export function trackPurchase(items, total) {
   const eventId  = generateEventId()
+  const numItems = items.reduce((s, i) => s + i.quantity, 0)
 
-  // Temporairement commenté pour tester le CAPI Purchase en mode test Meta
-  // (le fbq déduplicait l'événement CAPI et l'empêchait d'apparaître dans l'onglet test)
-  
-  
-   const numItems = items.reduce((s, i) => s + i.quantity, 0)
-   fbq('track', 'Purchase', {
-     content_ids:  items.map(i => i.productId),
-     contents:     items.map(i => ({ id: i.productId, quantity: i.quantity })),
-     num_items:    numItems,
-     value:        0,
-     currency:     'USD',
-   }, { eventID: eventId })
+  // Meta Pixel (navigateur) n'accepte pas DZD pour Purchase
+  // Les vraies valeurs DZD sont envoyées par le CAPI serveur
+  fbq('track', 'Purchase', {
+    content_ids:  items.map(i => i.productId),
+    contents:     items.map(i => ({ id: i.productId, quantity: i.quantity })),
+    num_items:    numItems,
+    value:        0,
+    currency:     'USD',
+  }, { eventID: eventId })
 
   return eventId
+}
+
+/* ══════════════════════════════════════════════════════════════
+   HIGH INTENT EVENTS — Signaux de qualité pour l'algorithme Meta
+   
+   Ces événements "chauffent" le Pixel plus vite en lui donnant
+   des signaux comportementaux au-delà du simple Purchase.
+   Côté Pixel uniquement (pas de CAPI) — ces signaux n'ont pas
+   besoin de déduplication car ils ne représentent pas de conversion.
+══════════════════════════════════════════════════════════════ */
+
+/**
+ * HighQualityVisitor — visiteur resté +30s sur la fiche produit
+ * Signal : "cet utilisateur s'intéresse vraiment au produit"
+ * @param {string} productId
+ * @param {string} productName
+ */
+export function trackHighQualityVisitor(productId, productName) {
+  if (typeof fbq === 'undefined') return
+  fbq('trackCustom', 'HighQualityVisitor', {
+    content_ids:  [productId],
+    content_name: productName,
+    note:         'Stayed more than 30s on product page',
+  })
+}
+
+/**
+ * ScrollToForm — visiteur scrollé jusqu'au formulaire de commande
+ * Signal fort : "il a lu la page ET cherché le formulaire"
+ * @param {string} productId
+ * @param {string} productName
+ */
+export function trackScrollToForm(productId, productName) {
+  if (typeof fbq === 'undefined') return
+  fbq('trackCustom', 'ScrollToForm', {
+    content_ids:  [productId],
+    content_name: productName,
+    note:         'Scrolled to checkout form section',
+  })
+}
+
+/**
+ * FormEngagement — visiteur a commencé à remplir le formulaire
+ * Signal très fort : "il est en train de passer commande"
+ * Déclenché sur le focus du premier champ (prénom)
+ */
+export function trackFormEngagement() {
+  if (typeof fbq === 'undefined') return
+  fbq('trackCustom', 'FormEngagement', {
+    note: 'Started filling checkout form',
+  })
 }

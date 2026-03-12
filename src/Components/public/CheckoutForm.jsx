@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { ChevronDown, User, Phone, MapPin, Map, Loader2, Package, Image, X, FileText } from 'lucide-react'
 import wilayas from '../../data/wilayas'
 import { useLang } from '../../context/LanguageContext'
 import { uploadToCloudinary } from '../../utils/uploadCloudinary'
+import { trackFormEngagement } from '../../utils/metaPixel'
 import toast from 'react-hot-toast'
 
 const NAVY   = '#1e1b4b'
@@ -27,6 +28,7 @@ function CheckoutForm({ onSubmit, loading }) {
   const [form, setForm]         = useState({ firstName: '', lastName: '', phone: '', wilaya: '', commune: '', description: '' })
   const [errors, setErrors]     = useState({})
   const [logoFiles, setLogoFiles]   = useState([])
+  const formEngagementFired = useRef(false)
   const [logoUrls, setLogoUrls]     = useState([])
   const [uploading, setUploading]   = useState(false)
 
@@ -111,6 +113,12 @@ function CheckoutForm({ onSubmit, loading }) {
         <Field label={t('firstName')} icon={User} error={errors.firstName}>
           <input type="text" name="firstName" value={form.firstName}
             onChange={handleChange} autoComplete="given-name"
+            onFocus={() => {
+              if (!formEngagementFired.current) {
+                formEngagementFired.current = true
+                trackFormEngagement()
+              }
+            }}
             className={inputCls(errors.firstName)} />
         </Field>
         <Field label={t('lastName')} icon={User} error={errors.lastName}>

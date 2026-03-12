@@ -6,7 +6,7 @@ import { useCart } from '../../context/CartContext'
 import SizeSelector from '../../Components/public/SizeSelector'
 import QuantitySelector from '../../Components/public/QuantitySelector'
 import { useLang } from '../../context/LanguageContext'
-import { trackViewContent, trackAddToCart } from '../../utils/metaPixel'
+import { trackViewContent, trackAddToCart, trackHighQualityVisitor, trackScrollToForm } from '../../utils/metaPixel'
 import { useSEO } from '../../utils/useSEO'
 import toast from 'react-hot-toast'
 
@@ -37,6 +37,34 @@ function ProductDetailPage() {
       : 'Emballage personnalisé BrandPack Algérie.',
   })
   useEffect(() => { window.scrollTo(0, 0) }, [id])
+
+  // ── High Intent : timer 30s + scroll vers le formulaire ──────────────────
+  useEffect(() => {
+    if (!product) return
+
+    // 1. HighQualityVisitor — resté +30s sur la fiche produit
+    const timer = setTimeout(() => {
+      trackHighQualityVisitor(product._id, product.name)
+    }, 30000)
+
+    // 2. ScrollToForm — scroll jusqu'au bas de page (où se trouve le formulaire)
+    let scrollFired = false
+    const onScroll = () => {
+      if (scrollFired) return
+      const scrolled = window.scrollY + window.innerHeight
+      const threshold = document.body.scrollHeight - 500
+      if (scrolled >= threshold) {
+        scrollFired = true
+        trackScrollToForm(product._id, product.name)
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('scroll', onScroll)
+    }
+  }, [product])
 
   useEffect(() => {
     api.get(`/products/${id}`)
