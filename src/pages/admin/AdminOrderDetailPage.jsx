@@ -175,12 +175,37 @@ export default function AdminOrderDetailPage() {
   }
 
   // Imprimer / télécharger l'étiquette
-  const handlePrintLabel = () => {
+  const handlePrintLabel = async () => {
     const tracking = order?.ecotrackTracking
     if (!tracking) return
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token') || ''
-    const API = import.meta.env.VITE_API_URL || ''
-    window.open(`${API}/api/ecotrack/label/${tracking}`, '_blank')
+    const token = localStorage.getItem('adminToken') || ''
+    const API   = import.meta.env.VITE_API_URL || ''
+
+    try {
+      toast.loading('Chargement de l\'étiquette…', { id: 'label' })
+      const resp = await fetch(`${API}/api/ecotrack/label/${tracking}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (!resp.ok) throw new Error(`Erreur ${resp.status}`)
+
+      const blob = await resp.blob()
+      const url  = URL.createObjectURL(blob)
+
+      // Ouvre le PDF dans un nouvel onglet
+      const win = window.open(url, '_blank')
+      if (!win) {
+        // Si popup bloqué → téléchargement direct
+        const a = document.createElement('a')
+        a.href     = url
+        a.download = `etiquette-${tracking}.pdf`
+        a.click()
+      }
+      toast.success('Étiquette prête', { id: 'label' })
+      setTimeout(() => URL.revokeObjectURL(url), 60000)
+    } catch (err) {
+      toast.error('Impossible de charger l\'étiquette', { id: 'label' })
+      console.error('[LABEL]', err.message)
+    }
   }
 
   // Item helpers
