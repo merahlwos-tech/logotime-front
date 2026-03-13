@@ -7,22 +7,17 @@ import toast from 'react-hot-toast'
 const NAVY   = '#1e1b4b'
 const PURPLE = '#7c3aed'
 
-const STATUS_FILTERS = ['Tous', 'en attente', 'confirmé', 'en livraison', 'livré', 'retour', 'annulé']
+const STATUS_FILTERS = ['Tous', 'en attente', 'confirmé', 'annulé']
 const STATUS_LABELS  = {
-  'en attente': 'En attente', confirmé: 'Confirmé',
-  'en livraison': 'En livraison', livré: 'Livré', retour: 'Retour', annulé: 'Annulé',
+  'en attente': 'En attente', confirmé: 'Confirmé', annulé: 'Annulé',
 }
 const STATUS_COLORS  = {
-  'en attente': '#9ca3af', confirmé: '#3b82f6',
-  'en livraison': '#f59e0b', livré: '#10b981', retour: '#f97316', annulé: '#ef4444',
+  'en attente': '#9ca3af', confirmé: '#10b981', annulé: '#ef4444',
 }
 const STATUS_OPTIONS = [
-  { value: 'en attente',   label: 'En attente',   color: '#9ca3af' },
-  { value: 'confirmé',     label: 'Confirmé',     color: '#3b82f6' },
-  { value: 'en livraison', label: 'En livraison', color: '#f59e0b' },
-  { value: 'livré',        label: 'Livré',        color: '#10b981' },
-  { value: 'retour',       label: 'Retour',       color: '#f97316' },
-  { value: 'annulé',       label: 'Annulé',       color: '#ef4444' },
+  { value: 'en attente', label: 'En attente', color: '#9ca3af' },
+  { value: 'confirmé',   label: 'Confirmé',   color: '#10b981' },
+  { value: 'annulé',     label: 'Annulé',     color: '#ef4444' },
 ]
 
 /* ─────────────────────────── CARD MOBILE ─────────────────────────── */

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft, Loader2, CheckCircle2, Truck,
   Phone, MapPin, User, Package, FileText, Tag, Hash,
-  Download, Pencil, Plus, Trash2, Save, X, Printer, ExternalLink
+  Download, Pencil, Plus, Trash2, Save, X, Printer
 } from 'lucide-react'
 import api from '../../utils/api'
 import toast from 'react-hot-toast'
@@ -178,17 +178,14 @@ export default function AdminOrderDetailPage() {
   const handlePrintLabel = async () => {
     const tracking = order?.ecotrackTracking
     if (!tracking) return
-    const token = localStorage.getItem('adminToken') || ''
-    const API   = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '')
 
     try {
       toast.loading('Chargement de l\'étiquette…', { id: 'label' })
-      const resp = await fetch(`${API}/api/ecotrack/label/${tracking}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const resp = await api.get(`/ecotrack/label/${tracking}`, {
+        responseType: 'blob',
       })
-      if (!resp.ok) throw new Error(`Erreur ${resp.status}`)
 
-      const blob = await resp.blob()
+      const blob = new Blob([resp.data], { type: 'application/pdf' })
       const url  = URL.createObjectURL(blob)
 
       const win = window.open(url, '_blank')
@@ -673,14 +670,7 @@ export default function AdminOrderDetailPage() {
                   <Printer size={14} /> Imprimer l'étiquette
                 </button>
 
-                {/* Lien suivi Ecotrack */}
-                <a
-                  href={`https://ecotrack.dz/tracking/${order.ecotrackTracking}`}
-                  target="_blank" rel="noreferrer"
-                  className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold border transition-all hover:bg-green-50"
-                  style={{ borderColor: 'rgba(16,185,129,0.3)', color: '#10b981' }}>
-                  <ExternalLink size={13} /> Suivre sur Ecotrack
-                </a>
+
               </div>
             ) : (
               <div className="space-y-3">
