@@ -263,24 +263,51 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange }) {
       {/* Stop desk toggle — only when wilaya selected */}
       {form.wilayaId && (
         <div className="flex gap-2">
+          {/* Domicile */}
           <button type="button"
             onClick={() => handleStopDesk(false)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all
-              ${!form.stopDesk ? 'border-purple-600 bg-purple-50 text-purple-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
-            <Truck size={15} /> À domicile
-            {currentFees && !form.stopDesk && (
-              <span className="ml-1 text-xs font-bold text-purple-600">{currentFees.tarif} DA</span>
+            className="flex-1 flex flex-col items-center justify-center gap-1 py-3 rounded-xl border-2 text-sm font-semibold transition-all"
+            style={!form.stopDesk ? {
+              borderColor: '#7c3aed',
+              background: '#7c3aed',
+              color: 'white',
+              boxShadow: '0 4px 14px rgba(124,58,237,0.35)',
+            } : {
+              borderColor: '#e5e7eb',
+              background: 'white',
+              color: '#9ca3af',
+            }}>
+            <Truck size={18} />
+            <span>À domicile</span>
+            {currentFees && (
+              <span className="text-xs font-black"
+                style={{ color: !form.stopDesk ? 'rgba(255,255,255,0.9)' : '#d1d5db' }}>
+                {Number(currentFees.tarif).toLocaleString('fr-DZ')} DA
+              </span>
             )}
           </button>
+          {/* Stop Desk */}
           <button type="button"
             onClick={() => handleStopDesk(true)}
             disabled={!hasStopDesk && communes.length > 0}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all
-              ${form.stopDesk ? 'border-purple-600 bg-purple-50 text-purple-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}
-              disabled:opacity-40 disabled:cursor-not-allowed`}>
-            <Store size={15} /> Stop Desk
-            {currentFees && form.stopDesk && (
-              <span className="ml-1 text-xs font-bold text-purple-600">{currentFees.tarif_stopdesk} DA</span>
+            className="flex-1 flex flex-col items-center justify-center gap-1 py-3 rounded-xl border-2 text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            style={form.stopDesk ? {
+              borderColor: '#7c3aed',
+              background: '#7c3aed',
+              color: 'white',
+              boxShadow: '0 4px 14px rgba(124,58,237,0.35)',
+            } : {
+              borderColor: '#e5e7eb',
+              background: 'white',
+              color: '#9ca3af',
+            }}>
+            <Store size={18} />
+            <span>Stop Desk</span>
+            {currentFees && (
+              <span className="text-xs font-black"
+                style={{ color: form.stopDesk ? 'rgba(255,255,255,0.9)' : '#d1d5db' }}>
+                {Number(currentFees.tarif_stopdesk).toLocaleString('fr-DZ')} DA
+              </span>
             )}
           </button>
         </div>
