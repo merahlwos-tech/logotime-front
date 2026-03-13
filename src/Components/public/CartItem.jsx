@@ -42,17 +42,13 @@ function CartItem({ item }) {
             )}
           </div>
 
-          {/* Couleurs sélectionnées */}
+          {/* Couleur sélectionnée */}
           {item.selectedColors?.length > 0 && (
-            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-              {item.selectedColors.map(hex => (
-                <span key={hex} className="w-5 h-5 rounded-full border border-gray-200 flex-shrink-0"
-                  style={{ background: hex, boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }} />
-              ))}
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <span className="w-4 h-4 rounded-full border border-gray-200 flex-shrink-0"
+                style={{ background: item.selectedColors[0], boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }} />
               <span className="text-xs text-gray-400">
-                {lang === 'ar'
-                  ? `${item.selectedColors.length} لون`
-                  : `${item.selectedColors.length} couleur(s)`}
+                {lang === 'ar' ? 'اللون المختار' : 'Couleur choisie'}
               </span>
             </div>
           )}

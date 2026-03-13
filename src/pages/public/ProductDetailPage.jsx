@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ShoppingBag, ArrowLeft, ChevronLeft, ChevronRight, Zap } from 'lucide-react'
+import { ShoppingBag, ArrowLeft, ChevronLeft, ChevronRight, Zap, ChevronDown, Check } from 'lucide-react'
 import api from '../../utils/api'
 import { useCart } from '../../context/CartContext'
 import SizeSelector from '../../Components/public/SizeSelector'
@@ -15,6 +15,100 @@ const PURPLE = '#7c3aed'
 const CAT_LABELS_FR = { Board: 'Boites', Bags: 'Sacs', Autocollants: 'Cartes', Paper: 'Papier' }
 const CAT_LABELS_AR = { Board: 'صناديق', Bags: 'أكياس', Autocollants: 'بطاقات', Paper: 'ورق' }
 
+const COLOR_NAMES = {
+  '#000000': { fr: 'Noir',        ar: 'أسود' },
+  '#FFFFFF': { fr: 'Blanc',       ar: 'أبيض' },
+  '#EF4444': { fr: 'Rouge',       ar: 'أحمر' },
+  '#3B82F6': { fr: 'Bleu',        ar: 'أزرق' },
+  '#22C55E': { fr: 'Vert',        ar: 'أخضر' },
+  '#EAB308': { fr: 'Jaune',       ar: 'أصفر' },
+  '#F97316': { fr: 'Orange',      ar: 'برتقالي' },
+  '#EC4899': { fr: 'Rose',        ar: 'وردي' },
+  '#A855F7': { fr: 'Violet',      ar: 'بنفسجي' },
+  '#92400E': { fr: 'Marron',      ar: 'بني' },
+  '#6B7280': { fr: 'Gris',        ar: 'رمادي' },
+  '#D97706': { fr: 'Doré',        ar: 'ذهبي' },
+  '#94A3B8': { fr: 'Argenté',     ar: 'فضي' },
+  '#1E3A8A': { fr: 'Bleu marine', ar: 'أزرق داكن' },
+  '#7F1D1D': { fr: 'Bordeaux',    ar: 'بوردو' },
+  '#0D9488': { fr: 'Turquoise',   ar: 'تركوازي' },
+  '#F5E6C8': { fr: 'Beige',       ar: 'بيج' },
+  '#8B5CF6': { fr: 'Lavande',     ar: 'لافندر' },
+}
+
+function ColorDropdown({ colors, value, onChange, lang }) {
+  const [open, setOpen] = React.useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const handler = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const label = value
+    ? (COLOR_NAMES[value]?.[lang] || COLOR_NAMES[value]?.fr || value)
+    : (lang === 'ar' ? 'اختر لوناً *' : 'Choisir une couleur *')
+
+  return (
+    <div ref={ref} className="relative w-full">
+      <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
+        {lang === 'ar' ? 'الألوان المتاحة' : 'Couleur disponible'} <span style={{ color: '#ef4444' }}>*</span>
+      </p>
+      <button type="button" onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border-2 text-sm font-bold transition-all"
+        style={{
+          borderColor: open ? PURPLE : value ? PURPLE : 'rgba(124,58,237,0.3)',
+          background: 'white', color: NAVY,
+          boxShadow: open ? '0 0 0 3px rgba(124,58,237,0.1)' : 'none',
+        }}>
+        <span className="flex items-center gap-2.5">
+          {value && (
+            <span className="w-5 h-5 rounded-full border border-gray-200 flex-shrink-0"
+              style={{ background: value }} />
+          )}
+          {label}
+        </span>
+        <ChevronDown size={16} className={`transition-transform flex-shrink-0 ${open ? 'rotate-180' : ''}`}
+          style={{ color: PURPLE }} />
+      </button>
+
+      {open && (
+        <div className="absolute top-full left-0 right-0 mt-1 rounded-xl overflow-hidden z-50"
+          style={{
+            background: 'white',
+            border: '2px solid rgba(124,58,237,0.2)',
+            boxShadow: '0 8px 32px rgba(124,58,237,0.15)',
+          }}>
+          <div className="max-h-52 overflow-y-auto py-1">
+            {colors.map(hex => {
+              const name = COLOR_NAMES[hex]?.[lang] || COLOR_NAMES[hex]?.fr || hex
+              return (
+                <button key={hex} type="button"
+                  onClick={() => { onChange(hex); setOpen(false) }}
+                  className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-bold transition-all text-left"
+                  style={{
+                    background: value === hex ? 'rgba(124,58,237,0.08)' : 'transparent',
+                    color: value === hex ? PURPLE : NAVY,
+                  }}
+                  onMouseEnter={e => { if (value !== hex) e.currentTarget.style.background = 'rgba(124,58,237,0.04)' }}
+                  onMouseLeave={e => { if (value !== hex) e.currentTarget.style.background = 'transparent' }}>
+                  <span className="flex items-center gap-2.5">
+                    <span className="w-5 h-5 rounded-full border border-gray-200 flex-shrink-0"
+                      style={{ background: hex, borderColor: hex === '#FFFFFF' ? '#e5e7eb' : 'transparent' }} />
+                    {name}
+                  </span>
+                  {value === hex && <Check size={14} style={{ color: PURPLE }} />}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function ProductDetailPage() {
   const { id }          = useParams()
   const navigate        = useNavigate()
@@ -27,8 +121,8 @@ function ProductDetailPage() {
   const [doubleSided, setDoubleSided]   = useState(false)
   const [quantity, setQuantity]         = useState(100)
   const [currentImage, setCurrentImage] = useState(0)
-  const [selectedColors, setSelectedColors] = useState([])
-  const [numberOfColors, setNumberOfColors] = useState('')
+  const [selectedColor, setSelectedColor]   = useState('')
+  const [numberOfColors, setNumberOfColors] = useState('1')
 
   // SEO dynamique — se met à jour dès que le produit est chargé
   const seoCatLabels = { Board: 'Boite', Bags: 'Sac', Autocollants: 'Carte', Paper: 'Papier' }
@@ -95,7 +189,7 @@ function ProductDetailPage() {
   const sizeObj       = product.sizes?.find(s => s.size === selectedSize)
   const basePrice     = sizeObj?.price ?? 0
   const extraDouble   = (doubleSided && product.doubleSided) ? (product.doubleSidedPrice ?? 0) : 0
-  const nbColors      = numberOfColors !== '' ? Math.max(1, Number(numberOfColors)) : 0
+  const nbColors      = numberOfColors !== '' ? Math.max(1, Number(numberOfColors)) : 1
   const extraColors   = (product.colorDesignEnabled && nbColors > 0) ? nbColors * (product.colorDesignPricePerColor ?? 0) : 0
   const extraPrice    = extraDouble + extraColors
   const unitPrice     = basePrice + extraPrice
@@ -104,14 +198,16 @@ function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (!selectedSize) { toast.error(t('selectSize')); return }
-    addToCart({ ...product, computedPrice: unitPrice }, selectedSize, quantity, doubleSided, selectedColors, numberOfColors ? Number(numberOfColors) : null)
+    if (product.colors?.length > 0 && !selectedColor) { toast.error(lang === 'ar' ? 'يرجى اختيار لون' : 'Veuillez choisir une couleur'); return }
+    addToCart({ ...product, computedPrice: unitPrice }, selectedSize, quantity, doubleSided, selectedColor ? [selectedColor] : [], nbColors)
     trackAddToCart(product, selectedSize, quantity, unitPrice)
     toast.success(`${product.name} ${t('added')}`)
   }
 
   const handleBuyNow = () => {
     if (!selectedSize) { toast.error(t('selectSize')); return }
-    addToCart({ ...product, computedPrice: unitPrice }, selectedSize, quantity, doubleSided, selectedColors, numberOfColors ? Number(numberOfColors) : null)
+    if (product.colors?.length > 0 && !selectedColor) { toast.error(lang === 'ar' ? 'يرجى اختيار لون' : 'Veuillez choisir une couleur'); return }
+    addToCart({ ...product, computedPrice: unitPrice }, selectedSize, quantity, doubleSided, selectedColor ? [selectedColor] : [], nbColors)
     trackAddToCart(product, selectedSize, quantity, unitPrice)
     navigate('/cart')
   }
@@ -214,41 +310,12 @@ function ProductDetailPage() {
 
               {/* Couleurs */}
               {product.colors?.length > 0 && (
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
-                    {t('availableColors')}
-                  </p>
-                  <div className="flex flex-wrap gap-2.5">
-                    {product.colors.map(hex => {
-                      const isSelected = selectedColors.includes(hex)
-                      const isWhite    = hex === '#FFFFFF'
-                      return (
-                        <button key={hex} type="button"
-                          onClick={() => setSelectedColors(p => p.includes(hex) ? p.filter(c => c !== hex) : [...p, hex])}
-                          className="relative w-9 h-9 rounded-full transition-all"
-                          style={{
-                            background: hex,
-                            border: isWhite ? '2px solid #e5e7eb' : isSelected ? `3px solid ${PURPLE}` : '2px solid transparent',
-                            boxShadow: isSelected ? `0 0 0 2px rgba(124,58,237,0.35)` : '0 1px 4px rgba(0,0,0,0.12)',
-                            transform: isSelected ? 'scale(1.18)' : 'scale(1)',
-                          }}>
-                          {isSelected && (
-                            <span className="absolute inset-0 flex items-center justify-center">
-                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path d="M2.5 7l3.5 3.5 5.5-6" stroke={isWhite ? '#7c3aed' : 'white'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                            </span>
-                          )}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  {selectedColors.length > 0 && (
-                    <p className="text-xs text-gray-400 mt-2">
-                      {lang === 'ar' ? `${selectedColors.length} لون محدد` : `${selectedColors.length} couleur(s) sélectionnée(s)`}
-                    </p>
-                  )}
-                </div>
+                <ColorDropdown
+                  colors={product.colors}
+                  value={selectedColor}
+                  onChange={setSelectedColor}
+                  lang={lang}
+                />
               )}
 
               {/* Nombre de couleurs dans le design */}
@@ -417,41 +484,12 @@ function ProductDetailPage() {
 
           {/* Couleurs */}
           {product.colors?.length > 0 && (
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
-                {t('availableColors')}
-              </p>
-              <div className="flex flex-wrap gap-2.5">
-                {product.colors.map(hex => {
-                  const isSelected = selectedColors.includes(hex)
-                  const isWhite    = hex === '#FFFFFF'
-                  return (
-                    <button key={hex} type="button"
-                      onClick={() => setSelectedColors(p => p.includes(hex) ? p.filter(c => c !== hex) : [...p, hex])}
-                      className="relative w-9 h-9 rounded-full transition-all"
-                      style={{
-                        background: hex,
-                        border: isWhite ? '2px solid #e5e7eb' : isSelected ? `3px solid ${PURPLE}` : '2px solid transparent',
-                        boxShadow: isSelected ? `0 0 0 2px rgba(124,58,237,0.35)` : '0 1px 4px rgba(0,0,0,0.12)',
-                        transform: isSelected ? 'scale(1.18)' : 'scale(1)',
-                      }}>
-                      {isSelected && (
-                        <span className="absolute inset-0 flex items-center justify-center">
-                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                            <path d="M2.5 7l3.5 3.5 5.5-6" stroke={isWhite ? '#7c3aed' : 'white'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </span>
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-              {selectedColors.length > 0 && (
-                <p className="text-xs text-gray-400 mt-2">
-                  {lang === 'ar' ? `${selectedColors.length} لون محدد` : `${selectedColors.length} couleur(s) sélectionnée(s)`}
-                </p>
-              )}
-            </div>
+            <ColorDropdown
+              colors={product.colors}
+              value={selectedColor}
+              onChange={setSelectedColor}
+              lang={lang}
+            />
           )}
 
           {/* Nombre de couleurs dans le design */}
