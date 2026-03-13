@@ -19,7 +19,7 @@ function CartPage() {
   const navigate      = useNavigate()
   const [submitting, setSubmitting] = useState(false)
   const [deliveryInfo, setDeliveryInfo] = useState({ fee: null, method: null })
-  const totalWithDelivery = total + (deliveryInfo.fee ?? 0)
+  const totalWithDelivery = Number(total) + Number(deliveryInfo.fee ?? 0)
 
   useSEO({ title: 'Mon panier', description: 'Finalisez votre commande d\'emballages personnalisés BrandPack.' })
 

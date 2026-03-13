@@ -109,7 +109,7 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange }) {
   const { wilayas, communes, loadingW, loadingC, loadCommunes, getFeesForWilaya } = useEcotrackData()
 
   const currentFees = form.wilayaId ? getFeesForWilaya(form.wilayaId) : null
-  const deliveryFee = currentFees ? (form.stopDesk ? currentFees.tarif_stopdesk : currentFees.tarif) : null
+  const deliveryFee = currentFees ? Number(form.stopDesk ? currentFees.tarif_stopdesk : currentFees.tarif) : null
 
   // Notify parent in real-time when delivery info changes
   useEffect(() => {
