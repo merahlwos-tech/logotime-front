@@ -17,6 +17,10 @@ const STATUS_OPTIONS = [
   { value: 'confirmé',   label: 'Confirmé',   color: '#10b981', bg: '#ecfdf5' },
   { value: 'annulé',     label: 'Annulé',     color: '#ef4444', bg: '#fef2f2' },
 ]
+// Statuts modifiables manuellement par l'admin (confirmé = auto via Ecotrack uniquement)
+const EDITABLE_STATUSES = [
+  { value: 'annulé', label: 'Annulé', color: '#ef4444', bg: '#fef2f2' },
+]
 
 function InfoBlock({ icon: Icon, label, children, highlight }) {
   return (
@@ -617,7 +621,25 @@ export default function AdminOrderDetailPage() {
               <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: PURPLE }}>Statut</h2>
             </div>
             <div className="flex flex-col gap-2">
-              {STATUS_OPTIONS.map(opt => (
+              {/* Confirmé : lecture seule, attribué automatiquement via Ecotrack */}
+              {status === 'confirmé' && (
+                <div className="py-3 px-4 rounded-xl text-sm font-bold border-2 flex items-center gap-2"
+                  style={{ background: '#10b981', borderColor: '#10b981', color: 'white', boxShadow: '0 4px 12px #10b98140' }}>
+                  <span className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
+                  Confirmé
+                  <span className="ml-auto text-xs font-normal opacity-75">via Ecotrack</span>
+                </div>
+              )}
+              {/* En attente : lecture seule */}
+              {status === 'en attente' && (
+                <div className="py-3 px-4 rounded-xl text-sm font-bold border-2 flex items-center gap-2"
+                  style={{ background: '#9ca3af', borderColor: '#9ca3af', color: 'white' }}>
+                  <span className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
+                  En attente
+                </div>
+              )}
+              {/* Annulé : seul statut cliquable */}
+              {EDITABLE_STATUSES.map(opt => (
                 <button key={opt.value}
                   onClick={() => { setStatus(opt.value); setDirty(opt.value !== order.status || dirty) }}
                   className="py-3 px-4 rounded-xl text-sm font-bold border-2 transition-all text-left flex items-center gap-2"
