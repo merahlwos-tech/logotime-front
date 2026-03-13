@@ -5,7 +5,7 @@ import { MessageCircle } from 'lucide-react'
 import { useLang } from '../../context/LanguageContext'
 
 /* ── Palette ── */
-const BG     = '#6d28d9'   /* mauve doux */
+const BG     = '#1e1b4b'   /* navy doux */
 const PURPLE = '#7c3aed'
 const PHONE  = '+213554767444'
 const WA     = '213554767444'
@@ -33,7 +33,7 @@ function AdminSecretAccess() {
   return (
     <div className="relative inline-block">
       <span onClick={handleClick} className="cursor-default select-none text-xs"
-        style={{ color: 'rgba(255,255,255,0.2)' }}>©</span>
+        style={{ color: 'rgba(255,255,255,0.4)' }}>©</span>
       {showInput && (
         <input autoFocus type="text" value={value} onChange={handleChange}
           onBlur={() => { setShowInput(false); setValue(''); setClicks(0) }}
@@ -70,11 +70,11 @@ function Footer() {
               <img src="/icon.webp" alt="BrandPack" className="w-10 h-10 rounded-full object-contain" />
               <div>
                 <p className="font-black italic text-white text-xl leading-none">BrandPack</p>
-                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>for packaging</p>
+                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.75)' }}>for packaging</p>
               </div>
             </div>
             <p className="text-sm leading-relaxed max-w-xs mb-6"
-              style={{ color: 'rgba(255,255,255,0.55)' }}>
+              style={{ color: 'rgba(255,255,255,0.85)' }}>
               {lang === 'ar'
                 ? 'تغليف احترافي مخصص لعملك — صناديق، أكياس، بطاقات، ورق.'
                 : 'Emballages personnalisés pour votre business — boites, sacs, cartes, papier.'}
@@ -84,15 +84,15 @@ function Footer() {
           {/* Liens */}
           <div>
             <p className="text-xs font-bold uppercase tracking-widest mb-4"
-              style={{ color: 'rgba(167,139,250,0.9)' }}>{t('quickLinks')}</p>
+              style={{ color: 'rgba(255,255,255,0.6)' }}>{t('quickLinks')}</p>
             <ul className="space-y-2">
               {LINKS.map(l => (
                 <li key={l.to}>
                   <Link to={l.to}
                     className="text-sm transition-colors"
-                    style={{ color: 'rgba(255,255,255,0.5)' }}
+                    style={{ color: 'white' }}
                     onMouseEnter={e => e.target.style.color = 'white'}
-                    onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.5)'}>
+                    onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.6)'}>
                     {l.label}
                   </Link>
                 </li>
@@ -103,18 +103,18 @@ function Footer() {
           {/* Contact */}
           <div>
             <p className="text-xs font-bold uppercase tracking-widest mb-4"
-              style={{ color: 'rgba(167,139,250,0.9)' }}>{t('contact')}</p>
+              style={{ color: 'rgba(255,255,255,0.6)' }}>{t('contact')}</p>
             <ul className="space-y-2 mb-5">
               <li>
                 <a href={`tel:${PHONE}`} dir="ltr"
                   className="text-sm transition-colors inline-block"
-                  style={{ color: 'rgba(255,255,255,0.5)', unicodeBidi: 'isolate' }}
+                  style={{ color: 'white', unicodeBidi: 'isolate' }}
                   onMouseEnter={e => e.target.style.color = 'white'}
-                  onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.5)'}>
+                  onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.6)'}>
                   +213 554 76 74 44
                 </a>
               </li>
-              <li className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              <li className="text-sm" style={{ color: 'rgba(255,255,255,0.75)' }}>
                 {lang === 'ar' ? `الجزائر — ${t('delivery69')}` : `Alger — ${t('delivery69')}`}
               </li>
             </ul>
@@ -130,14 +130,14 @@ function Footer() {
         {/* Bottom */}
         <div className="mt-10 pt-6 flex items-center justify-between flex-wrap gap-3"
           style={{ borderTop: '1px solid rgba(124,58,237,0.15)' }}>
-          <p className="text-xs flex items-center gap-1" style={{ color: 'rgba(255,255,255,0.25)' }}>
+          <p className="text-xs flex items-center gap-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
             <AdminSecretAccess />
             {' '}{new Date().getFullYear()} BrandPack for packaging
           </p>
           <a href="https://www.instagram.com/cvkdev/" target="_blank" rel="noreferrer"
             className="text-xs transition-colors"
-            style={{ color: 'rgba(255,255,255,0.2)' }}
-            onMouseEnter={e => e.target.style.color = 'rgba(255,255,255,0.5)'}
+            style={{ color: 'rgba(255,255,255,0.4)' }}
+            onMouseEnter={e => e.target.style.color = 'rgba(255,255,255,0.6)'}
             onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.2)'}>
             Developed by CvkDev
           </a>
