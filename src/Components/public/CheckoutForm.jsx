@@ -217,7 +217,14 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
       }
       return
     }
-    onSubmit({ ...form, wilaya: form.wilayaName, deliveryMethod: form.stopDesk ? 'Stop Desk' : 'Domicile', deliveryFee: isFreeDelivery ? 0 : deliveryFee, logoUrls })
+    onSubmit({
+      ...form,
+      wilaya:          form.wilayaName,
+      wilayaCode:      form.wilayaId ? Number(form.wilayaId) : null,
+      deliveryMethod:  form.stopDesk ? 'Stop Desk' : 'Domicile',
+      deliveryFee:     isFreeDelivery ? 0 : deliveryFee,
+      logoUrls,
+    })
   }
 
   return (

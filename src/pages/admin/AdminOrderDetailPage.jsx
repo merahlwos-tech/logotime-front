@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft, Loader2, CheckCircle2, Truck,
   Phone, MapPin, User, Package, FileText, Tag, Hash,
-  Download, Pencil, Plus, Trash2, Save, X
+  Download, Pencil, Plus, Trash2, Save, X, Printer, ExternalLink
 } from 'lucide-react'
 import api from '../../utils/api'
 import toast from 'react-hot-toast'
@@ -38,6 +38,7 @@ export default function AdminOrderDetailPage() {
   const [order, setOrder]       = useState(null)
   const [loading, setLoading]   = useState(true)
   const [saving, setSaving]     = useState(false)
+  const [sendingEco, setSendingEco] = useState(false)  // envoi Ecotrack manuel
 
   // Edit mode
   const [editClient, setEditClient] = useState(false)
@@ -139,14 +140,47 @@ export default function AdminOrderDetailPage() {
         ...(editClient ? { customerInfo: { ...clientForm, deliveryMethod: clientForm.deliveryMethod || order.customerInfo.deliveryMethod, deliveryFee: clientForm.deliveryFee !== undefined ? clientForm.deliveryFee : order.customerInfo.deliveryFee } } : {}),
       }
       const res = await api.put(`/orders/${id}`, payload)
-      setOrder(res.data)
-      setItems(res.data.items)
+
+      // Feedback Ecotrack
+      const eco = res.data._ecotrackResult
+      if (eco) {
+        if (eco.tracking && !eco.alreadySent)   toast.success(`📦 Envoyé à Ecotrack — ${eco.tracking}`)
+        else if (eco.alreadySent)               toast('Déjà envoyé à Ecotrack', { icon: 'ℹ️' })
+        else if (eco.error)                     toast.error(`⚠️ Ecotrack : ${eco.error}`)
+      }
+
+      const { _ecotrackResult, ...orderData } = res.data
+      setOrder(orderData)
+      setItems(orderData.items)
       setDirty(false)
       setEditClient(false)
       toast.success('Commande mise à jour')
     } catch {
       toast.error('Erreur lors de la sauvegarde')
     } finally { setSaving(false) }
+  }
+
+  // Envoi manuel à Ecotrack (si pas encore envoyé)
+  const handleSendEcotrack = async () => {
+    setSendingEco(true)
+    try {
+      const res = await api.post(`/ecotrack/send-order/${id}`)
+      const { tracking, alreadySent } = res.data
+      setOrder(p => ({ ...p, ecotrackTracking: tracking }))
+      if (alreadySent) toast('Déjà envoyé à Ecotrack', { icon: 'ℹ️' })
+      else             toast.success(`📦 Envoyé ! Tracking : ${tracking}`)
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erreur Ecotrack')
+    } finally { setSendingEco(false) }
+  }
+
+  // Imprimer / télécharger l'étiquette
+  const handlePrintLabel = () => {
+    const tracking = order?.ecotrackTracking
+    if (!tracking) return
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token') || ''
+    const API = import.meta.env.VITE_API_URL || ''
+    window.open(`${API}/api/ecotrack/label/${tracking}`, '_blank')
   }
 
   // Item helpers
@@ -579,6 +613,69 @@ export default function AdminOrderDetailPage() {
                 </button>
               ))}
             </div>
+          </section>
+
+          {/* Ecotrack */}
+          <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center"
+                style={{ background: 'rgba(16,185,129,0.1)' }}>
+                <Truck size={14} style={{ color: '#10b981' }} />
+              </div>
+              <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: '#10b981' }}>
+                Ecotrack
+              </h2>
+            </div>
+
+            {order.ecotrackTracking ? (
+              <div className="space-y-3">
+                {/* Numéro de tracking */}
+                <div className="rounded-xl px-3 py-2.5"
+                  style={{ background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.25)' }}>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Numéro de tracking</p>
+                  <p className="font-black text-sm tracking-wider" style={{ color: '#065f46' }}>
+                    {order.ecotrackTracking}
+                  </p>
+                  {order.ecotrackSentAt && (
+                    <p className="text-[10px] text-gray-400 mt-1">
+                      Envoyé le {new Date(order.ecotrackSentAt).toLocaleDateString('fr-DZ', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </p>
+                  )}
+                </div>
+
+                {/* Bouton étiquette */}
+                <button onClick={handlePrintLabel}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90"
+                  style={{ background: '#10b981' }}>
+                  <Printer size={14} /> Imprimer l'étiquette
+                </button>
+
+                {/* Lien suivi Ecotrack */}
+                <a
+                  href={`https://ecotrack.dz/tracking/${order.ecotrackTracking}`}
+                  target="_blank" rel="noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold border transition-all hover:bg-green-50"
+                  style={{ borderColor: 'rgba(16,185,129,0.3)', color: '#10b981' }}>
+                  <ExternalLink size={13} /> Suivre sur Ecotrack
+                </a>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-xs text-gray-400 leading-relaxed">
+                  La commande sera envoyée automatiquement à Ecotrack lors du passage au statut <strong>Confirmé</strong>.
+                </p>
+                {/* Envoi manuel si pas encore fait */}
+                <button
+                  onClick={handleSendEcotrack}
+                  disabled={sendingEco}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm border-2 transition-all disabled:opacity-50"
+                  style={{ borderColor: '#10b981', color: '#10b981', background: 'white' }}>
+                  {sendingEco
+                    ? <><Loader2 size={14} className="animate-spin" /> Envoi en cours…</>
+                    : <><Truck size={14} /> Envoyer à Ecotrack</>}
+                </button>
+              </div>
+            )}
           </section>
         </div>
       </div>
