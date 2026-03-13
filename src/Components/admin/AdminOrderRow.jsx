@@ -7,12 +7,9 @@ const NAVY   = '#1e1b4b'
 const PURPLE = '#7c3aed'
 
 const STATUS_OPTIONS = [
-  { value: 'en attente',  label: 'En attente',  color: '#9ca3af' },
-  { value: 'confirmé',    label: 'Confirmé',    color: '#3b82f6' },
-  { value: 'en livraison',label: 'En livraison',color: '#f59e0b' },
-  { value: 'livré',       label: 'Livré',       color: '#10b981' },
-  { value: 'retour',      label: 'Retour',      color: '#f97316' },
-  { value: 'annulé',      label: 'Annulé',      color: '#ef4444' },
+  { value: 'en attente', label: 'En attente', color: '#9ca3af' },
+  { value: 'confirmé',   label: 'Confirmé',   color: '#10b981' },
+  { value: 'annulé',     label: 'Annulé',     color: '#ef4444' },
 ]
 
 function AdminOrderRow({ order, onUpdated }) {
