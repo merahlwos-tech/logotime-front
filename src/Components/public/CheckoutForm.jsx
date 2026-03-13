@@ -32,8 +32,8 @@ function useEcotrackData() {
 
     setLoadingW(true)
     Promise.all([
-      fetch(`${API}/api/ecotrack/wilayas`).then(r => r.json()).catch(() => null),
-      fetch(`${API}/api/ecotrack/fees`).then(r => r.json()).catch(() => null),
+      fetch(`${API}/ecotrack/wilayas`).then(r => r.json()).catch(() => null),
+      fetch(`${API}/ecotrack/fees`).then(r => r.json()).catch(() => null),
     ]).then(([w, f]) => {
       const wList = Array.isArray(w) ? w : (w?.data || [])
       const fList = Array.isArray(f) ? f : (f?.data || [])
@@ -54,7 +54,7 @@ function useEcotrackData() {
     if (cached) { setCommunes(cached); return }
 
     setLoadingC(true)
-    fetch(`${API}/api/ecotrack/communes?wilaya_id=${id}`)
+    fetch(`${API}/ecotrack/communes?wilaya_id=${id}`)
       .then(r => r.json())
       .then(data => {
         const list = Array.isArray(data) ? data : (data?.data || [])
