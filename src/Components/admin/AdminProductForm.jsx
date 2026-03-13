@@ -40,7 +40,9 @@ const PRESET_COLORS = [
 const EMPTY = {
   name: '', category: 'Board',
   sizes: [{ size: '', price: '' }],
-  colors: [], numberOfColors: '', doubleSided: false, doubleSidedPrice: '', images: [],
+  colors: [],
+  colorDesignEnabled: false, colorDesignPricePerColor: '', colorDesignMaxColors: '',
+  doubleSided: false, doubleSidedPrice: '', images: [],
 }
 
 const inputCls = err =>
@@ -61,7 +63,9 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
         ? initialData.sizes.map(s => ({ size: String(s.size), price: String(s.price ?? '') }))
         : [{ size: '', price: '' }],
       colors: initialData.colors || [],
-      numberOfColors: initialData.numberOfColors != null ? String(initialData.numberOfColors) : '',
+      colorDesignEnabled: initialData.colorDesignEnabled ?? false,
+      colorDesignPricePerColor: initialData.colorDesignPricePerColor != null ? String(initialData.colorDesignPricePerColor) : '',
+      colorDesignMaxColors: initialData.colorDesignMaxColors != null ? String(initialData.colorDesignMaxColors) : '',
       doubleSided: initialData.doubleSided ?? DOUBLE_PRINT_CATS.includes(initialData.category),
       doubleSidedPrice: String(initialData.doubleSidedPrice ?? ''),
       images: initialData.images || [],
@@ -140,7 +144,9 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
       const payload = {
         ...form,
         sizes: form.sizes.filter(s => s.size.trim()).map(s => ({ size: s.size, price: Number(s.price) })),
-        numberOfColors: form.numberOfColors !== '' ? Number(form.numberOfColors) : null,
+        colorDesignEnabled: form.colorDesignEnabled,
+        colorDesignPricePerColor: form.colorDesignEnabled && form.colorDesignPricePerColor !== '' ? Number(form.colorDesignPricePerColor) : 0,
+        colorDesignMaxColors: form.colorDesignEnabled && form.colorDesignMaxColors !== '' ? Number(form.colorDesignMaxColors) : null,
         doubleSidedPrice: form.doubleSided ? Number(form.doubleSidedPrice) : 0,
       }
       if (isEditing) { await api.put(`/products/${initialData._id}`, payload); toast.success('Produit mis à jour') }
@@ -262,19 +268,51 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
         )}
       </div>
 
-      {/* Nombre de couleurs dans le design */}
-      <div>
-        <label className={labelCls} style={{ color: NAVY }}>
-          Nombre de couleurs dans le design <span className="text-gray-400 font-normal" style={{ textTransform: 'none' }}>(optionnel)</span>
+      {/* Option : couleurs dans le design */}
+      <div className="rounded-2xl border-2 p-4 transition-all"
+        style={{ borderColor: form.colorDesignEnabled ? PURPLE : '#e5e7eb', background: form.colorDesignEnabled ? 'rgba(124,58,237,0.04)' : '#f9fafb' }}>
+        <label className="flex items-center gap-3 cursor-pointer" onClick={() => set('colorDesignEnabled', !form.colorDesignEnabled)}>
+          <div className="relative flex-shrink-0">
+            <div className="w-11 h-6 rounded-full transition-colors" style={{ background: form.colorDesignEnabled ? PURPLE : '#d1d5db' }}>
+              <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${form.colorDesignEnabled ? 'left-5' : 'left-0.5'}`} />
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-bold" style={{ color: NAVY }}>Couleurs dans le design</p>
+            <p className="text-xs text-gray-400 mt-0.5">Le client saisit le nombre de couleurs dans son design — chaque couleur est facturée</p>
+          </div>
         </label>
-        <input
-          type="number" min="1" max="12"
-          value={form.numberOfColors}
-          onChange={e => set('numberOfColors', e.target.value)}
-          placeholder="Ex: 2"
-          className={inputCls(false)}
-        />
-        <p className="text-xs text-gray-400 mt-1">Le client pourra saisir le nombre de couleurs souhaité dans son design.</p>
+
+        {form.colorDesignEnabled && (
+          <div className="mt-4 pt-4 grid grid-cols-2 gap-3" style={{ borderTop: '1px solid rgba(124,58,237,0.15)' }}>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: PURPLE }}>
+                Prix par couleur (DA) *
+              </label>
+              <input
+                type="number" min="0"
+                value={form.colorDesignPricePerColor}
+                onChange={e => set('colorDesignPricePerColor', e.target.value)}
+                placeholder="ex: 13"
+                className={inputCls(false)}
+              />
+              <p className="text-xs text-gray-400 mt-1">Ex: 13 DA → 3 couleurs = +39 DA/unité</p>
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: PURPLE }}>
+                Nb max de couleurs <span className="text-gray-400 font-normal normal-case">(optionnel)</span>
+              </label>
+              <input
+                type="number" min="1" max="20"
+                value={form.colorDesignMaxColors}
+                onChange={e => set('colorDesignMaxColors', e.target.value)}
+                placeholder="ex: 5"
+                className={inputCls(false)}
+              />
+              <p className="text-xs text-gray-400 mt-1">Laisser vide = pas de limite</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Double impression */}

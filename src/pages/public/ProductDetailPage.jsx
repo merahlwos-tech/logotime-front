@@ -94,7 +94,10 @@ function ProductDetailPage() {
   const catLabel      = catLabels[product.category] || product.category
   const sizeObj       = product.sizes?.find(s => s.size === selectedSize)
   const basePrice     = sizeObj?.price ?? 0
-  const extraPrice    = (doubleSided && product.doubleSided) ? (product.doubleSidedPrice ?? 0) : 0
+  const extraDouble   = (doubleSided && product.doubleSided) ? (product.doubleSidedPrice ?? 0) : 0
+  const nbColors      = numberOfColors !== '' ? Math.max(1, Number(numberOfColors)) : 0
+  const extraColors   = (product.colorDesignEnabled && nbColors > 0) ? nbColors * (product.colorDesignPricePerColor ?? 0) : 0
+  const extraPrice    = extraDouble + extraColors
   const unitPrice     = basePrice + extraPrice
   const totalPrice    = unitPrice * quantity
   const images        = product.images?.length > 0 ? product.images : ['/placeholder.jpg']
@@ -184,13 +187,19 @@ function ProductDetailPage() {
                   {unitPrice.toLocaleString('fr-DZ')}
                   <span className="text-base font-normal text-gray-400 ml-2">DA / {t('units').slice(0,-1) || 'unité'}</span>
                 </p>
-                {doubleSided && extraPrice > 0 && (
+                {doubleSided && extraDouble > 0 && (
                   <p className="text-xs text-gray-400 mt-1">
-                    {lang === 'ar' ? `يشمل +${extraPrice.toLocaleString('fr-DZ')} دج (وجهان)` : `Inclut +${extraPrice.toLocaleString('fr-DZ')} DA (recto-verso)`}
+                    {lang === 'ar' ? `يشمل +${extraDouble.toLocaleString('fr-DZ')} دج (وجهان)` : `Inclut +${extraDouble.toLocaleString('fr-DZ')} DA (recto-verso)`}
+                  </p>
+                )}
+                {product.colorDesignEnabled && nbColors > 0 && extraColors > 0 && (
+                  <p className="text-xs mt-1" style={{ color: PURPLE }}>
+                    {lang === 'ar'
+                      ? `+${extraColors.toLocaleString('fr-DZ')} دج (${nbColors} × ${(product.colorDesignPricePerColor).toLocaleString('fr-DZ')} دج/لون)`
+                      : `+${extraColors.toLocaleString('fr-DZ')} DA (${nbColors} × ${(product.colorDesignPricePerColor).toLocaleString('fr-DZ')} DA/couleur)`}
                   </p>
                 )}
               </div>
-
               <div className="h-px bg-purple-100" />
 
               {/* Tailles */}
@@ -243,22 +252,31 @@ function ProductDetailPage() {
               )}
 
               {/* Nombre de couleurs dans le design */}
-              {product.numberOfColors != null && (
-                <div>
+              {product.colorDesignEnabled && (
+                <div className="rounded-2xl border-2 p-4 transition-all"
+                  style={{ borderColor: nbColors > 0 ? PURPLE : '#e5e7eb', background: nbColors > 0 ? 'rgba(124,58,237,0.04)' : '#f9fafb' }}>
                   <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
                     {t('numberOfColors')}
                   </p>
                   <input
-                    type="number" min="1" max={product.numberOfColors}
+                    type="number" min="1"
+                    max={product.colorDesignMaxColors || undefined}
                     value={numberOfColors}
                     onChange={e => setNumberOfColors(e.target.value)}
                     placeholder={t('numberOfColorsPlaceholder')}
                     className="w-full px-4 py-3 rounded-xl border-2 text-sm outline-none transition-all focus:border-purple-400"
                     style={{ borderColor: '#e5e7eb', color: NAVY }}
                   />
-                  <p className="text-xs text-gray-400 mt-1">
-                    {lang === 'ar' ? `الحد الأقصى: ${product.numberOfColors} ألوان` : `Maximum : ${product.numberOfColors} couleur(s)`}
+                  <p className="text-xs mt-1.5" style={{ color: PURPLE }}>
+                    {lang === 'ar'
+                      ? t('colorDesignInfo', { price: product.colorDesignPricePerColor })
+                      : t('colorDesignInfo', { price: product.colorDesignPricePerColor })}
                   </p>
+                  {product.colorDesignMaxColors && (
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {t('colorDesignMax', { max: product.colorDesignMaxColors })}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -437,22 +455,29 @@ function ProductDetailPage() {
           )}
 
           {/* Nombre de couleurs dans le design */}
-          {product.numberOfColors != null && (
-            <div>
+          {product.colorDesignEnabled && (
+            <div className="rounded-2xl border-2 p-4 transition-all"
+              style={{ borderColor: nbColors > 0 ? PURPLE : '#e5e7eb', background: nbColors > 0 ? 'rgba(124,58,237,0.04)' : '#f9fafb' }}>
               <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
                 {t('numberOfColors')}
               </p>
               <input
-                type="number" min="1" max={product.numberOfColors}
+                type="number" min="1"
+                max={product.colorDesignMaxColors || undefined}
                 value={numberOfColors}
                 onChange={e => setNumberOfColors(e.target.value)}
                 placeholder={t('numberOfColorsPlaceholder')}
                 className="w-full px-4 py-3 rounded-xl border-2 text-sm outline-none transition-all focus:border-purple-400"
                 style={{ borderColor: '#e5e7eb', color: NAVY }}
               />
-              <p className="text-xs text-gray-400 mt-1">
-                {lang === 'ar' ? `الحد الأقصى: ${product.numberOfColors} ألوان` : `Maximum : ${product.numberOfColors} couleur(s)`}
+              <p className="text-xs mt-1.5" style={{ color: PURPLE }}>
+                {t('colorDesignInfo', { price: product.colorDesignPricePerColor })}
               </p>
+              {product.colorDesignMaxColors && (
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {t('colorDesignMax', { max: product.colorDesignMaxColors })}
+                </p>
+              )}
             </div>
           )}
 
