@@ -94,14 +94,14 @@ function BeforeAfterSlider() {
       onTouchMove={onTouchMove}
       onTouchEnd={stop}
     >
-      {/* BEFORE — image pleine */}
-      <img src="/before.webp" alt="Avant" draggable={false}
+      {/* AFTER — image pleine (côté droit) */}
+      <img src="/after.webp" alt="Après" draggable={false}
         className="absolute inset-0 w-full h-full object-cover" />
 
-      {/* AFTER — clippé à gauche */}
+      {/* BEFORE — clippé à gauche (côté gauche visible) */}
       <div className="absolute inset-0 overflow-hidden"
         style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
-        <img src="/after.webp" alt="Après" draggable={false}
+        <img src="/before.webp" alt="Avant" draggable={false}
           className="absolute inset-0 w-full h-full object-cover" />
       </div>
 
