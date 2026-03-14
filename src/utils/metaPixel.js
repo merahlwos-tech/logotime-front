@@ -257,8 +257,8 @@ export function trackPurchase(items, total) {
     content_ids:  items.map(i => i.productId),
     contents:     items.map(i => ({ id: i.productId, quantity: i.quantity })),
     num_items:    numItems,
-    value:        0,
-    currency:     'USD',
+    value:        total,
+    currency:     'DZD',
   }, { eventID: eventId })
   return eventId
 }
