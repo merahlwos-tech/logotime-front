@@ -300,7 +300,7 @@ function HomePage() {
                     }}>
 
                     <img src={image} alt={label}
-                      className={`w-full h-full transition-transform duration-500 group-hover:scale-105 ${cat === 'Board' ? 'object-contain p-3' : 'object-cover'}`}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy" width="300" height="400" />
 
                     {/* Léger vignettage bas pour profondeur */}
