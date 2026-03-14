@@ -222,7 +222,7 @@ function HomePage() {
 
           {/* Photo — pleine hauteur */}
           <div className="w-[42%] lg:w-[45%] self-stretch flex-shrink-0">
-            <img src="/main.webp" alt="BrandPack emballages"
+            <img src="/mainPC.webp" alt="BrandPack emballages"
               fetchpriority="high" loading="eager"
               className="w-full h-full object-cover" style={{ minHeight: 440 }} />
           </div>
