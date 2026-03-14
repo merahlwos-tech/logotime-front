@@ -337,15 +337,20 @@ function ProductDetailPage() {
                   <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
                     {t('numberOfColors')}
                   </p>
-                  <input
-                    type="number" min="1"
-                    max={product.colorDesignMaxColors || undefined}
-                    value={numberOfColors}
-                    onChange={e => setNumberOfColors(e.target.value)}
-                    placeholder={t('numberOfColorsPlaceholder')}
-                    className="w-full px-4 py-3 rounded-xl border-2 text-sm outline-none transition-all focus:border-purple-400"
-                    style={{ borderColor: '#e5e7eb', color: NAVY }}
-                  />
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setNumberOfColors(v => String(Math.max(1, Number(v) - 1)))}
+                      className="w-10 h-10 rounded-xl font-black text-lg flex items-center justify-center transition-all hover:opacity-80 active:scale-95 flex-shrink-0"
+                      style={{ background: PURPLE, color: 'white' }}>−</button>
+                    <span className="flex-1 text-center font-black text-xl" style={{ color: NAVY }}>{numberOfColors}</span>
+                    <button
+                      onClick={() => setNumberOfColors(v => {
+                        const max = product.colorDesignMaxColors
+                        return String(max ? Math.min(max, Number(v) + 1) : Number(v) + 1)
+                      })}
+                      className="w-10 h-10 rounded-xl font-black text-lg flex items-center justify-center transition-all hover:opacity-80 active:scale-95 flex-shrink-0"
+                      style={{ background: PURPLE, color: 'white' }}>+</button>
+                  </div>
                   <p className="text-xs mt-1.5" style={{ color: PURPLE }}>
                     {lang === 'ar'
                       ? t('colorDesignInfo', { price: product.colorDesignPricePerColor })
@@ -368,19 +373,21 @@ function ProductDetailPage() {
                   }}
                   onClick={() => setDoubleSided(d => !d)}>
                   <label className="flex items-center gap-3 cursor-pointer">
-                    <div className="relative flex-shrink-0">
-                      <div className="w-11 h-6 rounded-full transition-colors"
-                        style={{ background: doubleSided ? PURPLE : '#d1d5db' }}>
-                        <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${doubleSided ? 'left-5' : 'left-0.5'}`} />
-                      </div>
-                    </div>
-                    <div>
+                    <div className="flex-1">
                       <p className="text-sm font-bold" style={{ color: NAVY }}>{t('doubleSided')}</p>
                       <p className="text-xs text-gray-400 mt-0.5">
                         {product.doubleSidedPrice > 0
                           ? `+${product.doubleSidedPrice.toLocaleString('fr-DZ')} DA / ${t('units')}`
                           : (t('included'))}
                       </p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="text-xs font-bold" style={{ color: doubleSided ? '#9ca3af' : PURPLE }}>OFF</span>
+                      <div className="relative w-11 h-6 rounded-full transition-colors"
+                        style={{ background: doubleSided ? PURPLE : '#d1d5db' }}>
+                        <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${doubleSided ? 'left-5' : 'left-0.5'}`} />
+                      </div>
+                      <span className="text-xs font-bold" style={{ color: doubleSided ? PURPLE : '#9ca3af' }}>ON</span>
                     </div>
                   </label>
                 </div>
@@ -511,15 +518,20 @@ function ProductDetailPage() {
               <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
                 {t('numberOfColors')}
               </p>
-              <input
-                type="number" min="1"
-                max={product.colorDesignMaxColors || undefined}
-                value={numberOfColors}
-                onChange={e => setNumberOfColors(e.target.value)}
-                placeholder={t('numberOfColorsPlaceholder')}
-                className="w-full px-4 py-3 rounded-xl border-2 text-sm outline-none transition-all focus:border-purple-400"
-                style={{ borderColor: '#e5e7eb', color: NAVY }}
-              />
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setNumberOfColors(v => String(Math.max(1, Number(v) - 1)))}
+                  className="w-10 h-10 rounded-xl font-black text-lg flex items-center justify-center transition-all hover:opacity-80 active:scale-95 flex-shrink-0"
+                  style={{ background: PURPLE, color: 'white' }}>−</button>
+                <span className="flex-1 text-center font-black text-xl" style={{ color: NAVY }}>{numberOfColors}</span>
+                <button
+                  onClick={() => setNumberOfColors(v => {
+                    const max = product.colorDesignMaxColors
+                    return String(max ? Math.min(max, Number(v) + 1) : Number(v) + 1)
+                  })}
+                  className="w-10 h-10 rounded-xl font-black text-lg flex items-center justify-center transition-all hover:opacity-80 active:scale-95 flex-shrink-0"
+                  style={{ background: PURPLE, color: 'white' }}>+</button>
+              </div>
               <p className="text-xs mt-1.5" style={{ color: PURPLE }}>
                 {t('colorDesignInfo', { price: product.colorDesignPricePerColor })}
               </p>
@@ -537,16 +549,19 @@ function ProductDetailPage() {
               style={{ borderColor: doubleSided ? PURPLE : '#e5e7eb', background: doubleSided ? 'rgba(124,58,237,0.04)' : '#f9fafb' }}
               onClick={() => setDoubleSided(d => !d)}>
               <label className="flex items-center gap-3 cursor-pointer">
-                <div className="relative flex-shrink-0">
-                  <div className="w-11 h-6 rounded-full transition-colors" style={{ background: doubleSided ? PURPLE : '#d1d5db' }}>
-                    <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${doubleSided ? 'left-5' : 'left-0.5'}`} />
-                  </div>
-                </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-sm font-bold" style={{ color: NAVY }}>{t('doubleSided')}</p>
                   <p className="text-xs text-gray-400 mt-0.5">
                     {product.doubleSidedPrice > 0 ? `+${product.doubleSidedPrice.toLocaleString('fr-DZ')} DA` : (t('included'))}
                   </p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className="text-xs font-bold" style={{ color: doubleSided ? '#9ca3af' : PURPLE }}>OFF</span>
+                  <div className="relative w-11 h-6 rounded-full transition-colors"
+                    style={{ background: doubleSided ? PURPLE : '#d1d5db' }}>
+                    <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${doubleSided ? 'left-5' : 'left-0.5'}`} />
+                  </div>
+                  <span className="text-xs font-bold" style={{ color: doubleSided ? PURPLE : '#9ca3af' }}>ON</span>
                 </div>
               </label>
             </div>
