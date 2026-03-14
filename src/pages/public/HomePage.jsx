@@ -171,7 +171,6 @@ function HomePage() {
           <div className={`flex-1 px-10 lg:px-16 py-12 flex flex-col justify-center relative overflow-hidden
                           ${isRTL ? 'items-end text-right' : 'items-start text-left'}`}
             style={{ backgroundImage: "url('/mainPC.webp')", backgroundSize: "cover", backgroundPosition: "center" }}>
-            <div className="absolute inset-0" style={{ background: "rgba(255,255,255,0.82)" }} />
             <div className="relative z-10 flex flex-col w-full h-full">
             <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest
                              px-3 py-1 rounded-full mb-6"
