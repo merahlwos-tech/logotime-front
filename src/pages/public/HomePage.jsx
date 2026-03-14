@@ -299,7 +299,7 @@ function HomePage() {
                     style={{ boxShadow: '0 4px 24px rgba(124,58,237,0.1)' }}>
 
                     <img src={image} alt={label}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className={`w-full h-full transition-transform duration-500 group-hover:scale-105 ${cat === 'Board' ? 'object-contain p-4' : 'object-cover'}`}
                       loading="lazy" width="300" height="400" />
 
                     {/* Léger vignettage bas pour profondeur */}
