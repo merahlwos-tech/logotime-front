@@ -165,7 +165,7 @@ function HomePage() {
 
         {/* Desktop — 2 colonnes */}
         <div className="hidden md:flex items-stretch gap-0 rounded-2xl overflow-hidden max-w-7xl mx-auto"
-          style={{ minHeight: 440, background: 'linear-gradient(to right, #f5f0eb, #faf7f4)', boxShadow: '0 8px 40px rgba(124,58,237,0.13)' }}>
+          style={{ minHeight: 440, background: 'linear-gradient(to right, #d4b2ac, #e5d0ca)', boxShadow: '0 8px 40px rgba(124,58,237,0.13)' }}>
 
           {/* Texte */}
           <div className={`flex-1 px-10 lg:px-16 py-12 flex flex-col justify-center
