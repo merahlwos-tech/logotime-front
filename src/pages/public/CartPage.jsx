@@ -210,8 +210,8 @@ function CartPage() {
               <div className="rounded-2xl px-4 py-3 text-center text-xs font-medium"
                 style={{ background: 'rgba(124,58,237,0.04)', border: '1px dashed rgba(124,58,237,0.25)', color: '#7c3aed' }}>
                 {lang === 'ar'
-                  ? `أضف ${500 - totalUnits} وحدة للحصول على توصيل مجاني إلى المكتب 🚚`
-                  : `Ajoutez ${500 - totalUnits} unités pour la livraison Stop Desk gratuite 🚚`}
+                  ? 'توصيل مجاني إلى المكتب عند شراء 500 وحدة أو أكثر 🚚'
+                  : 'Livraison Stop Desk gratuite dès 500 unités achetées 🚚'}
               </div>
             )}
 
