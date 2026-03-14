@@ -168,8 +168,11 @@ function HomePage() {
           style={{ minHeight: 440, background: 'white', boxShadow: '0 8px 40px rgba(124,58,237,0.13)' }}>
 
           {/* Texte */}
-          <div className={`flex-1 px-10 lg:px-16 py-12 flex flex-col justify-center
-                          ${isRTL ? 'items-end text-right' : 'items-start text-left'}`}>
+          <div className={`flex-1 px-10 lg:px-16 py-12 flex flex-col justify-center relative overflow-hidden
+                          ${isRTL ? 'items-end text-right' : 'items-start text-left'}`}
+            style={{ backgroundImage: "url('/mainPC.webp')", backgroundSize: "cover", backgroundPosition: "center" }}>
+            <div className="absolute inset-0" style={{ background: "rgba(255,255,255,0.82)" }} />
+            <div className="relative z-10 flex flex-col w-full h-full">
             <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest
                              px-3 py-1 rounded-full mb-6"
               style={{ background: 'rgba(124,58,237,0.1)', color: PURPLE }}>
@@ -219,12 +222,13 @@ function HomePage() {
               ))}
             </div>
           </div>
+          </div>
 
           {/* Photo — pleine hauteur */}
-          <div className="w-[42%] lg:w-[45%] self-stretch flex-shrink-0 flex items-center justify-center overflow-hidden">
-            <img src="/mainPC.webp" alt="BrandPack emballages"
+          <div className="w-[42%] lg:w-[45%] self-stretch flex-shrink-0">
+            <img src="/main.webp" alt="BrandPack emballages"
               fetchpriority="high" loading="eager"
-              className="w-full h-full object-contain" style={{ minHeight: 440 }} />
+              className="w-full h-full object-cover" style={{ minHeight: 440 }} />
           </div>
         </div>
 
