@@ -201,10 +201,18 @@ function CartPage() {
 
             {items.map(item => <CartItem key={item.key} item={item} />)}
 
-            {isFreeDelivery ? (
-              <div className="rounded-2xl px-4 py-3 text-center font-bold text-sm"
-                style={{ background: 'rgba(16,185,129,0.1)', border: '1.5px solid rgba(16,185,129,0.4)', color: '#065f46' }}>
-                {t('freeDelivery')}
+            {totalUnits >= 500 ? (
+              <div className="rounded-2xl px-4 py-4 text-center font-bold text-sm animate-pulse"
+                style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.08))', border: '2px solid rgba(16,185,129,0.5)', color: '#065f46' }}>
+                <div className="text-2xl mb-1">🎉</div>
+                <p className="font-black text-base" style={{ color: '#065f46' }}>
+                  {lang === 'ar' ? 'التوصيل إلى المكتب مجاني!' : 'Livraison Stop Desk GRATUITE !'}
+                </p>
+                <p className="text-xs font-medium mt-1 opacity-75">
+                  {lang === 'ar'
+                    ? 'لديك 500 وحدة أو أكثر — اختر "Stop Desk" وادفع صفر دينار للتوصيل 🚚'
+                    : 'Tu as 500+ unités — choisis "Stop Desk" et paie 0 DA de livraison 🚚'}
+                </p>
               </div>
             ) : totalUnits > 0 && (
               <div className="rounded-2xl px-4 py-3 text-center text-xs font-medium"
