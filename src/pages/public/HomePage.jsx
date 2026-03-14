@@ -28,20 +28,18 @@ const STEPS_AR = [
 ]
 
 const FAQS_FR = [
+  { q: 'Quelle est la qualité de votre impression ?',      a: 'Oui, bien sûr ! Nous sommes une société d\'impression qui offre une qualité d\'impression parmi les meilleures du marché. Votre choix de travailler avec nous rendra votre emballage vraiment unique.' },
   { q: "Livrez-vous dans toute l'Algérie ?",               a: "Oui, nous livrons dans les 69 wilayas. Le délai est généralement de 2 à 5 jours ouvrables." },
-  { q: 'Quel est le mode de paiement accepté ?',           a: 'Paiement à la livraison uniquement (cash). Vous payez quand vous recevez votre commande.' },
-  { q: 'Puis-je commander des emballages personnalisés ?', a: 'Oui ! Nos produits peuvent être personnalisés avec votre logo. Contactez-nous via WhatsApp.' },
-  { q: "Quelle est la commande minimum ?",                 a: "Aucun minimum pour les produits en stock. Pour le sur-mesure, un minimum peut s'appliquer." },
+  { q: 'Quel est le mode de paiement accepté ?',           a: 'Paiement à la livraison (cash). Les clients qui paient à l\'avance sont prioritaires sur les commandes.' },
+  { q: 'Puis-je commander des emballages personnalisés ?', a: 'Oui ! Nos produits peuvent être personnalisés avec votre logo. Commandez directement sur le site et nous ferons de votre emballage une véritable œuvre d\'art. Les clients qui paient à l\'avance sont prioritaires.' },
   { q: 'Comment suivre ma commande ?',                     a: "Notre équipe vous contacte par téléphone après confirmation pour vous informer de la livraison." },
-  { q: 'Vos emballages sont-ils résistants ?',             a: 'Absolument. Nos cartons sont testés pour des charges importantes. La qualité est notre priorité.' },
 ]
 const FAQS_AR = [
-  { q: 'هل تُوصّلون لكل الجزائر؟',         a: 'نعم، نوصّل لـ 69 ولاية. المدة عادةً من 2 إلى 5 أيام عمل.' },
-  { q: 'ما طريقة الدفع المقبولة؟',          a: 'الدفع عند الاستلام فقط (نقداً). تدفع حين تستلم طلبك.' },
-  { q: 'هل يمكنني طلب تغليف مخصص بشعاري؟', a: 'نعم! يمكن تخصيص منتجاتنا بشعارك. تواصل معنا عبر واتساب.' },
-  { q: 'ما هو الحد الأدنى للطلب؟',          a: 'لا يوجد حد أدنى للمنتجات الجاهزة. للطلبات الخاصة قد يُطبّق حد أدنى.' },
-  { q: 'كيف أتابع طلبي؟',                   a: 'يتصل بك فريقنا هاتفياً بعد التأكيد لإعلامك بموعد التسليم.' },
-  { q: 'هل تغليفكم متين؟',                  a: 'بالتأكيد. كراتيننا مُختبَرة لتحمّل أحمال كبيرة. الجودة أولويتنا.' },
+  { q: 'هل جودة الطباعة جيدة؟',              a: 'نعم بالتأكيد! نحن شركة طباعة نوفر جودة طباعة ممتازة من بين الأفضل في السوق. اختياركم لنا سيجعل تغليفكم مميزاً.' },
+  { q: 'هل تُوصّلون لكل الجزائر؟',           a: 'نعم، نوصّل لـ 69 ولاية. المدة عادةً من 2 إلى 5 أيام عمل.' },
+  { q: 'ما طريقة الدفع المقبولة؟',            a: 'الدفع عند الاستلام. الأولوية في الطلبيات لمن يدفع مسبقاً.' },
+  { q: 'هل يمكنني طلب تغليف مخصص بشعاري؟',  a: 'نعم! يمكن تخصيص منتجاتنا بشعارك الخاص. اطلب منتجك في الموقع وسنجعل تغليفك تحفة فنية. الأولوية لمن يدفع مسبقاً.' },
+  { q: 'كيف أتابع طلبي؟',                    a: 'يتصل بك فريقنا هاتفياً بعد التأكيد لإعلامك بموعد التسليم.' },
 ]
 
 function FAQItem({ q, a }) {
@@ -299,7 +297,7 @@ function HomePage() {
                     style={{ boxShadow: '0 4px 24px rgba(124,58,237,0.1)' }}>
 
                     <img src={image} alt={label}
-                      className={`w-full h-full transition-transform duration-500 group-hover:scale-105 ${cat === 'Board' ? 'object-contain p-4' : 'object-cover'}`}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy" width="300" height="400" />
 
                     {/* Léger vignettage bas pour profondeur */}
