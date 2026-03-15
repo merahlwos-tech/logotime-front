@@ -3,41 +3,51 @@
 @tailwind utilities;
 
 @layer base {
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body {
-    background-color: #f5f3ff;
-    color: #1e1b4b;
-    font-family: 'Public Sans', sans-serif;
-    font-weight: 400;
-    -webkit-font-smoothing: antialiased;
+  :root {
+    --purple:      #6C2BD9;
+    --purple-dark: #4A1A9E;
+    --purple-deep: #1E0A4A;
+    --purple-mid:  #8B45E8;
+    --yellow:      #FFD600;
+    --yellow-hover:#F5C800;
+    --off-white:   #F8F7FF;
+    --gray-light:  #F0EEF9;
+    --gray-text:   #6B6B8A;
+    --radius:      16px;
+    --radius-sm:   10px;
   }
 
-  /* Police arabe dédiée */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #F8F7FF;
+    color: #1E0A4A;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
   [dir="rtl"] {
-    font-family: 'Tajawal', 'Public Sans', sans-serif;
+    font-family: 'Tajawal', 'Poppins', sans-serif;
     letter-spacing: 0;
   }
 
-  /* Scrollbar custom */
   ::-webkit-scrollbar       { width: 5px; }
-  ::-webkit-scrollbar-track { background: #ede9fe; }
-  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 10px; }
-  ::-webkit-scrollbar-thumb:hover { background: #5b21b6; }
+  ::-webkit-scrollbar-track { background: #F0EEF9; }
+  ::-webkit-scrollbar-thumb { background: #6C2BD9; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #4A1A9E; }
 
-  /* Sélection texte */
-  ::selection { background-color: rgba(124,58,237,0.2); color: #1e1b4b; }
+  ::selection { background-color: rgba(108,43,217,0.2); color: #1E0A4A; }
 }
 
-/* Classe utilitaire pour forcer Tajawal inline */
 .font-arabic {
   font-family: 'Tajawal', sans-serif;
   letter-spacing: 0;
 }
 
-/* Animations utilisées dans le projet */
 @keyframes fadeUp {
-  0%   { opacity: 0; transform: translateY(24px); }
+  0%   { opacity: 0; transform: translateY(20px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes fadeIn {
@@ -45,5 +55,5 @@
   100% { opacity: 1; }
 }
 
-.animate-fade-up { animation: fadeUp 0.7s ease-out both; }
+.animate-fade-up { animation: fadeUp 0.5s ease-out both; }
 .animate-fade-in { animation: fadeIn 0.5s ease-out both; }

@@ -1,23 +1,25 @@
-import { useState, useRef, useCallback } from 'react'
-import { Link } from 'react-router-dom'
-import { ChevronRight, Package } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useLang } from '../../context/LanguageContext'
 import { useSEO } from '../../utils/UseSEO'
 
-const NAVY         = '#1e1b4b'
-const PURPLE       = '#7c3aed'
-const PURPLE_SOFT  = 'rgba(124,58,237,0.65)'
-const PURPLE_XSOFT = 'rgba(124,58,237,0.35)'
+const PURPLE      = '#6C2BD9'
+const PURPLE_DARK = '#4A1A9E'
+const PURPLE_DEEP = '#1E0A4A'
+const YELLOW      = '#FFD600'
 
+/* ─── Données ─── */
 const CAT_IMAGES = [
-  { label_fr: 'Boites',  label_ar: 'صناديق', cat: 'Board',        image: '/boite.webp' },
-  { label_fr: 'Sacs',    label_ar: 'أكياس',  cat: 'Bags',         image: '/sacs.webp' },
-  { label_fr: 'Cartes et Autocollants', label_ar: 'بطاقات وملصقات', cat: 'Autocollants', image: '/carte.webp' },
-  { label_fr: 'Papier',  label_ar: 'ورق',    cat: 'Paper',        image: '/papier.webp' },
+  { label_fr: 'Boites',                  label_ar: 'صناديق',        cat: 'Board',        image: '/boite.webp',  desc_fr: 'Boîtes rigides & luxe',         desc_ar: 'صناديق صلبة وفاخرة' },
+  { label_fr: 'Sacs',                    label_ar: 'أكياس',          cat: 'Bags',         image: '/sacs.webp',   desc_fr: 'Sacs shopping brandés',          desc_ar: 'أكياس تسوق مخصصة' },
+  { label_fr: 'Cartes et Autocollants',  label_ar: 'بطاقات وملصقات', cat: 'Autocollants', image: '/carte.webp',  desc_fr: 'Étiquettes & sceaux custom',     desc_ar: 'بطاقات وملصقات مخصصة' },
+  { label_fr: 'Papier',                  label_ar: 'ورق',            cat: 'Paper',        image: '/papier.webp', desc_fr: 'Papier de soie & emballage',     desc_ar: 'ورق التغليف والحرير' },
 ]
 
 const STEPS_FR = [
-  
+  { n: '1', title: 'Choisissez votre produit',   desc: "Parcourez nos catégories et choisissez le produit qui correspond à vos besoins, puis précisez la taille et la quantité." },
+  { n: '2', title: 'Personnalisez votre design', desc: "Téléchargez votre propre fichier de conception et choisissez le nombre de couleurs ainsi que les autres options d'impression." },
+  { n: '3', title: 'Soumettez votre demande',    desc: "Ajoutez le produit à votre panier, renseignez vos informations de livraison et confirmez votre commande. On s'occupe du reste !" },
 ]
 const STEPS_AR = [
   { n: '1', title: 'اختر منتجك',   desc: 'تصفّح فئاتنا واختر المنتج الذي يناسب احتياجاتك، ثم حدّد الحجم والكمية.' },
@@ -26,277 +28,242 @@ const STEPS_AR = [
 ]
 
 const FAQS_FR = [
-  { q: 'Quelle est la qualité de votre impression ?',      a: 'Oui, bien sûr ! Nous sommes une société d\'impression qui offre une qualité d\'impression parmi les meilleures du marché. Votre choix de travailler avec nous rendra votre emballage vraiment unique.' },
-  { q: "Livrez-vous dans toute l'Algérie ?",               a: "Oui, nous livrons dans les 69 wilayas. Le délai est généralement de 2 à 5 jours ouvrables." },
-  { q: 'Quel est le mode de paiement accepté ?',           a: 'Paiement à la livraison (cash). Les clients qui paient à l\'avance sont prioritaires sur les commandes.' },
-  { q: 'Puis-je commander des emballages personnalisés ?', a: 'Oui ! Nos produits peuvent être personnalisés avec votre logo. Commandez directement sur le site et nous ferons de votre emballage une véritable œuvre d\'art.' },
-  { q: 'Comment suivre ma commande ?',                     a: "Notre équipe vous contacte par téléphone après confirmation pour vous informer de la livraison." },
+  { q: "Quelle est la quantité minimale (MOQ) ?",      a: "La quantité minimale varie selon le produit. En général, elle commence à 50 unités pour les sacs et 100 unités pour les boîtes. Contactez-nous pour un devis personnalisé." },
+  { q: "Livraison partout en Algérie ?",               a: "Oui ! Nous livrons dans les 58 wilayas via nos partenaires logistiques. Délai : 2 à 5 jours ouvrables selon votre région." },
+  { q: "Quel est le mode de paiement accepté ?",       a: "Paiement à la livraison (cash). Les clients qui paient à l'avance sont prioritaires sur les commandes." },
+  { q: "Puis-je commander des emballages personnalisés ?", a: "Oui ! Nos produits peuvent être personnalisés avec votre logo. Commandez directement sur le site et nous ferons de votre emballage une véritable œuvre d'art." },
 ]
 const FAQS_AR = [
-  { q: 'هل جودة الطباعة جيدة؟',              a: 'نعم بالتأكيد! نحن شركة طباعة نوفر جودة طباعة ممتازة من بين الأفضل في السوق. اختياركم لنا سيجعل تغليفكم مميزاً.' },
-  { q: 'هل تُوصّلون لكل الجزائر؟',           a: 'نعم، نوصّل لـ 69 ولاية. المدة عادةً من 2 إلى 5 أيام عمل.' },
-  { q: 'ما طريقة الدفع المقبولة؟',            a: 'الدفع عند الاستلام. الأولوية في الطلبيات لمن يدفع مسبقاً.' },
-  { q: 'هل يمكنني طلب تغليف مخصص بشعاري؟',  a: 'نعم! يمكن تخصيص منتجاتنا بشعارك الخاص. اطلب منتجك في الموقع وسنجعل تغليفك تحفة فنية.' },
-  { q: 'كيف أتابع طلبي؟',                    a: 'يتصل بك فريقنا هاتفياً بعد التأكيد لإعلامك بموعد التسليم.' },
+  { q: 'ما هو الحد الأدنى للطلب (MOQ)؟',      a: 'يتفاوت الحد الأدنى حسب المنتج. بشكل عام يبدأ من 50 وحدة للأكياس و100 وحدة للصناديق. تواصل معنا للحصول على عرض أسعار مخصص.' },
+  { q: 'هل تُوصّلون لكل الجزائر؟',            a: 'نعم! نوصّل لـ 58 ولاية عبر شركاء اللوجستيك. المدة: 2 إلى 5 أيام عمل.' },
+  { q: 'ما طريقة الدفع المقبولة؟',             a: 'الدفع عند الاستلام. الأولوية في الطلبيات لمن يدفع مسبقاً.' },
+  { q: 'هل يمكنني طلب تغليف مخصص بشعاري؟',   a: 'نعم! يمكن تخصيص منتجاتنا بشعارك الخاص. اطلب منتجك في الموقع وسنجعل تغليفك تحفة فنية.' },
 ]
 
+const WHY_FR = [
+  { icon: '⚡', title: 'Livraison rapide',        desc: 'Expédition sous 48h partout en Algérie' },
+  { icon: '📦', title: 'Qualité professionnelle', desc: 'Matériaux premium, finitions soignées' },
+  { icon: '💰', title: 'Prix grossiste',           desc: 'Tarifs dégressifs dès 50 unités' },
+]
+const WHY_AR = [
+  { icon: '⚡', title: 'توصيل سريع',     desc: 'شحن خلال 48 ساعة إلى جميع أنحاء الجزائر' },
+  { icon: '📦', title: 'جودة احترافية', desc: 'مواد فاخرة وتشطيبات عالية الجودة' },
+  { icon: '💰', title: 'أسعار الجملة',  desc: 'أسعار تنازلية من 50 وحدة' },
+]
+
+/* ─── FAQ Item ─── */
 function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="rounded-2xl overflow-hidden bg-white/70 backdrop-blur-sm"
-      style={{ border: `1px solid ${PURPLE_XSOFT}` }}>
+    <div style={{
+      background: 'white', borderRadius: 10,
+      boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
+      marginBottom: 10, overflow: 'hidden',
+    }}>
       <button onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-6 py-5 text-left transition-colors duration-200"
-        style={{ background: open ? 'rgba(124,58,237,0.05)' : 'transparent' }}>
-        <span className="font-bold text-sm pr-4" style={{ color: NAVY }}>{q}</span>
-        <ChevronRight size={18} style={{ color: PURPLE }}
-          className={`flex-shrink-0 transition-transform duration-300 ${open ? 'rotate-90' : ''}`} />
+        style={{
+          width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '16px 18px', cursor: 'pointer', background: 'none', border: 'none', textAlign: 'left',
+        }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: PURPLE_DEEP, fontFamily: 'inherit' }}>{q}</span>
+        <span style={{
+          color: PURPLE, fontSize: 22, flexShrink: 0,
+          transition: 'transform 0.3s',
+          transform: open ? 'rotate(180deg)' : 'rotate(0)',
+          display: 'inline-block',
+        }}>▾</span>
       </button>
       {open && (
-        <div className="px-6 pb-5" style={{ borderTop: `1px solid ${PURPLE_XSOFT}` }}>
-          <p className="text-sm leading-relaxed pt-4" style={{ color: PURPLE_SOFT }}>{a}</p>
+        <div style={{ padding: '0 18px 16px', borderTop: '1px solid #F0EEF9' }}>
+          <p style={{ fontSize: 13, color: '#6B6B8A', lineHeight: 1.6, paddingTop: 12 }}>{a}</p>
         </div>
       )}
     </div>
   )
 }
 
-
-/* ── Before / After Slider ── */
-function BeforeAfterSlider() {
-  const [pos, setPos]       = useState(50)
-  const [drag, setDrag]     = useState(false)
-  const containerRef        = useRef(null)
-
-  const calc = useCallback((clientX) => {
-    const rect = containerRef.current?.getBoundingClientRect()
-    if (!rect) return
-    const x = Math.min(Math.max(clientX - rect.left, 0), rect.width)
-    setPos(Math.round((x / rect.width) * 100))
-  }, [])
-
-  const onMouseMove  = (e) => { if (drag) calc(e.clientX) }
-  const onTouchMove  = (e) => { calc(e.touches[0].clientX) }
-  const stop         = () => setDrag(false)
-
-  return (
-    <div
-      ref={containerRef}
-      className="relative w-full overflow-hidden rounded-2xl shadow-xl select-none"
-      style={{ aspectRatio: '16/9', cursor: 'col-resize', maxHeight: 420 }}
-      onMouseMove={onMouseMove}
-      onMouseUp={stop}
-      onMouseLeave={stop}
-      onTouchMove={onTouchMove}
-      onTouchEnd={stop}
-    >
-      {/* AFTER — image pleine (côté droit) */}
-      <img src="/after.webp" alt="Après" draggable={false}
-        className="absolute inset-0 w-full h-full object-cover" />
-
-      {/* BEFORE — clippé à gauche (côté gauche visible) */}
-      <div className="absolute inset-0 overflow-hidden"
-        style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
-        <img src="/before.webp" alt="Avant" draggable={false}
-          className="absolute inset-0 w-full h-full object-cover" />
-      </div>
-
-      {/* Labels */}
-      <span className="absolute top-3 left-3 text-[11px] font-black uppercase tracking-widest
-                       bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-full shadow"
-        style={{ color: '#1e1b4b' }}>Avant</span>
-      <span className="absolute top-3 right-3 text-[11px] font-black uppercase tracking-widest
-                       bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-full shadow"
-        style={{ color: '#7c3aed' }}>Après</span>
-
-      {/* Handle line */}
-      <div className="absolute inset-y-0 w-0.5 -translate-x-1/2 pointer-events-none"
-        style={{ left: `${pos}%`, background: 'white', boxShadow: '0 0 8px rgba(0,0,0,0.4)' }} />
-
-      {/* Handle circle */}
-      <div
-        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 rounded-full
-                   flex items-center justify-center shadow-xl z-10 touch-none"
-        style={{
-          left: `${pos}%`,
-          background: 'white',
-          border: '3px solid #7c3aed',
-          cursor: 'grab',
-        }}
-        onMouseDown={(e) => { e.preventDefault(); setDrag(true) }}
-        onTouchStart={() => setDrag(true)}
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.5">
-          <path d="M9 18l-6-6 6-6M15 6l6 6-6 6"/>
-        </svg>
-      </div>
-    </div>
-  )
-}
-
 function HomePage() {
   const { lang, isRTL } = useLang()
-  const produitsSectionRef = useRef(null)
+  const navigate        = useNavigate()
 
   useSEO({
-    title: 'Emballages personnalisés Algérie — Boites, Sacs, Cartes, Papier',
-    description: 'BrandPack — Emballages sur mesure pour votre business en Algérie. Boites, sacs, autocollants, papier d\'emballage. Livraison dans les 58 wilayas.',
+    title: 'Logo Time — Emballage Premium Algérien | Boites, Sacs, Cartes, Papier',
+    description: "Logo Time — Emballages sur mesure pour votre business en Algérie. Boites, sacs, autocollants, papier d'emballage. Livraison dans les 58 wilayas.",
   })
 
-  const steps   = lang === 'ar' ? STEPS_AR : STEPS_FR
-  const faqs    = lang === 'ar' ? FAQS_AR  : FAQS_FR
+  const steps = lang === 'ar' ? STEPS_AR : STEPS_FR
+  const faqs  = lang === 'ar' ? FAQS_AR  : FAQS_FR
+  const why   = lang === 'ar' ? WHY_AR   : WHY_FR
   const fontCls = lang === 'ar' ? 'font-arabic' : ''
 
-  /* ── Scroll smooth vers la section Nos Produits ── */
-  const scrollToProduits = () => {
-    produitsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
-
   return (
-    <div className={`min-h-screen ${fontCls}`} dir={isRTL ? 'rtl' : 'ltr'}
-      style={{ background: 'linear-gradient(160deg, #f5f3ff 0%, #ede9fe 50%, #e0e7ff 100%)' }}>
+    <div className={fontCls} dir={isRTL ? 'rtl' : 'ltr'}
+      style={{ background: '#F8F7FF', minHeight: '100dvh', paddingTop: 72 }}>
 
-      {/* ══════════════════════════════════════
+      {/* ══════════════════════════════════
           HERO
-      ══════════════════════════════════════ */}
-      <header className="px-4 pt-20 pb-6">
+      ══════════════════════════════════ */}
+      <section style={{
+        background: `linear-gradient(160deg, ${PURPLE_DEEP} 0%, ${PURPLE} 60%, #8B45E8 100%)`,
+        padding: '36px 24px 48px',
+        position: 'relative', overflow: 'hidden',
+      }}>
+        {/* Déco cercles */}
+        <div style={{
+          position: 'absolute', top: -80, right: -80,
+          width: 300, height: 300,
+          background: 'radial-gradient(circle, rgba(255,214,0,0.18) 0%, transparent 70%)',
+          borderRadius: '50%',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: -60, left: -40,
+          width: 200, height: 200,
+          background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)',
+          borderRadius: '50%',
+        }} />
 
-        {/* Desktop — même effet que mobile, texte dans la photo */}
-        <div className="hidden md:relative md:flex md:items-center md:justify-center rounded-2xl overflow-hidden max-w-7xl mx-auto"
-          style={{ minHeight: 480, background: NAVY, boxShadow: '0 8px 40px rgba(30,27,75,0.2)' }}>
-
-          {/* Overlay + image */}
-          <div className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `linear-gradient(to bottom, rgba(30,27,75,0.38), rgba(30,27,75,0.75)), url('/mainPC.webp')` }} />
-
-          {/* Contenu centré */}
-          <div className="relative z-10 w-full flex flex-col items-center text-center px-10 py-16 max-w-3xl mx-auto">
-
-            <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6"
-              style={{ background: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(6px)' }}>
-              <Package size={11} />
-              {lang === 'ar' ? 'تغليف مخصص · توصيل لجميع ولايات الجزائر' : 'Emballage sur mesure · Livraison dans toutes les wilayas d\'Algérie'}
-            </span>
-
-            <h1 className="text-white font-black leading-tight mb-8 italic"
-              style={{ fontSize: 'clamp(2.2rem, 4vw, 3.2rem)', textShadow: '0 2px 16px rgba(0,0,0,0.3)' }}>
-              {lang === 'ar'
-                ? <>التغليف الذي <span style={{ color: '#c4b5fd' }}>يصنع الفرق</span></>
-                : <>L'emballage qui <span style={{ color: '#c4b5fd' }}>fait la différence</span></>}
-            </h1>
-
-            <div className="flex gap-4 flex-wrap justify-center mb-10">
-              <a href="https://wa.me/213554767444" target="_blank" rel="noreferrer"
-                className="px-8 py-3 rounded-full font-bold text-white text-sm shadow-lg transition-all hover:scale-105 hover:opacity-90"
-                style={{ background: '#25D366' }}>
-                WhatsApp
-              </a>
-              <button onClick={scrollToProduits}
-                className="px-8 py-3 rounded-full font-bold text-sm transition-all hover:scale-105"
-                style={{ background: PURPLE, color: 'white', border: 'none' }}>
-                {lang === 'ar' ? 'اكتشف منتجاتنا' : 'Découvrir nos produits'}
-              </button>
-            </div>
-
-            {/* Stats */}
-            <div className="flex gap-12 pt-6" style={{ borderTop: '1px solid rgba(255,255,255,0.2)' }}>
-              {[
-                { val: '69',   label: lang === 'ar' ? 'ولاية'             : 'Wilayas' },
-                { val: '100%', label: lang === 'ar' ? 'جودة ممتازة'       : 'Excellente qualité' },
-              ].map(s => (
-                <div key={s.val} className="text-center">
-                  <p className="text-3xl font-black" style={{ color: '#c4b5fd' }}>{s.val}</p>
-                  <p className="text-xs font-semibold mt-1 uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.6)' }}>{s.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="animate-fade-up" style={{
+          display: 'inline-block',
+          background: 'rgba(255,214,0,0.18)',
+          border: '1px solid rgba(255,214,0,0.4)',
+          color: YELLOW,
+          fontSize: 11, fontWeight: 700,
+          letterSpacing: '1.5px', textTransform: 'uppercase',
+          padding: '5px 14px', borderRadius: 50,
+          marginBottom: 20,
+        }}>
+          {lang === 'ar' ? '✦ تغليف فاخر' : '✦ Emballage Premium'}
         </div>
 
-        {/* Mobile */}
-        <div className="md:hidden relative overflow-hidden rounded-2xl flex items-center justify-center min-h-[300px]"
-          style={{ background: NAVY }}>
-          <div className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `linear-gradient(to bottom, rgba(30,27,75,0.45), rgba(30,27,75,0.82)), url('/main.webp')` }} />
-          <div className="relative z-10 w-full flex flex-col items-center text-center px-6 py-14 max-w-2xl mx-auto">
-            <h1 className="text-white text-3xl font-black leading-tight mb-4 italic">
-              {lang === 'ar' ? 'التغليف الذي يصنع الفرق' : "L'emballage qui fait la différence"}
-            </h1>
-            <p className="text-white/75 text-sm mb-7 leading-relaxed max-w-xs">
-              {lang === 'ar'
-                ? 'كراتين، أكياس، بطاقات وورق — توصيل لكل الجزائر.'
-                : 'Cartons, sacs, cartes et papier — livrés partout en Algérie.'}
+        <h1 className="animate-fade-up" style={{
+          fontSize: 'clamp(28px, 8vw, 36px)', fontWeight: 900, lineHeight: 1.15,
+          color: 'white', marginBottom: 14, position: 'relative', zIndex: 1,
+          animationDelay: '0.1s',
+        }}>
+          {lang === 'ar'
+            ? <>{`حلول تغليف `}<span style={{ color: YELLOW }}>سريعة واحترافية</span></>
+            : <>Solutions d'emballage<br /><span style={{ color: YELLOW }}>rapides &amp; pro.</span></>}
+        </h1>
+
+        <p className="animate-fade-up" style={{
+          color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 1.6,
+          maxWidth: 280, marginBottom: 28, position: 'relative', zIndex: 1,
+          animationDelay: '0.2s',
+        }}>
+          {lang === 'ar'
+            ? 'التغليف الذي يعكس علامتك التجارية. مصنوع في الجزائر، يُوصَّل في كل مكان.'
+            : "L'emballage qui reflète votre marque. Produit en Algérie, livré partout."}
+        </p>
+
+        {/* Hero image */}
+        <div className="animate-fade-up" style={{
+          width: '100%', borderRadius: 16, overflow: 'hidden',
+          marginBottom: 28, boxShadow: '0 16px 40px rgba(0,0,0,0.3)',
+          position: 'relative', zIndex: 1, animationDelay: '0.25s',
+        }}>
+          <img
+            src="/mainPC.webp"
+            alt="Emballage premium Logo Time"
+            style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block' }}
+            onError={e => { e.target.src = '/main.webp' }}
+          />
+        </div>
+
+        <button
+          className="animate-fade-up btn-yellow"
+          onClick={() => navigate('/products')}
+          style={{ animationDelay: '0.3s' }}
+        >
+          {lang === 'ar' ? 'اطلب الآن' : 'Commander maintenant'}
+          <span style={{ fontSize: 18 }}>→</span>
+        </button>
+      </section>
+
+      {/* ══════════════════════════════════
+          PROMO BANNER
+      ══════════════════════════════════ */}
+      <div style={{ padding: '20px 20px 0' }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #FFD600 0%, #FFC400 100%)',
+          borderRadius: 16, padding: '22px 20px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          overflow: 'hidden', position: 'relative',
+        }}>
+          <div style={{
+            position: 'absolute', top: -30, right: -30,
+            width: 120, height: 120,
+            background: 'rgba(255,255,255,0.2)', borderRadius: '50%',
+          }} />
+          <div>
+            <h4 style={{ fontSize: 18, fontWeight: 900, color: PURPLE_DARK }}>
+              {lang === 'ar' ? 'توصيل مجاني!' : 'Livraison gratuite !'}
+            </h4>
+            <p style={{ fontSize: 12, color: PURPLE_DARK, opacity: 0.75, marginTop: 3 }}>
+              {lang === 'ar' ? 'من 500 وحدة مشتراة' : 'À partir de 500 unités achetées'}
             </p>
-            {/* ← scroll vers la section, pas navigate */}
-            <button onClick={scrollToProduits}
-              className="px-8 py-3 rounded-full font-bold text-white text-sm shadow-lg transition-all hover:scale-105"
-              style={{ background: PURPLE }}>
-              {lang === 'ar' ? 'اكتشف منتجاتنا' : 'Découvrir nos produits'}
-            </button>
+          </div>
+          <div style={{
+            background: PURPLE, color: 'white',
+            fontSize: 22, fontWeight: 900,
+            padding: '12px 16px', borderRadius: 12,
+            flexShrink: 0, textAlign: 'center',
+            lineHeight: 1.2, zIndex: 1,
+          }}>
+            <small style={{ fontSize: 11, fontWeight: 600, display: 'block', opacity: 0.8 }}>
+              {lang === 'ar' ? 'من' : 'dès'}
+            </small>
+            500 u.
           </div>
         </div>
-      </header>
+      </div>
 
-      {/* ══════════════════════════════════════
-          NOS PRODUITS  ← ancre de scroll
-      ══════════════════════════════════════ */}
-      <section
-        ref={produitsSectionRef}
-        id="nos-produits"
-        className="max-w-7xl mx-auto px-4 py-14 scroll-mt-20">
-
-        {/* Titre section */}
-        <div className={`flex items-center gap-4 mb-10 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <div className="h-px flex-1" style={{ background: 'rgba(124,58,237,0.15)' }} />
-          <h2 className="text-2xl md:text-3xl font-black italic whitespace-nowrap" style={{ color: PURPLE }}>
-            {lang === 'ar' ? 'منتجاتنا' : 'Nos produits'}
-          </h2>
-          <div className="h-px flex-1" style={{ background: 'rgba(124,58,237,0.15)' }} />
+      {/* ══════════════════════════════════
+          CATÉGORIES
+      ══════════════════════════════════ */}
+      <section style={{ padding: '28px 20px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 20 }}>
+          <div>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: PURPLE_DEEP }}>
+              {lang === 'ar' ? 'الفئات' : 'Catégories'}
+            </h2>
+            <p style={{ fontSize: 12, color: '#6B6B8A', marginTop: 2 }}>
+              {lang === 'ar' ? 'حلول مخصصة لعلامتك التجارية' : 'Solutions sur mesure pour votre marque'}
+            </p>
+          </div>
+          <Link to="/products" style={{ fontSize: 13, fontWeight: 600, color: PURPLE, textDecoration: 'none' }}>
+            {lang === 'ar' ? 'عرض الكل' : 'Voir tout'}
+          </Link>
         </div>
 
-        {/* Grille catégories */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {CAT_IMAGES.map(({ label_fr, label_ar, cat, image }) => {
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, desc_fr, desc_ar }) => {
             const label = lang === 'ar' ? label_ar : label_fr
+            const desc  = lang === 'ar' ? desc_ar  : desc_fr
             return (
-              <Link key={cat} to={`/products?category=${cat}`} className="group cursor-pointer block">
-                <div className="flex flex-col items-center">
-
-                  {/* ── Label EN HAUT — badge violet style "Passez votre commande" ── */}
-                  <div className="relative -mb-4 z-10">
-                    <span
-                      className="flex items-center gap-2 px-5 py-2 rounded-2xl text-sm font-bold
-                                 text-white shadow-lg uppercase tracking-wide leading-none
-                                 transition-all duration-300 group-hover:scale-105"
-                      style={{
-                        background: PURPLE,
-                        boxShadow: '0 4px 16px rgba(124,58,237,0.35)',
-                      }}>
-                      {label}
-                    </span>
+              <Link key={cat} to={`/products?category=${cat}`}
+                style={{ textDecoration: 'none', display: 'block' }}>
+                <div style={{
+                  position: 'relative', height: 224,
+                  borderRadius: 16, overflow: 'hidden',
+                  boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
+                  cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(108,43,217,0.22)' }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 16px rgba(0,0,0,0.08)' }}
+                >
+                  <img src={image} alt={label}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.6s' }} />
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    background: isRTL
+                      ? 'linear-gradient(270deg, rgba(30,10,74,0.85) 0%, rgba(108,43,217,0.4) 60%, transparent 100%)'
+                      : 'linear-gradient(90deg, rgba(30,10,74,0.85) 0%, rgba(108,43,217,0.4) 60%, transparent 100%)',
+                    display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                    padding: 20,
+                  }}>
+                    <h4 style={{ fontSize: 18, fontWeight: 800, color: 'white' }}>{label}</h4>
+                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{desc}</p>
                   </div>
-
-                  {/* Photo */}
-                  <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl transition-all duration-500
-                                  group-hover:-translate-y-2 group-hover:shadow-2xl"
-                    style={{
-                      boxShadow: '0 4px 24px rgba(124,58,237,0.1)',
-                      background: cat === 'Board' ? '#f5e8e4' : 'transparent',
-                    }}>
-
-                    <img src={image} alt={label}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy" width="300" height="400" />
-
-                    {/* Léger vignettage bas pour profondeur */}
-                    <div className="absolute inset-x-0 bottom-0 h-16 pointer-events-none"
-                      style={{ background: 'linear-gradient(to top, rgba(15,10,40,0.25), transparent)' }} />
-
-                    {/* Hover overlay subtil */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      style={{ background: 'rgba(124,58,237,0.08)' }} />
-                  </div>
-
                 </div>
               </Link>
             )
@@ -304,77 +271,169 @@ function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
-          BEFORE / AFTER SLIDER
-      ══════════════════════════════════════ */}
-      <section className="py-12 px-4">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-center font-black italic text-xl mb-3" style={{ color: NAVY }}>
-            {lang === 'ar' ? 'قبل وبعد' : 'Avant & Après'}
-          </p>
-          <p className="text-center text-sm mb-6" style={{ color: PURPLE_SOFT }}>
-            {lang === 'ar'
-              ? 'اسحب لترى الفرق'
-              : 'Faites glisser pour voir la différence'}
-          </p>
-          <BeforeAfterSlider />
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════
-          COMMENT COMMANDER
-      ══════════════════════════════════════ */}
-      <section className="py-20 px-4 my-4">
-        <div className="max-w-4xl mx-auto rounded-3xl p-8 md:p-12 relative"
-          style={{
-            borderTop: `8px solid ${PURPLE_XSOFT}`,
-            borderBottom: `8px solid ${PURPLE_XSOFT}`,
-            background: 'rgba(255,255,255,0.5)',
-            backdropFilter: 'blur(8px)',
-          }}>
-          <div className="absolute -top-11 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl
-                          font-bold text-sm uppercase tracking-widest text-center leading-snug
-                          w-max max-w-[300px] text-white shadow-lg"
-            style={{ background: PURPLE }}>
-            {lang === 'ar'
-              ? <><span className="block">اطلب الآن</span><span className="block">بخطوات بسيطة</span></>
-              : <><span className="block">Passez votre commande</span><span className="block">en quelques clics</span></>}
-          </div>
-          <p className="text-center font-black italic text-xl mb-10 pt-2" style={{ color: NAVY }}>
-            {lang === 'ar' ? 'كيف تطلب في 3 خطوات بسيطة' : 'Comment commander en 3 étapes simples'}
-          </p>
-          <div className="grid md:grid-cols-3 gap-10 text-center">
-            {steps.map(({ n, title, desc }) => (
-              <div key={n} className="flex flex-col items-center">
-                <div className="w-16 h-16 rounded-full text-white flex items-center justify-center
-                                mb-4 text-2xl font-bold flex-shrink-0 shadow-lg"
-                  style={{ background: PURPLE }}>
-                  {n}
+      {/* ══════════════════════════════════
+          POURQUOI NOUS
+      ══════════════════════════════════ */}
+      <div style={{ padding: '28px 20px 24px' }}>
+        <div style={{
+          background: PURPLE, borderRadius: 24,
+          padding: '28px 20px',
+        }}>
+          <h3 style={{ fontSize: 20, fontWeight: 800, color: 'white', textAlign: 'center', marginBottom: 6 }}>
+            {lang === 'ar' ? 'لماذا تختارنا؟' : 'Pourquoi nous choisir ?'}
+          </h3>
+          <div style={{ width: 40, height: 4, background: YELLOW, borderRadius: 2, margin: '0 auto 24px' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {why.map((w, i) => (
+              <div key={i} style={{
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: 10, padding: 18,
+                display: 'flex', alignItems: 'center', gap: 16,
+              }}>
+                <div style={{
+                  width: 50, height: 50, flexShrink: 0,
+                  background: YELLOW, borderRadius: 12,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 26,
+                }}>
+                  {w.icon}
                 </div>
-                <h3 className="font-bold text-base mb-2 italic" style={{ color: NAVY }}>{title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: PURPLE_SOFT }}>{desc}</p>
+                <div>
+                  <h4 style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 3 }}>{w.title}</h4>
+                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>{w.desc}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* ══════════════════════════════════════
+      {/* ══════════════════════════════════
+          AVANT / APRÈS
+      ══════════════════════════════════ */}
+      <div style={{ padding: '0 20px 28px' }}>
+        <h3 style={{ fontSize: 20, fontWeight: 800, color: PURPLE_DEEP, marginBottom: 6 }}>
+          {lang === 'ar' ? 'قبل / بعد' : 'Avant / Après'}
+        </h3>
+        <p style={{ fontSize: 13, color: '#6B6B8A', marginBottom: 20 }}>
+          {lang === 'ar' ? 'اروا الفرق الذي يصنعه التغليف الجيد' : 'Voyez la différence que fait un bon emballage'}
+        </p>
+        <div style={{
+          borderRadius: 16, overflow: 'hidden',
+          boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
+          background: 'white', position: 'relative',
+        }}>
+          <div style={{ display: 'flex', height: 200 }}>
+            <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+              <img src="/before.webp" alt="Avant"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(80%) brightness(0.7)' }}
+                onError={e => { e.target.src = '/boite.webp'; e.target.style.filter = 'grayscale(80%) brightness(0.7)' }}
+              />
+              <span style={{
+                position: 'absolute', bottom: 10, left: 10,
+                fontSize: 11, fontWeight: 700,
+                padding: '4px 12px', borderRadius: 50,
+                textTransform: 'uppercase', letterSpacing: '0.8px',
+                background: 'rgba(0,0,0,0.5)', color: 'white',
+              }}>
+                {lang === 'ar' ? 'قبل' : 'Avant'}
+              </span>
+            </div>
+            <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+              <img src="/after.webp" alt="Après"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={e => { e.target.src = '/sacs.webp' }}
+              />
+              <span style={{
+                position: 'absolute', bottom: 10, right: 10,
+                fontSize: 11, fontWeight: 700,
+                padding: '4px 12px', borderRadius: 50,
+                textTransform: 'uppercase', letterSpacing: '0.8px',
+                background: YELLOW, color: PURPLE_DARK,
+              }}>
+                {lang === 'ar' ? 'بعد ✓' : 'Après ✓'}
+              </span>
+            </div>
+            {/* Séparateur */}
+            <div style={{
+              position: 'absolute', top: 0, left: '50%',
+              width: 3, height: '100%',
+              background: 'white', transform: 'translateX(-50%)', zIndex: 2,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <div style={{
+                width: 32, height: 32,
+                background: 'white', borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 14, color: PURPLE, fontWeight: 800,
+                boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+              }}>↔</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════
+          COMMENT COMMANDER
+      ══════════════════════════════════ */}
+      <div style={{ padding: '0 20px 28px' }}>
+        <div style={{
+          background: 'white', borderRadius: 24,
+          padding: '28px 20px', boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
+        }}>
+          <h3 style={{ fontSize: 20, fontWeight: 800, color: PURPLE_DEEP, textAlign: 'center', marginBottom: 6 }}>
+            {lang === 'ar' ? 'كيف تطلب؟' : 'Comment commander ?'}
+          </h3>
+          <div style={{ width: 40, height: 4, background: YELLOW, borderRadius: 2, margin: '0 auto 24px' }} />
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            {steps.map(({ n, title, desc }, i) => (
+              <div key={n}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16,
+                  flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+                  <div style={{
+                    width: 48, height: 48, flexShrink: 0,
+                    background: PURPLE, borderRadius: '50%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'white', fontSize: 20, fontWeight: 800,
+                    boxShadow: '0 4px 12px rgba(108,43,217,0.3)',
+                  }}>
+                    {n}
+                  </div>
+                  <div style={{ paddingTop: 4 }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, color: PURPLE_DEEP, marginBottom: 4 }}>{title}</h4>
+                    <p style={{ fontSize: 13, color: '#6B6B8A', lineHeight: 1.5 }}>{desc}</p>
+                  </div>
+                </div>
+                {i < steps.length - 1 && (
+                  <div style={{
+                    width: 2, height: 24,
+                    background: 'rgba(108,43,217,0.15)',
+                    margin: '8px 0 8px 23px',
+                  }} />
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 28, textAlign: 'center' }}>
+            <button className="btn-yellow" onClick={() => navigate('/products')}>
+              {lang === 'ar' ? 'ابدأ طلبي' : 'Démarrer ma commande'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════
           FAQ
-      ══════════════════════════════════════ */}
-      <section className="max-w-3xl mx-auto px-4 py-16">
-        <div className="text-center mb-10">
-          <span className="font-bold text-xs uppercase tracking-widest mb-3 block" style={{ color: PURPLE }}>
-            {lang === 'ar' ? 'مساعدة' : 'Assistance'}
-          </span>
-          <h2 className="text-3xl font-black italic" style={{ color: PURPLE }}>
-            {lang === 'ar' ? 'الأسئلة الأكثر طرحاً' : 'Questions les plus posées'}
-          </h2>
-        </div>
-        <div className="space-y-3">
-          {faqs.map(faq => <FAQItem key={faq.q} q={faq.q} a={faq.a} />)}
-        </div>
-      </section>
+      ══════════════════════════════════ */}
+      <div style={{ padding: '0 20px 40px' }}>
+        <h3 style={{ fontSize: 20, fontWeight: 800, color: PURPLE_DEEP, marginBottom: 20 }}>
+          {lang === 'ar' ? 'الأسئلة الشائعة' : 'Questions fréquentes'}
+        </h3>
+        {faqs.map(faq => <FAQItem key={faq.q} q={faq.q} a={faq.a} />)}
+      </div>
 
     </div>
   )

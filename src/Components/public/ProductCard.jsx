@@ -1,85 +1,89 @@
 import { useNavigate } from 'react-router-dom'
 import { useLang } from '../../context/LanguageContext'
 
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const PURPLE      = '#6C2BD9'
+const PURPLE_DARK = '#4A1A9E'
+const PURPLE_DEEP = '#1E0A4A'
+const YELLOW      = '#FFD600'
 
-const CAT_LABELS_FR = { Board: 'Boites', Bags: 'Sacs', Autocollants: 'Cartes et Autocollants', Paper: 'Papier' }
+const CAT_LABELS_FR = { Board: 'Boites', Bags: 'Sacs', Autocollants: 'Cartes', Paper: 'Papier' }
 const CAT_LABELS_AR = { Board: 'صناديق', Bags: 'أكياس', Autocollants: 'بطاقات', Paper: 'ورق' }
 
 function ProductCard({ product }) {
   const navigate = useNavigate()
   const { t, lang, isRTL } = useLang()
 
-  const imageUrl = product.images?.[0] || '/placeholder.jpg'
-  const minPrice = product.sizes?.length ? Math.min(...product.sizes.map(s => s.price ?? 0)) : 0
-  const catLabels = lang === 'ar' ? CAT_LABELS_AR : CAT_LABELS_FR
-  const catLabel  = catLabels[product.category] || product.category
-
-  const goToProduct = () => navigate(`/products/${product._id}`)
+  const imageUrl  = product.images?.[0] || '/placeholder.jpg'
+  const minPrice  = product.sizes?.length ? Math.min(...product.sizes.map(s => s.price ?? 0)) : 0
+  const catLabel  = (lang === 'ar' ? CAT_LABELS_AR : CAT_LABELS_FR)[product.category] || product.category
 
   return (
     <div
-      className="rounded-2xl overflow-hidden bg-white flex flex-col transition-all duration-300 hover:-translate-y-1 cursor-pointer w-full"
-      style={{ boxShadow: '0 2px 20px rgba(124,58,237,0.10)' }}
-      onClick={goToProduct}
+      onClick={() => navigate(`/products/${product._id}`)}
       dir={isRTL ? 'rtl' : 'ltr'}
+      style={{
+        background: 'white', borderRadius: 16,
+        boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
+        overflow: 'hidden', cursor: 'pointer',
+        transition: 'transform 0.2s, box-shadow 0.2s',
+        display: 'flex', flexDirection: 'column',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(108,43,217,0.22)' }}
+      onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 16px rgba(0,0,0,0.08)' }}
     >
-      {/* ── Image ── */}
-      <div className="relative w-full overflow-hidden bg-gray-50" style={{ aspectRatio: '4/3' }}>
-        <img
-          src={imageUrl}
-          alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+      {/* Image */}
+      <div style={{ position: 'relative', width: '100%', aspectRatio: '4/3', overflow: 'hidden', background: '#F0EEF9' }}>
+        <img src={imageUrl} alt={product.name}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s', display: 'block' }}
           loading="lazy"
+          onMouseEnter={e => e.target.style.transform = 'scale(1.05)'}
+          onMouseLeave={e => e.target.style.transform = ''}
         />
-
         {/* Badge catégorie */}
-        <div className={`absolute top-3 ${isRTL ? 'right-3' : 'left-3'}`}>
-          <span className="text-xs font-bold px-3 py-1 rounded-full text-white shadow"
-            style={{ background: PURPLE }}>
-            {catLabel}
-          </span>
-        </div>
-
-        {/* Badge recto-verso */}
+        <span style={{
+          position: 'absolute', top: 10,
+          left: isRTL ? undefined : 10,
+          right: isRTL ? 10 : undefined,
+          fontSize: 10, fontWeight: 700,
+          padding: '4px 10px', borderRadius: 50,
+          background: PURPLE, color: 'white',
+          textTransform: 'uppercase', letterSpacing: '0.5px',
+        }}>
+          {catLabel}
+        </span>
         {product.doubleSided && (
-          <div className={`absolute top-3 ${isRTL ? 'left-3' : 'right-3'}`}>
-            <span className="text-[10px] font-bold px-2 py-1 rounded-full text-white"
-              style={{ background: NAVY }}>
-              {lang === 'ar' ? 'وجهان' : 'Recto-verso'}
-            </span>
-          </div>
+          <span style={{
+            position: 'absolute', top: 10,
+            right: isRTL ? undefined : 10,
+            left: isRTL ? 10 : undefined,
+            fontSize: 9, fontWeight: 700,
+            padding: '3px 8px', borderRadius: 50,
+            background: PURPLE_DEEP, color: 'white',
+          }}>
+            {lang === 'ar' ? 'وجهان' : 'Recto-verso'}
+          </span>
         )}
       </div>
 
-      {/* ── Infos ── */}
-      <div className="flex flex-col gap-3 p-4 flex-1">
-
-        {/* Nom du produit */}
-        <h3 className="font-bold text-base leading-snug line-clamp-2" style={{ color: NAVY }}>
+      {/* Infos */}
+      <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+        <h3 style={{ fontSize: 13, fontWeight: 700, color: PURPLE_DEEP, lineHeight: 1.3 }}>
           {product.name}
         </h3>
-
-        {/* Prix */}
-        <div className="flex items-baseline gap-1 flex-wrap">
-          <span className="text-xs font-medium" style={{ color: '#9ca3af' }}>
-            {t('fromPrice')}
-          </span>
-          <span className="font-black text-xl" style={{ color: PURPLE }}>
-            {minPrice.toLocaleString('fr-DZ')}
-            <span className="text-sm font-bold ml-0.5">DA</span>
-          </span>
-          <span className="text-xs font-medium" style={{ color: '#9ca3af' }}>
-            {t('perUnit')}
-          </span>
-        </div>
-
-        {/* Bouton */}
+        <p style={{ fontSize: 12, color: PURPLE, fontWeight: 600, marginBottom: 2 }}>
+          {t('fromPrice')} <strong style={{ fontSize: 15 }}>{minPrice.toLocaleString('fr-DZ')}</strong> DA
+        </p>
         <button
-          onClick={e => { e.stopPropagation(); goToProduct() }}
-          className="mt-auto w-full py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 active:scale-95"
-          style={{ background: PURPLE }}
+          onClick={e => { e.stopPropagation(); navigate(`/products/${product._id}`) }}
+          style={{
+            background: PURPLE, color: 'white',
+            border: 'none', borderRadius: 8,
+            fontFamily: 'inherit', fontWeight: 600, fontSize: 12,
+            padding: '9px 16px', cursor: 'pointer', width: '100%',
+            transition: 'background 0.2s, transform 0.15s',
+          }}
+          onMouseEnter={e => e.target.style.background = PURPLE_DARK}
+          onMouseLeave={e => e.target.style.background = PURPLE}
         >
           {t('chooseSizes')}
         </button>
