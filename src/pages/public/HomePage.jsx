@@ -347,14 +347,12 @@ function HomePage() {
                     style={{ width: '100%', height: '100%', objectFit: 'cover', }} />
                   <div style={{
                     position: 'absolute', inset: 0,
-                    background: isRTL
-                      ? 'linear-gradient(270deg, rgba(30,10,74,0.85) 0%, rgba(108,43,217,0.4) 60%, transparent 100%)'
-                      : 'linear-gradient(90deg, rgba(30,10,74,0.85) 0%, rgba(108,43,217,0.4) 60%, transparent 100%)',
-                    display: 'flex', flexDirection: 'column', justifyContent: 'center',
-                    padding: 20,
+                    display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+                    padding: 14,
+                    background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)',
                   }}>
-                    <h4 style={{ fontSize: 18, fontWeight: 800, color: 'white' }}>{label}</h4>
-                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{desc}</p>
+                    <h4 style={{ fontSize: 17, fontWeight: 800, color: 'white', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>{label}</h4>
+                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>{desc}</p>
                   </div>
                 </div>
               </Link>
