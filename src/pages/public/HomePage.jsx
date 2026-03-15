@@ -10,8 +10,8 @@ const YELLOW      = '#FFD600'
 
 /* ─── Données ─── */
 const CAT_IMAGES = [
-  { label_fr: 'Boites',                  label_ar: 'صناديق',        cat: 'Board',        image: '/boite.webp',  desc_fr: 'Boîtes rigides & luxe',         desc_ar: 'صناديق صلبة وفاخرة' },
-  { label_fr: 'Sacs',                    label_ar: 'أكياس',          cat: 'Bags',         image: '/sacs.webp',   desc_fr: 'Sacs shopping brandés',          desc_ar: 'أكياس تسوق مخصصة' },
+  { label_fr: 'Boites',                  label_ar: 'صناديق',        cat: 'Board',        image: '/boite.webp',  imagePC: null, desc_fr: 'Boîtes rigides & luxe',         desc_ar: 'صناديق صلبة وفاخرة' },
+  { label_fr: 'Sacs',                    label_ar: 'أكياس',          cat: 'Bags',         image: '/sacs.webp',   imagePC: '/sacsPC.webp', desc_fr: 'Sacs shopping brandés',          desc_ar: 'أكياس تسوق مخصصة' },
   { label_fr: 'Cartes et Autocollants',  label_ar: 'بطاقات وملصقات', cat: 'Autocollants', image: '/carte.webp',  desc_fr: 'Étiquettes & sceaux custom',     desc_ar: 'بطاقات وملصقات مخصصة' },
   { label_fr: 'Papier',                  label_ar: 'ورق',            cat: 'Paper',        image: '/papier.webp', desc_fr: 'Papier de soie & emballage',     desc_ar: 'ورق التغليف والحرير' },
 ]
@@ -397,7 +397,7 @@ function HomePage() {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4" style={{ display: 'grid' }}>
-          {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, desc_fr, desc_ar }) => {
+          {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, imagePC, desc_fr, desc_ar }) => {
             const label = lang === 'ar' ? label_ar : label_fr
             const desc  = lang === 'ar' ? desc_ar  : desc_fr
             return (
@@ -410,8 +410,14 @@ function HomePage() {
                   cursor: 'pointer', 
                 }}
                 >
+                  {/* Mobile */}
                   <img src={image} alt={label}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', }} />
+                    className="block md:hidden"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  {/* Desktop — use imagePC if available */}
+                  <img src={imagePC || image} alt={label}
+                    className="hidden md:block"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   <div style={{
                     position: 'absolute', inset: 0,
                     display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
