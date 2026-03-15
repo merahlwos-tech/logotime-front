@@ -340,13 +340,11 @@ function HomePage() {
                   position: 'relative', height: 224,
                   borderRadius: 16, overflow: 'hidden',
                   boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
-                  cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s',
+                  cursor: 'pointer', 
                 }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(108,43,217,0.22)' }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 16px rgba(0,0,0,0.08)' }}
                 >
                   <img src={image} alt={label}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.6s' }} />
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', }} />
                   <div style={{
                     position: 'absolute', inset: 0,
                     background: isRTL
