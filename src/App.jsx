@@ -46,7 +46,7 @@ function PageViewTracker() {
   return null
 }
 
-const WA_NUMBER = '213554767444'
+const WA_NUMBER = '213554691650'
 
 function WhatsAppButton() {
   const location = useLocation()

@@ -28,27 +28,29 @@ const STEPS_AR = [
 ]
 
 const FAQS_FR = [
-  { q: "Quelle est la quantité minimale (MOQ) ?",      a: "La quantité minimale varie selon le produit. En général, elle commence à 50 unités pour les sacs et 100 unités pour les boîtes. Contactez-nous pour un devis personnalisé." },
-  { q: "Livraison partout en Algérie ?",               a: "Oui ! Nous livrons dans les 58 wilayas via nos partenaires logistiques. Délai : 2 à 5 jours ouvrables selon votre région." },
-  { q: "Quel est le mode de paiement accepté ?",       a: "Paiement à la livraison (cash). Les clients qui paient à l'avance sont prioritaires sur les commandes." },
+  { q: "Quelle est la qualité de votre impression ?",      a: "Oui, bien sûr ! Nous sommes une société d'impression qui offre une qualité d'impression parmi les meilleures du marché. Votre choix de travailler avec nous rendra votre emballage vraiment unique." },
+  { q: "Livrez-vous dans toute l'Algérie ?",               a: "Oui, nous livrons dans les 69 wilayas. Le délai est généralement de 2 à 5 jours ouvrables." },
+  { q: "Quel est le mode de paiement accepté ?",           a: "Paiement à la livraison (cash). Les clients qui paient à l'avance sont prioritaires sur les commandes." },
   { q: "Puis-je commander des emballages personnalisés ?", a: "Oui ! Nos produits peuvent être personnalisés avec votre logo. Commandez directement sur le site et nous ferons de votre emballage une véritable œuvre d'art." },
+  { q: "Comment suivre ma commande ?",                     a: "Notre équipe vous contacte par téléphone après confirmation pour vous informer de la livraison." },
 ]
 const FAQS_AR = [
-  { q: 'ما هو الحد الأدنى للطلب (MOQ)؟',      a: 'يتفاوت الحد الأدنى حسب المنتج. بشكل عام يبدأ من 50 وحدة للأكياس و100 وحدة للصناديق. تواصل معنا للحصول على عرض أسعار مخصص.' },
-  { q: 'هل تُوصّلون لكل الجزائر؟',            a: 'نعم! نوصّل لـ 58 ولاية عبر شركاء اللوجستيك. المدة: 2 إلى 5 أيام عمل.' },
-  { q: 'ما طريقة الدفع المقبولة؟',             a: 'الدفع عند الاستلام. الأولوية في الطلبيات لمن يدفع مسبقاً.' },
-  { q: 'هل يمكنني طلب تغليف مخصص بشعاري؟',   a: 'نعم! يمكن تخصيص منتجاتنا بشعارك الخاص. اطلب منتجك في الموقع وسنجعل تغليفك تحفة فنية.' },
+  { q: 'ما هي جودة طباعتكم؟',                  a: 'نعم بالتأكيد! نحن شركة طباعة نوفر جودة طباعة ممتازة من بين الأفضل في السوق. اختيارك للعمل معنا سيجعل تغليفك مميزاً حقاً.' },
+  { q: 'هل تُوصّلون لكل الجزائر؟',             a: 'نعم، نوصّل لـ 69 ولاية. المدة عادةً من 2 إلى 5 أيام عمل.' },
+  { q: 'ما طريقة الدفع المقبولة؟',              a: 'الدفع عند الاستلام (نقداً). الأولوية في الطلبيات لمن يدفع مسبقاً.' },
+  { q: 'هل يمكنني طلب تغليف مخصص بشعاري؟',    a: 'نعم! يمكن تخصيص منتجاتنا بشعارك الخاص. اطلب منتجك في الموقع وسنجعل تغليفك تحفة فنية.' },
+  { q: 'كيف أتابع طلبي؟',                       a: 'يتصل بك فريقنا هاتفياً بعد التأكيد لإعلامك بموعد التسليم.' },
 ]
 
 const WHY_FR = [
   { icon: '⚡', title: 'Livraison rapide',        desc: 'Expédition sous 48h partout en Algérie' },
   { icon: '📦', title: 'Qualité professionnelle', desc: 'Matériaux premium, finitions soignées' },
-  { icon: '💰', title: 'Prix grossiste',           desc: 'Tarifs dégressifs dès 50 unités' },
+  { icon: '💰', title: 'Prix grossiste',           desc: 'Tarifs dégressifs dès 100 unités' },
 ]
 const WHY_AR = [
   { icon: '⚡', title: 'توصيل سريع',     desc: 'شحن خلال 48 ساعة إلى جميع أنحاء الجزائر' },
   { icon: '📦', title: 'جودة احترافية', desc: 'مواد فاخرة وتشطيبات عالية الجودة' },
-  { icon: '💰', title: 'أسعار الجملة',  desc: 'أسعار تنازلية من 50 وحدة' },
+  { icon: '💰', title: 'أسعار الجملة',  desc: 'أسعار تنازلية من 100 وحدة' },
 ]
 
 /* ─── FAQ Item ─── */
@@ -195,36 +197,112 @@ function HomePage() {
       style={{ background: '#F8F7FF', minHeight: '100dvh', paddingTop: 72 }}>
 
       {/* ══════════════════════════════════
-          HERO
+          HERO — Mobile + Desktop
       ══════════════════════════════════ */}
-      <section style={{
+
+      {/* ── DESKTOP HERO ── */}
+      <section className="hidden md:block" style={{
+        background: `linear-gradient(135deg, ${PURPLE_DEEP} 0%, ${PURPLE} 55%, #8B45E8 100%)`,
+        position: 'relative', overflow: 'hidden', minHeight: 520,
+      }}>
+        {/* Déco */}
+        <div style={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, background: 'radial-gradient(circle, rgba(255,214,0,0.15) 0%, transparent 65%)', borderRadius: '50%', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: -80, left: -60, width: 300, height: 300, background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 65%)', borderRadius: '50%', pointerEvents: 'none' }} />
+
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '72px 48px', display: 'flex', alignItems: 'center', gap: 64, position: 'relative', zIndex: 1 }}
+          dir={isRTL ? 'rtl' : 'ltr'}>
+
+          {/* Texte gauche */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="animate-fade-up" style={{
+              display: 'inline-block',
+              background: 'rgba(255,214,0,0.18)', border: '1px solid rgba(255,214,0,0.4)',
+              color: YELLOW, fontSize: 11, fontWeight: 700,
+              letterSpacing: '1.5px', textTransform: 'uppercase',
+              padding: '5px 14px', borderRadius: 50, marginBottom: 24,
+            }}>
+              {lang === 'ar' ? '✦ تغليف فاخر' : '✦ Emballage Premium'}
+            </div>
+
+            <h1 className="animate-fade-up" style={{
+              fontSize: 'clamp(36px, 4vw, 52px)', fontWeight: 900, lineHeight: 1.1,
+              color: 'white', marginBottom: 20, animationDelay: '0.1s',
+            }}>
+              {lang === 'ar'
+                ? <>{`حلول تغليف `}<br /><span style={{ color: YELLOW }}>سريعة واحترافية</span></>
+                : <>Solutions<br />d'emballage<br /><span style={{ color: YELLOW }}>rapides & pro.</span></>}
+            </h1>
+
+            <p className="animate-fade-up" style={{
+              color: 'rgba(255,255,255,0.72)', fontSize: 16, lineHeight: 1.7,
+              maxWidth: 360, marginBottom: 36, animationDelay: '0.2s',
+            }}>
+              {lang === 'ar'
+                ? 'التغليف الذي يعكس علامتك التجارية. مصنوع في الجزائر، يُوصَّل في كل مكان.'
+                : "L'emballage qui reflète votre marque. Produit en Algérie, livré partout."}
+            </p>
+
+            <div className="animate-fade-up" style={{ display: 'flex', gap: 16, flexWrap: 'wrap', animationDelay: '0.3s' }}>
+              <button className="btn-yellow" onClick={() => navigate('/products')} style={{ fontSize: 16, padding: '16px 32px' }}>
+                {lang === 'ar' ? 'اطلب الآن' : 'Commander maintenant'}
+                <span style={{ fontSize: 20 }}>→</span>
+              </button>
+              <a href={`https://wa.me/213554691650`} target="_blank" rel="noreferrer"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  padding: '16px 28px', borderRadius: 10, fontSize: 15, fontWeight: 700,
+                  background: '#25D366', color: 'white', textDecoration: 'none',
+                  boxShadow: '0 4px 16px rgba(37,211,102,0.35)',
+                }}>
+                WhatsApp
+              </a>
+            </div>
+
+            {/* Stats */}
+            <div className="animate-fade-up" style={{
+              display: 'flex', gap: 40, marginTop: 48, paddingTop: 32,
+              borderTop: '1px solid rgba(255,255,255,0.15)',
+              animationDelay: '0.4s',
+            }}>
+              {[
+                { val: '69',   label: lang === 'ar' ? 'ولاية' : 'Wilayas' },
+                { val: '100%', label: lang === 'ar' ? 'جودة ممتازة' : 'Qualité premium' },
+                { val: '48h',  label: lang === 'ar' ? 'توصيل' : 'Livraison' },
+              ].map(s => (
+                <div key={s.val} style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: 28, fontWeight: 900, color: YELLOW, lineHeight: 1 }}>{s.val}</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, marginTop: 4, textTransform: 'uppercase', letterSpacing: '1px', color: 'rgba(255,255,255,0.55)' }}>{s.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Image droite */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ borderRadius: 24, overflow: 'hidden', boxShadow: '0 24px 60px rgba(0,0,0,0.4)', aspectRatio: '4/3' }}>
+              <img src="/mainPC.webp" alt="Emballage premium Logo Time"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                onError={e => { e.target.src = '/main.webp' }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── MOBILE HERO ── */}
+      <section className="block md:hidden" style={{
         background: `linear-gradient(160deg, ${PURPLE_DEEP} 0%, ${PURPLE} 60%, #8B45E8 100%)`,
         padding: '36px 24px 48px',
         position: 'relative', overflow: 'hidden',
       }}>
-        {/* Déco cercles */}
-        <div style={{
-          position: 'absolute', top: -80, right: -80,
-          width: 300, height: 300,
-          background: 'radial-gradient(circle, rgba(255,214,0,0.18) 0%, transparent 70%)',
-          borderRadius: '50%',
-        }} />
-        <div style={{
-          position: 'absolute', bottom: -60, left: -40,
-          width: 200, height: 200,
-          background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)',
-          borderRadius: '50%',
-        }} />
+        <div style={{ position: 'absolute', top: -80, right: -80, width: 300, height: 300, background: 'radial-gradient(circle, rgba(255,214,0,0.18) 0%, transparent 70%)', borderRadius: '50%' }} />
 
         <div className="animate-fade-up" style={{
           display: 'inline-block',
-          background: 'rgba(255,214,0,0.18)',
-          border: '1px solid rgba(255,214,0,0.4)',
-          color: YELLOW,
-          fontSize: 11, fontWeight: 700,
+          background: 'rgba(255,214,0,0.18)', border: '1px solid rgba(255,214,0,0.4)',
+          color: YELLOW, fontSize: 11, fontWeight: 700,
           letterSpacing: '1.5px', textTransform: 'uppercase',
-          padding: '5px 14px', borderRadius: 50,
-          marginBottom: 20,
+          padding: '5px 14px', borderRadius: 50, marginBottom: 20,
         }}>
           {lang === 'ar' ? '✦ تغليف فاخر' : '✦ Emballage Premium'}
         </div>
@@ -236,7 +314,7 @@ function HomePage() {
         }}>
           {lang === 'ar'
             ? <>{`حلول تغليف `}<span style={{ color: YELLOW }}>سريعة واحترافية</span></>
-            : <>Solutions d'emballage<br /><span style={{ color: YELLOW }}>rapides &amp; pro.</span></>}
+            : <>Solutions d'emballage<br /><span style={{ color: YELLOW }}>rapides & pro.</span></>}
         </h1>
 
         <p className="animate-fade-up" style={{
@@ -249,25 +327,14 @@ function HomePage() {
             : "L'emballage qui reflète votre marque. Produit en Algérie, livré partout."}
         </p>
 
-        {/* Hero image */}
-        <div className="animate-fade-up" style={{
-          width: '100%', borderRadius: 16, overflow: 'hidden',
-          marginBottom: 28, boxShadow: '0 16px 40px rgba(0,0,0,0.3)',
-          position: 'relative', zIndex: 1, animationDelay: '0.25s',
-        }}>
-          <img
-            src="/mainPC.webp"
-            alt="Emballage premium Logo Time"
+        <div className="animate-fade-up" style={{ borderRadius: 16, overflow: 'hidden', marginBottom: 28, boxShadow: '0 16px 40px rgba(0,0,0,0.3)', animationDelay: '0.25s' }}>
+          <img src="/mainPC.webp" alt="Emballage premium Logo Time"
             style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block' }}
             onError={e => { e.target.src = '/main.webp' }}
           />
         </div>
 
-        <button
-          className="animate-fade-up btn-yellow"
-          onClick={() => navigate('/products')}
-          style={{ animationDelay: '0.3s' }}
-        >
+        <button className="animate-fade-up btn-yellow" onClick={() => navigate('/products')} style={{ animationDelay: '0.3s' }}>
           {lang === 'ar' ? 'اطلب الآن' : 'Commander maintenant'}
           <span style={{ fontSize: 18 }}>→</span>
         </button>
@@ -306,7 +373,7 @@ function HomePage() {
             <small style={{ fontSize: 11, fontWeight: 600, display: 'block', opacity: 0.8 }}>
               {lang === 'ar' ? 'من' : 'dès'}
             </small>
-            500 u.
+            {lang === 'ar' ? '500 وحدة' : '500 unités'}
           </div>
         </div>
       </div>
@@ -314,7 +381,7 @@ function HomePage() {
       {/* ══════════════════════════════════
           CATÉGORIES
       ══════════════════════════════════ */}
-      <section style={{ padding: '28px 20px 0' }}>
+      <section style={{ padding: '28px 20px 0' }} className="max-w-5xl mx-auto md:px-8">
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 20 }}>
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: PURPLE_DEEP }}>
@@ -329,7 +396,7 @@ function HomePage() {
           </Link>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4" style={{ display: 'grid' }}>
           {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, desc_fr, desc_ar }) => {
             const label = lang === 'ar' ? label_ar : label_fr
             const desc  = lang === 'ar' ? desc_ar  : desc_fr
@@ -373,7 +440,7 @@ function HomePage() {
             {lang === 'ar' ? 'لماذا تختارنا؟' : 'Pourquoi nous choisir ?'}
           </h3>
           <div style={{ width: 40, height: 4, background: YELLOW, borderRadius: 2, margin: '0 auto 24px' }} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="grid md:grid-cols-3 gap-4">
             {why.map((w, i) => (
               <div key={i} style={{
                 background: 'rgba(255,255,255,0.1)',
