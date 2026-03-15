@@ -3,15 +3,15 @@ import { TrendingUp, Package, RefreshCcw, ShoppingBag, AlertTriangle, Loader2 } 
 import api from '../../utils/api'
 import toast from 'react-hot-toast'
 
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const NAVY   = '#1E0A4A'
+const PURPLE = '#6C2BD9'
 
 function StatCard({ icon: Icon, label, value, accent, color }) {
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 relative overflow-hidden">
       <div className="flex items-start justify-between mb-3">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{ background: accent ? 'rgba(124,58,237,0.1)' : '#f3f4f6' }}>
+          style={{ background: accent ? 'rgba(108,43,217,0.1)' : '#f3f4f6' }}>
           <Icon size={18} style={{ color: accent ? PURPLE : '#9ca3af' }} />
         </div>
       </div>

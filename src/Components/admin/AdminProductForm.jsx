@@ -3,8 +3,8 @@ import { Plus, Trash2, Upload, X, Loader2 } from 'lucide-react'
 import api from '../../utils/api'
 import toast from 'react-hot-toast'
 
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const NAVY   = '#1E0A4A'
+const PURPLE = '#6C2BD9'
 
 const CATEGORIES = [
   { value: 'Board',        label: 'Boites' },
@@ -47,7 +47,7 @@ const EMPTY = {
 
 const inputCls = err =>
   `w-full px-4 py-2.5 rounded-xl border-2 text-sm outline-none transition-all
-   ${err ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-white focus:border-[#7c3aed] focus:ring-2 focus:ring-purple-100'}`
+   ${err ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-white focus:border-[#6C2BD9] focus:ring-2 focus:ring-purple-100'}`
 
 // Refs pour le scroll-to-error
 const fieldOrderAdmin = ['name', 'sizes', 'doubleSidedPrice', 'images']
@@ -242,7 +242,7 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
                 {selected && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M2.5 7l3.5 3.5 5.5-6" stroke={isWhite ? '#7c3aed' : 'white'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M2.5 7l3.5 3.5 5.5-6" stroke={isWhite ? '#6C2BD9' : 'white'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
                 )}
@@ -270,7 +270,7 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
 
       {/* Option : couleurs dans le design */}
       <div className="rounded-2xl border-2 p-4 transition-all"
-        style={{ borderColor: form.colorDesignEnabled ? PURPLE : '#e5e7eb', background: form.colorDesignEnabled ? 'rgba(124,58,237,0.04)' : '#f9fafb' }}>
+        style={{ borderColor: form.colorDesignEnabled ? PURPLE : '#e5e7eb', background: form.colorDesignEnabled ? 'rgba(108,43,217,0.04)' : '#f9fafb' }}>
         <label className="flex items-center gap-3 cursor-pointer" onClick={() => set('colorDesignEnabled', !form.colorDesignEnabled)}>
           <div className="relative flex-shrink-0">
             <div className="w-11 h-6 rounded-full transition-colors" style={{ background: form.colorDesignEnabled ? PURPLE : '#d1d5db' }}>
@@ -284,7 +284,7 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
         </label>
 
         {form.colorDesignEnabled && (
-          <div className="mt-4 pt-4 grid grid-cols-2 gap-3" style={{ borderTop: '1px solid rgba(124,58,237,0.15)' }}>
+          <div className="mt-4 pt-4 grid grid-cols-2 gap-3" style={{ borderTop: '1px solid rgba(108,43,217,0.15)' }}>
             <div>
               <label className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: PURPLE }}>
                 Prix par couleur (DA) *
@@ -317,7 +317,7 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
 
       {/* Double impression */}
       <div className="rounded-2xl border-2 p-4 transition-all"
-        style={{ borderColor: form.doubleSided ? PURPLE : '#e5e7eb', background: form.doubleSided ? 'rgba(124,58,237,0.04)' : '#f9fafb' }}>
+        style={{ borderColor: form.doubleSided ? PURPLE : '#e5e7eb', background: form.doubleSided ? 'rgba(108,43,217,0.04)' : '#f9fafb' }}>
         <label className="flex items-center gap-3 cursor-pointer">
           <div className="relative" onClick={() => set('doubleSided', !form.doubleSided)}>
             <div className="w-11 h-6 rounded-full transition-colors" style={{ background: form.doubleSided ? PURPLE : '#d1d5db' }}>
@@ -332,7 +332,7 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
           </div>
         </label>
         {form.doubleSided && (
-          <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(124,58,237,0.15)' }}>
+          <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(108,43,217,0.15)' }}>
             <label className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: PURPLE }}>
               Prix supplément double impression (DA) *
             </label>

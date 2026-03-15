@@ -4,8 +4,8 @@ import { useAuth } from '../../context/AuthContext'
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const NAVY   = '#1E0A4A'
+const PURPLE = '#6C2BD9'
 
 const NAV_ITEMS = [
   { to: '/admin',          label: 'Tableau de bord', icon: LayoutDashboard, end: true },
@@ -21,12 +21,12 @@ function SidebarContent({ onClose, onLogout }) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-5"
-        style={{ borderBottom: '1px solid rgba(124,58,237,0.2)' }}>
-        <img src="/icon.webp" alt="BrandPack"
+        style={{ borderBottom: '1px solid rgba(108,43,217,0.2)' }}>
+        <img src="/icon.webp" alt="Logo Time"
           className="w-9 h-9 rounded-full object-contain flex-shrink-0" />
         <div>
-          <p className="text-white font-black italic text-base leading-none">BrandPack</p>
-          <p className="text-xs mt-0.5" style={{ color: 'rgba(124,58,237,0.7)' }}>Admin</p>
+          <p className="text-white font-black italic text-base leading-none">Logo Time</p>
+          <p className="text-xs mt-0.5" style={{ color: 'rgba(108,43,217,0.7)' }}>Admin</p>
         </div>
       </div>
 
@@ -39,9 +39,9 @@ function SidebarContent({ onClose, onLogout }) {
               display: 'flex', alignItems: 'center', gap: '10px',
               padding: '10px 14px', borderRadius: '10px',
               fontWeight: 600, fontSize: '14px', transition: 'all 0.2s',
-              background:  isActive ? 'rgba(124,58,237,0.15)' : 'transparent',
-              color:       isActive ? '#7c3aed' : 'rgba(255,255,255,0.55)',
-              borderLeft:  isActive ? '3px solid #7c3aed' : '3px solid transparent',
+              background:  isActive ? 'rgba(108,43,217,0.15)' : 'transparent',
+              color:       isActive ? '#6C2BD9' : 'rgba(255,255,255,0.55)',
+              borderLeft:  isActive ? '3px solid #6C2BD9' : '3px solid transparent',
               textDecoration: 'none',
             })}>
             <Icon size={16} />
@@ -52,7 +52,7 @@ function SidebarContent({ onClose, onLogout }) {
       </nav>
 
       {/* Déconnexion */}
-      <div className="px-3 py-4" style={{ borderTop: '1px solid rgba(124,58,237,0.15)' }}>
+      <div className="px-3 py-4" style={{ borderTop: '1px solid rgba(108,43,217,0.15)' }}>
         <button
           onClick={onLogout}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all"
@@ -115,7 +115,7 @@ function AdminLayout() {
       {/* Sidebar fixe — desktop uniquement */}
       <aside
         className="hidden lg:flex flex-col w-60 fixed top-0 bottom-0 left-0 z-30"
-        style={{ background: NAVY, borderRight: '1px solid rgba(124,58,237,0.2)' }}>
+        style={{ background: NAVY, borderRight: '1px solid rgba(108,43,217,0.2)' }}>
         <SidebarContent onClose={closeSidebar} onLogout={handleLogout} />
       </aside>
 
@@ -132,7 +132,7 @@ function AdminLayout() {
           {/* Panneau latéral */}
           <aside
             className="absolute top-0 left-0 bottom-0 w-64 flex flex-col"
-            style={{ background: NAVY, borderRight: '1px solid rgba(124,58,237,0.2)' }}
+            style={{ background: NAVY, borderRight: '1px solid rgba(108,43,217,0.2)' }}
             onClick={e => e.stopPropagation()}>
             <button
               onClick={closeSidebar}
@@ -151,14 +151,14 @@ function AdminLayout() {
         {/* Barre du haut — mobile seulement */}
         <header
           className="lg:hidden flex items-center justify-between px-4 py-3 sticky top-0 z-40"
-          style={{ background: NAVY, borderBottom: '1px solid rgba(124,58,237,0.2)' }}>
+          style={{ background: NAVY, borderBottom: '1px solid rgba(108,43,217,0.2)' }}>
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-2 rounded-lg"
             style={{ color: 'rgba(255,255,255,0.65)' }}>
             <Menu size={20} />
           </button>
-          <span className="text-white font-black italic text-sm">BrandPack Admin</span>
+          <span className="text-white font-black italic text-sm">Logo Time Admin</span>
           <div className="w-10" />
         </header>
 

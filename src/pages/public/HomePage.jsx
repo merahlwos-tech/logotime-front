@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLang } from '../../context/LanguageContext'
 import { useSEO } from '../../utils/UseSEO'
@@ -78,6 +78,100 @@ function FAQItem({ q, a }) {
           <p style={{ fontSize: 13, color: '#6B6B8A', lineHeight: 1.6, paddingTop: 12 }}>{a}</p>
         </div>
       )}
+    </div>
+  )
+}
+
+
+/* ─── Before / After Slider ─── */
+function BeforeAfterSlider({ lang }) {
+  const [pos, setPos]   = useState(50)
+  const [drag, setDrag] = useState(false)
+  const containerRef    = useRef(null)
+
+  const calc = useCallback((clientX) => {
+    const rect = containerRef.current?.getBoundingClientRect()
+    if (!rect) return
+    const x = Math.min(Math.max(clientX - rect.left, 0), rect.width)
+    setPos(Math.round((x / rect.width) * 100))
+  }, [])
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        position: 'relative', width: '100%', overflow: 'hidden',
+        borderRadius: 16, cursor: 'col-resize', userSelect: 'none',
+        aspectRatio: '16/9', maxHeight: 300,
+        boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
+      }}
+      onMouseMove={e => { if (drag) calc(e.clientX) }}
+      onMouseUp={() => setDrag(false)}
+      onMouseLeave={() => setDrag(false)}
+      onTouchMove={e => calc(e.touches[0].clientX)}
+      onTouchEnd={() => setDrag(false)}
+    >
+      {/* AFTER — full image background */}
+      <img src="/after.webp" alt="Après" draggable={false}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        onError={e => { e.target.src = '/sacs.webp' }}
+      />
+
+      {/* BEFORE — clipped left */}
+      <div style={{
+        position: 'absolute', inset: 0, overflow: 'hidden',
+        clipPath: `inset(0 ${100 - pos}% 0 0)`,
+      }}>
+        <img src="/before.webp" alt="Avant" draggable={false}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(70%) brightness(0.75)' }}
+          onError={e => { e.target.src = '/boite.webp'; e.target.style.filter = 'grayscale(70%) brightness(0.75)' }}
+        />
+      </div>
+
+      {/* Labels */}
+      <span style={{
+        position: 'absolute', top: 10, left: 10,
+        fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px',
+        background: 'rgba(0,0,0,0.55)', color: 'white',
+        padding: '4px 10px', borderRadius: 50,
+      }}>
+        {lang === 'ar' ? 'قبل' : 'Avant'}
+      </span>
+      <span style={{
+        position: 'absolute', top: 10, right: 10,
+        fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px',
+        background: '#FFD600', color: '#1E0A4A',
+        padding: '4px 10px', borderRadius: 50,
+      }}>
+        {lang === 'ar' ? 'بعد ✓' : 'Après ✓'}
+      </span>
+
+      {/* Divider line */}
+      <div style={{
+        position: 'absolute', inset: 0, width: 3,
+        left: `${pos}%`, transform: 'translateX(-50%)',
+        background: 'white', boxShadow: '0 0 8px rgba(0,0,0,0.4)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Handle */}
+      <div
+        style={{
+          position: 'absolute', top: '50%', left: `${pos}%`,
+          transform: 'translate(-50%, -50%)',
+          width: 36, height: 36, borderRadius: '50%',
+          background: 'white', border: '3px solid #6C2BD9',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.25)',
+          cursor: 'grab', zIndex: 10, touchAction: 'none',
+        }}
+        onMouseDown={e => { e.preventDefault(); setDrag(true) }}
+        onTouchStart={() => setDrag(true)}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C2BD9" strokeWidth="2.5">
+          <path d="M9 18l-6-6 6-6M15 6l6 6-6 6"/>
+        </svg>
+      </div>
     </div>
   )
 }
@@ -310,68 +404,16 @@ function HomePage() {
       </div>
 
       {/* ══════════════════════════════════
-          AVANT / APRÈS
+          AVANT / APRÈS SLIDER
       ══════════════════════════════════ */}
       <div style={{ padding: '0 20px 28px' }}>
         <h3 style={{ fontSize: 20, fontWeight: 800, color: PURPLE_DEEP, marginBottom: 6 }}>
           {lang === 'ar' ? 'قبل / بعد' : 'Avant / Après'}
         </h3>
-        <p style={{ fontSize: 13, color: '#6B6B8A', marginBottom: 20 }}>
-          {lang === 'ar' ? 'اروا الفرق الذي يصنعه التغليف الجيد' : 'Voyez la différence que fait un bon emballage'}
+        <p style={{ fontSize: 13, color: '#6B6B8A', marginBottom: 16 }}>
+          {lang === 'ar' ? 'اسحب لترى الفرق' : 'Faites glisser pour voir la différence'}
         </p>
-        <div style={{
-          borderRadius: 16, overflow: 'hidden',
-          boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
-          background: 'white', position: 'relative',
-        }}>
-          <div style={{ display: 'flex', height: 200 }}>
-            <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-              <img src="/before.webp" alt="Avant"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(80%) brightness(0.7)' }}
-                onError={e => { e.target.src = '/boite.webp'; e.target.style.filter = 'grayscale(80%) brightness(0.7)' }}
-              />
-              <span style={{
-                position: 'absolute', bottom: 10, left: 10,
-                fontSize: 11, fontWeight: 700,
-                padding: '4px 12px', borderRadius: 50,
-                textTransform: 'uppercase', letterSpacing: '0.8px',
-                background: 'rgba(0,0,0,0.5)', color: 'white',
-              }}>
-                {lang === 'ar' ? 'قبل' : 'Avant'}
-              </span>
-            </div>
-            <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-              <img src="/after.webp" alt="Après"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                onError={e => { e.target.src = '/sacs.webp' }}
-              />
-              <span style={{
-                position: 'absolute', bottom: 10, right: 10,
-                fontSize: 11, fontWeight: 700,
-                padding: '4px 12px', borderRadius: 50,
-                textTransform: 'uppercase', letterSpacing: '0.8px',
-                background: YELLOW, color: PURPLE_DARK,
-              }}>
-                {lang === 'ar' ? 'بعد ✓' : 'Après ✓'}
-              </span>
-            </div>
-            {/* Séparateur */}
-            <div style={{
-              position: 'absolute', top: 0, left: '50%',
-              width: 3, height: '100%',
-              background: 'white', transform: 'translateX(-50%)', zIndex: 2,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <div style={{
-                width: 32, height: 32,
-                background: 'white', borderRadius: '50%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 14, color: PURPLE, fontWeight: 800,
-                boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-              }}>↔</div>
-            </div>
-          </div>
-        </div>
+        <BeforeAfterSlider lang={lang} />
       </div>
 
       {/* ══════════════════════════════════

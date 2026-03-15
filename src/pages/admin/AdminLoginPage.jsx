@@ -4,8 +4,8 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
 
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const NAVY   = '#1E0A4A'
+const PURPLE = '#6C2BD9'
 
 function AdminLoginPage() {
   const { login } = useAuth()
@@ -63,15 +63,15 @@ function AdminLoginPage() {
         <div className="flex flex-col items-center mb-10">
           <div className="relative mb-4">
             <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-2xl ring-2"
-              style={{ ringColor: 'rgba(124,58,237,0.4)', boxShadow: `0 0 40px rgba(124,58,237,0.35)` }}>
-              <img src="/icon.webp" alt="BrandPack"
+              style={{ ringColor: 'rgba(108,43,217,0.4)', boxShadow: `0 0 40px rgba(108,43,217,0.35)` }}>
+              <img src="/icon.webp" alt="Logo Time"
                 className="w-full h-full object-cover" />
             </div>
             {/* Point vert "en ligne" */}
             <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2"
               style={{ borderColor: NAVY }} />
           </div>
-          <h1 className="font-black italic text-white text-2xl tracking-tight">BrandPack</h1>
+          <h1 className="font-black italic text-white text-2xl tracking-tight">Logo Time</h1>
           <p className="text-xs mt-1 font-medium tracking-widest uppercase"
             style={{ color: 'rgba(255,255,255,0.3)' }}>
             Espace Administrateur
@@ -142,9 +142,9 @@ function AdminLoginPage() {
                          hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
               style={{
                 background: loading
-                  ? 'rgba(124,58,237,0.5)'
+                  ? 'rgba(108,43,217,0.5)'
                   : `linear-gradient(135deg, ${PURPLE}, #6d28d9)`,
-                boxShadow: loading ? 'none' : `0 8px 24px rgba(124,58,237,0.4)`,
+                boxShadow: loading ? 'none' : `0 8px 24px rgba(108,43,217,0.4)`,
               }}>
               {loading
                 ? <><Loader2 size={16} className="animate-spin" /> Connexion...</>

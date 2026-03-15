@@ -4,8 +4,8 @@ import { Loader2, ChevronDown, ChevronUp, Search, X, Trash2, AlertTriangle, Eye 
 import api from '../../utils/api'
 import toast from 'react-hot-toast'
 
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const NAVY   = '#1E0A4A'
+const PURPLE = '#6C2BD9'
 
 const STATUS_FILTERS = ['Tous', 'en attente', 'confirmé', 'annulé']
 const STATUS_LABELS  = {
@@ -32,7 +32,7 @@ function OrderCard({ order, selected, onToggle, onDetail }) {
       className="bg-white rounded-2xl p-4 shadow-sm border transition-all"
       style={{
         borderColor: selected ? PURPLE : '#f0f0f5',
-        background: selected ? 'rgba(124,58,237,0.02)' : 'white',
+        background: selected ? 'rgba(108,43,217,0.02)' : 'white',
       }}>
 
       {/* Ligne 1 : checkbox + nom + œil */}
@@ -58,7 +58,7 @@ function OrderCard({ order, selected, onToggle, onDetail }) {
           <button
             onClick={onDetail}
             className="p-2 rounded-xl"
-            style={{ background: 'rgba(124,58,237,0.08)', color: PURPLE }}>
+            style={{ background: 'rgba(108,43,217,0.08)', color: PURPLE }}>
             <Eye size={15} />
           </button>
         </div>
@@ -271,7 +271,7 @@ function AdminOrdersPage() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #f3f4f6', background: 'rgba(124,58,237,0.03)' }}>
+                  <tr style={{ borderBottom: '1px solid #f3f4f6', background: 'rgba(108,43,217,0.03)' }}>
                     <th className="px-3 lg:px-4 py-3 w-10">
                       <input
                         type="checkbox" checked={allSelected} onChange={toggleAll}
@@ -317,7 +317,7 @@ function AdminOrdersPage() {
                         className="transition-colors hover:bg-gray-50"
                         style={{
                           borderBottom: '1px solid #f9fafb',
-                          background: selected.has(order._id) ? 'rgba(124,58,237,0.03)' : 'transparent',
+                          background: selected.has(order._id) ? 'rgba(108,43,217,0.03)' : 'transparent',
                         }}>
                         <td className="px-3 lg:px-4 py-3">
                           <input
@@ -366,7 +366,7 @@ function AdminOrdersPage() {
                           <button
                             onClick={() => navigate(`/admin/orders/${order._id}`)}
                             className="p-2 rounded-xl transition-all hover:scale-110"
-                            style={{ background: 'rgba(124,58,237,0.08)', color: PURPLE }}>
+                            style={{ background: 'rgba(108,43,217,0.08)', color: PURPLE }}>
                             <Eye size={14} />
                           </button>
                         </td>

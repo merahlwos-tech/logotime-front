@@ -9,8 +9,8 @@ import api from '../../utils/api'
 import toast from 'react-hot-toast'
 
 const API    = import.meta.env.VITE_API_URL || ''
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const NAVY   = '#1E0A4A'
+const PURPLE = '#6C2BD9'
 
 const STATUS_OPTIONS = [
   { value: 'en attente', label: 'En attente', color: '#9ca3af', bg: '#f3f4f6' },
@@ -325,7 +325,7 @@ export default function AdminOrderDetailPage() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                  style={{ background: 'rgba(124,58,237,0.08)' }}>
+                  style={{ background: 'rgba(108,43,217,0.08)' }}>
                   <User size={14} style={{ color: PURPLE }} />
                 </div>
                 <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: PURPLE }}>
@@ -336,7 +336,7 @@ export default function AdminOrderDetailPage() {
                 className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all"
                 style={editClient
                   ? { background: PURPLE, color: 'white', borderColor: PURPLE }
-                  : { background: 'white', color: PURPLE, borderColor: 'rgba(124,58,237,0.3)' }}>
+                  : { background: 'white', color: PURPLE, borderColor: 'rgba(108,43,217,0.3)' }}>
                 <Pencil size={11} /> {editClient ? 'Annuler' : 'Modifier'}
               </button>
             </div>
@@ -411,7 +411,7 @@ export default function AdminOrderDetailPage() {
                           className="flex-1 py-2.5 rounded-xl border-2 text-sm font-bold transition-all"
                           style={active ? {
                             background: PURPLE, borderColor: PURPLE, color: 'white',
-                            boxShadow: '0 4px 12px rgba(124,58,237,0.3)',
+                            boxShadow: '0 4px 12px rgba(108,43,217,0.3)',
                           } : {
                             background: 'white', borderColor: '#e5e7eb', color: '#9ca3af',
                           }}>
@@ -463,7 +463,7 @@ export default function AdminOrderDetailPage() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                  style={{ background: 'rgba(124,58,237,0.08)' }}>
+                  style={{ background: 'rgba(108,43,217,0.08)' }}>
                   <Package size={14} style={{ color: PURPLE }} />
                 </div>
                 <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: PURPLE }}>
@@ -472,7 +472,7 @@ export default function AdminOrderDetailPage() {
               </div>
               <button onClick={openAddModal}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold border"
-                style={{ background: 'white', color: PURPLE, borderColor: 'rgba(124,58,237,0.3)' }}>
+                style={{ background: 'white', color: PURPLE, borderColor: 'rgba(108,43,217,0.3)' }}>
                 <Plus size={11} /> Ajouter
               </button>
             </div>
@@ -525,7 +525,7 @@ export default function AdminOrderDetailPage() {
             {/* Total */}
             {order.customerInfo?.deliveryFee != null && (
               <div className="flex items-center justify-between px-4 py-2 mt-3 rounded-xl"
-                style={{ background: 'rgba(124,58,237,0.03)', border: '1px solid rgba(124,58,237,0.1)' }}>
+                style={{ background: 'rgba(108,43,217,0.03)', border: '1px solid rgba(108,43,217,0.1)' }}>
                 <span className="text-sm text-gray-500">
                   Frais de livraison
                   {order.customerInfo.deliveryMethod && (
@@ -538,7 +538,7 @@ export default function AdminOrderDetailPage() {
               </div>
             )}
             <div className="flex items-center justify-between px-4 py-3 mt-2 rounded-xl"
-              style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.15)' }}>
+              style={{ background: 'rgba(108,43,217,0.06)', border: '1px solid rgba(108,43,217,0.15)' }}>
               <span className="font-bold text-sm" style={{ color: NAVY }}>Total commande</span>
               <span className="font-black text-2xl" style={{ color: PURPLE }}>
                 {computedTotal.toLocaleString('fr-DZ')}
@@ -552,7 +552,7 @@ export default function AdminOrderDetailPage() {
             <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                  style={{ background: 'rgba(124,58,237,0.08)' }}>
+                  style={{ background: 'rgba(108,43,217,0.08)' }}>
                   <Tag size={14} style={{ color: PURPLE }} />
                 </div>
                 <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: PURPLE }}>Fichiers client</h2>
@@ -564,7 +564,7 @@ export default function AdminOrderDetailPage() {
                     const filename = url.split('/').pop()?.split('?')[0] || `logo-${idx + 1}.pdf`
                     return (
                       <div key={idx} className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 w-28"
-                        style={{ borderColor: 'rgba(124,58,237,0.2)', background: 'rgba(124,58,237,0.03)' }}>
+                        style={{ borderColor: 'rgba(108,43,217,0.2)', background: 'rgba(108,43,217,0.03)' }}>
                         <FileText size={32} style={{ color: PURPLE }} />
                         <span className="text-[10px] text-gray-500 text-center break-all line-clamp-2">
                           {filename.length > 18 ? filename.slice(0, 16) + '…' : filename}
@@ -575,7 +575,7 @@ export default function AdminOrderDetailPage() {
                             style={{ background: PURPLE }}>Ouvrir</a>
                           <button onClick={() => downloadLogo(url, idx)}
                             className="w-7 flex items-center justify-center rounded-lg"
-                            style={{ background: 'rgba(124,58,237,0.12)', color: PURPLE }}>
+                            style={{ background: 'rgba(108,43,217,0.12)', color: PURPLE }}>
                             <Download size={11} />
                           </button>
                         </div>
@@ -586,7 +586,7 @@ export default function AdminOrderDetailPage() {
                     <div key={idx} className="relative group">
                       <img src={url} alt={`logo ${idx + 1}`}
                         className="w-24 h-24 object-contain rounded-xl border-2 bg-gray-50"
-                        style={{ borderColor: 'rgba(124,58,237,0.2)' }} />
+                        style={{ borderColor: 'rgba(108,43,217,0.2)' }} />
                       <button onClick={() => downloadLogo(url, idx)}
                         className="absolute -bottom-2 -right-2 flex items-center gap-1 px-2 py-1 rounded-lg text-white text-[10px] font-bold shadow-md"
                         style={{ background: PURPLE }}>
@@ -607,7 +607,7 @@ export default function AdminOrderDetailPage() {
           <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                style={{ background: 'rgba(124,58,237,0.08)' }}>
+                style={{ background: 'rgba(108,43,217,0.08)' }}>
                 <Hash size={14} style={{ color: PURPLE }} />
               </div>
               <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: PURPLE }}>Détails</h2>
@@ -625,7 +625,7 @@ export default function AdminOrderDetailPage() {
           <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                style={{ background: 'rgba(124,58,237,0.08)' }}>
+                style={{ background: 'rgba(108,43,217,0.08)' }}>
                 <CheckCircle2 size={14} style={{ color: PURPLE }} />
               </div>
               <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: PURPLE }}>Statut</h2>

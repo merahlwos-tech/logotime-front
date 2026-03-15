@@ -3,8 +3,8 @@ import { Check, Loader2 } from 'lucide-react'
 import api from '../../utils/api'
 import toast from 'react-hot-toast'
 
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const NAVY   = '#1E0A4A'
+const PURPLE = '#6C2BD9'
 
 const STATUS_OPTIONS = [
   { value: 'en attente', label: 'En attente', color: '#9ca3af' },
