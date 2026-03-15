@@ -172,19 +172,9 @@ function CartPage() {
         />
       )}
 
-      <div className="pt-20 pb-6 px-4" style={{ borderBottom: '1px solid rgba(124,58,237,0.1)' }}>
-        <div className="max-w-5xl mx-auto">
-          <button onClick={() => navigate('/products')}
-            className="flex items-center gap-2 text-sm font-medium mb-3 group"
-            style={{ color: PURPLE }}>
-            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-            {t('continueShopping')}
-          </button>
-          <h1 className="text-3xl font-black italic" style={{ color: NAVY }}>{t('myCart')}</h1>
-        </div>
-      </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+
+      <div className="max-w-6xl mx-auto px-4 py-8" style={{ paddingTop: 96 }}>
 
         {/* Layout mobile : colonne / Layout PC : côte à côte pleine largeur */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -226,8 +216,8 @@ function CartPage() {
             )}
 
             {/* Récap total — visible partout */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-              <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: PURPLE }}>
+            <div className="rounded-2xl p-5 shadow-sm" style={{ background: 'rgba(255,214,0,0.12)', border: '2px solid rgba(255,214,0,0.4)' }}>
+              <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#4A1A9E' }}>
                 {t('summary')}
               </p>
               <div className="space-y-2 mb-4">
@@ -270,7 +260,7 @@ function CartPage() {
                 </div>
                 <div className="flex justify-between items-center pt-1">
                   <span className="text-sm font-bold" style={{ color: NAVY }}>{t('total')}</span>
-                  <span className="font-black text-2xl" style={{ color: PURPLE }}>
+                  <span className="font-black text-2xl" style={{ color: '#4A1A9E' }}>
                     {totalWithDelivery.toLocaleString('fr-DZ')}
                     <span className="text-sm font-normal text-gray-400 ml-1">DA</span>
                   </span>
@@ -283,8 +273,8 @@ function CartPage() {
           {/* Colonne droite : formulaire livraison */}
           <div>
             <div className="lg:sticky lg:top-24">
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-                <p className="text-xs font-bold uppercase tracking-widest mb-5" style={{ color: PURPLE }}>
+              <div className="rounded-2xl p-5 shadow-sm" style={{ background: 'white', border: '2px solid rgba(255,214,0,0.4)' }}>
+                <p className="text-xs font-bold uppercase tracking-widest mb-5" style={{ color: '#4A1A9E' }}>
                   {t('deliveryInfo2')}
                 </p>
                 <CheckoutForm

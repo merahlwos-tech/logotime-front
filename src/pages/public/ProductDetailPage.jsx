@@ -10,9 +10,9 @@ import { trackViewContent, trackAddToCart, trackHighQualityVisitor, trackScrollT
 import { useSEO } from '../../utils/UseSEO'
 import toast from 'react-hot-toast'
 
-const NAVY   = '#1E0A4A'
-const PURPLE = '#6C2BD9'
-const YELLOW = '#FFD600'
+const NAVY        = '#1E0A4A'
+const PURPLE      = '#6C2BD9'
+const YELLOW      = '#FFD600'
 const PURPLE_DARK = '#4A1A9E'
 const CAT_LABELS_FR = { Board: 'Boites', Bags: 'Sacs', Autocollants: 'Cartes et Autocollants', Paper: 'Papier' }
 const CAT_LABELS_AR = { Board: 'صناديق', Bags: 'أكياس', Autocollants: 'بطاقات', Paper: 'ورق' }
@@ -279,7 +279,7 @@ function ProductDetailPage() {
                   {images.map((img, i) => (
                     <button key={i} onClick={() => setCurrentImage(i)}
                       className="aspect-square rounded-xl overflow-hidden border-2 transition-all"
-                      style={{ borderColor: i === currentImage ? PURPLE : 'transparent' }}>
+                      style={{ borderColor: i === currentImage ? YELLOW : 'transparent' }}>
                       <img src={img} alt="" className="w-full h-full object-cover" />
                     </button>
                   ))}
@@ -293,7 +293,7 @@ function ProductDetailPage() {
                 <h1 className="font-black italic text-5xl leading-tight mb-3" style={{ color: NAVY }}>
                   {product.name}
                 </h1>
-                <p className="font-black text-3xl" style={{ color: PURPLE }}>
+                <p className="font-black text-3xl" style={{ color: PURPLE_DARK }}>
                   {unitPrice.toLocaleString('fr-DZ')}
                   <span className="text-base font-normal text-gray-400 ml-2">DA / {t('units').slice(0,-1) || 'unité'}</span>
                 </p>
@@ -343,7 +343,7 @@ function ProductDetailPage() {
                     <button
                       onClick={() => setNumberOfColors(v => String(Math.max(1, Number(v) - 1)))}
                       className="w-10 h-10 rounded-xl font-black text-lg flex items-center justify-center transition-all hover:opacity-80 active:scale-95 flex-shrink-0"
-                      style={{ background: PURPLE, color: 'white' }}>−</button>
+                      style={{ background: YELLOW, color: PURPLE_DARK, fontWeight: 900 }}>−</button>
                     <span className="flex-1 text-center font-black text-xl" style={{ color: NAVY }}>{numberOfColors}</span>
                     <button
                       onClick={() => setNumberOfColors(v => {
@@ -351,9 +351,9 @@ function ProductDetailPage() {
                         return String(max ? Math.min(max, Number(v) + 1) : Number(v) + 1)
                       })}
                       className="w-10 h-10 rounded-xl font-black text-lg flex items-center justify-center transition-all hover:opacity-80 active:scale-95 flex-shrink-0"
-                      style={{ background: PURPLE, color: 'white' }}>+</button>
+                      style={{ background: YELLOW, color: PURPLE_DARK, fontWeight: 900 }}>+</button>
                   </div>
-                  <p className="text-xs mt-1.5" style={{ color: PURPLE }}>
+                  <p className="text-xs mt-1.5" style={{ color: PURPLE_DARK }}>
                     {lang === 'ar'
                       ? t('colorDesignInfo', { price: product.colorDesignPricePerColor })
                       : t('colorDesignInfo', { price: product.colorDesignPricePerColor })}
@@ -370,7 +370,7 @@ function ProductDetailPage() {
               {product.doubleSided && (
                 <div className="rounded-2xl border-2 p-4 cursor-pointer transition-all"
                   style={{
-                    borderColor: doubleSided ? PURPLE : '#e5e7eb',
+                    borderColor: doubleSided ? YELLOW : '#e5e7eb',
                     background:  doubleSided ? 'rgba(124,58,237,0.04)' : '#f9fafb',
                   }}
                   onClick={() => setDoubleSided(d => !d)}>
@@ -385,7 +385,7 @@ function ProductDetailPage() {
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <div className="relative w-11 h-6 rounded-full transition-colors"
-                        style={{ background: doubleSided ? PURPLE : '#d1d5db' }}>
+                        style={{ background: doubleSided ? YELLOW : '#d1d5db' }}>
                         <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${doubleSided ? 'left-5' : 'left-0.5'}`} />
                       </div>
                     </div>
@@ -410,7 +410,7 @@ function ProductDetailPage() {
                     {quantity.toLocaleString()} × {unitPrice.toLocaleString('fr-DZ')} DA
                   </p>
                 </div>
-                <p className="font-black text-3xl" style={{ color: PURPLE }}>
+                <p className="font-black text-3xl" style={{ color: PURPLE_DARK }}>
                   {totalPrice.toLocaleString('fr-DZ')}
                   <span className="text-sm font-normal text-gray-400 ml-1">DA</span>
                 </p>
@@ -421,7 +421,7 @@ function ProductDetailPage() {
                 <button onClick={handleAddToCart}
                   className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl
                              font-black text-base transition-all hover:bg-purple-50 border-2"
-                  style={{ borderColor: PURPLE, color: PURPLE }}>
+                  style={{ borderColor: YELLOW, color: PURPLE_DARK, background: 'rgba(255,214,0,0.1)' }}>
                   <ShoppingBag size={20} />
                   {t('addToCart')}
                 </button>
@@ -522,7 +522,7 @@ function ProductDetailPage() {
                 <button
                   onClick={() => setNumberOfColors(v => String(Math.max(1, Number(v) - 1)))}
                   className="w-10 h-10 rounded-xl font-black text-lg flex items-center justify-center transition-all hover:opacity-80 active:scale-95 flex-shrink-0"
-                  style={{ background: PURPLE, color: 'white' }}>−</button>
+                  style={{ background: YELLOW, color: PURPLE_DARK, fontWeight: 900 }}>−</button>
                 <span className="flex-1 text-center font-black text-xl" style={{ color: NAVY }}>{numberOfColors}</span>
                 <button
                   onClick={() => setNumberOfColors(v => {
@@ -530,9 +530,9 @@ function ProductDetailPage() {
                     return String(max ? Math.min(max, Number(v) + 1) : Number(v) + 1)
                   })}
                   className="w-10 h-10 rounded-xl font-black text-lg flex items-center justify-center transition-all hover:opacity-80 active:scale-95 flex-shrink-0"
-                  style={{ background: PURPLE, color: 'white' }}>+</button>
+                  style={{ background: YELLOW, color: PURPLE_DARK, fontWeight: 900 }}>+</button>
               </div>
-              <p className="text-xs mt-1.5" style={{ color: PURPLE }}>
+              <p className="text-xs mt-1.5" style={{ color: PURPLE_DARK }}>
                 {t('colorDesignInfo', { price: product.colorDesignPricePerColor })}
               </p>
               {product.colorDesignMaxColors && (
@@ -546,7 +546,7 @@ function ProductDetailPage() {
           {/* Double impression */}
           {product.doubleSided && (
             <div className="rounded-2xl border-2 p-4 cursor-pointer transition-all"
-              style={{ borderColor: doubleSided ? PURPLE : '#e5e7eb', background: doubleSided ? 'rgba(124,58,237,0.04)' : '#f9fafb' }}
+              style={{ borderColor: doubleSided ? YELLOW : '#e5e7eb', background: doubleSided ? 'rgba(124,58,237,0.04)' : '#f9fafb' }}
               onClick={() => setDoubleSided(d => !d)}>
               <label className="flex items-center gap-3 cursor-pointer">
                 <div className="flex-1">
@@ -557,7 +557,7 @@ function ProductDetailPage() {
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <div className="relative w-11 h-6 rounded-full transition-colors"
-                    style={{ background: doubleSided ? PURPLE : '#d1d5db' }}>
+                    style={{ background: doubleSided ? YELLOW : '#d1d5db' }}>
                     <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${doubleSided ? 'left-5' : 'left-0.5'}`} />
                   </div>
                 </div>
@@ -588,7 +588,7 @@ function ProductDetailPage() {
             <button onClick={handleAddToCart}
               className="flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-base
                          border-2 transition-all hover:bg-purple-50"
-              style={{ borderColor: PURPLE, color: PURPLE }}>
+              style={{ borderColor: YELLOW, color: PURPLE_DARK, background: 'rgba(255,214,0,0.1)' }}>
               <ShoppingBag size={20} /> {t('addToCart')}
             </button>
             <button onClick={handleBuyNow}
