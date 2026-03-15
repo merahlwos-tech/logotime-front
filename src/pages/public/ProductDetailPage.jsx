@@ -10,8 +10,10 @@ import { trackViewContent, trackAddToCart, trackHighQualityVisitor, trackScrollT
 import { useSEO } from '../../utils/UseSEO'
 import toast from 'react-hot-toast'
 
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const NAVY   = '#1E0A4A'
+const PURPLE = '#6C2BD9'
+const YELLOW = '#FFD600'
+const PURPLE_DARK = '#4A1A9E'
 const CAT_LABELS_FR = { Board: 'Boites', Bags: 'Sacs', Autocollants: 'Cartes et Autocollants', Paper: 'Papier' }
 const CAT_LABELS_AR = { Board: 'صناديق', Bags: 'أكياس', Autocollants: 'بطاقات', Paper: 'ورق' }
 
@@ -226,7 +228,7 @@ function ProductDetailPage() {
 
   return (
     <div className="min-h-screen"
-      style={{ background: 'linear-gradient(160deg,#f5f3ff 0%,#ede9fe 50%,#e0e7ff 100%)' }}
+      style={{ background: 'linear-gradient(160deg,#F8F7FF 0%,#F0EEF9 100%)' }}
       dir={isRTL ? 'rtl' : 'ltr'}>
 
       {/* ── DESKTOP : grid 2 colonnes ── */}

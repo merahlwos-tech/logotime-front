@@ -10,8 +10,10 @@ import { useState, useEffect } from 'react'
 import { trackInitiateCheckout, trackPurchase, trackAddPaymentInfo } from '../../utils/metaPixel'
 import { useSEO } from '../../utils/UseSEO'
 
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const NAVY   = '#1E0A4A'
+const PURPLE = '#6C2BD9'
+const YELLOW = '#FFD600'
+const PURPLE_DARK = '#4A1A9E'
 
 /* ── Popup de confirmation de commande ── */
 function ConfirmOrderPopup({ customerInfo, onConfirm, onCancel, t, isRTL, lang }) {
@@ -67,8 +69,8 @@ function ConfirmOrderPopup({ customerInfo, onConfirm, onCancel, t, isRTL, lang }
 
         <div className="flex flex-col gap-2">
           <button onClick={onConfirm}
-            className="w-full py-3.5 rounded-2xl text-white font-black text-sm transition-all hover:opacity-90 shadow-lg"
-            style={{ background: PURPLE }}>
+            className="w-full py-3.5 rounded-2xl font-black text-sm transition-all hover:opacity-90 shadow-lg"
+            style={{ background: YELLOW, color: PURPLE_DARK }}>
             ✅ {t('popupConfirm')}
           </button>
           <button onClick={onCancel}
@@ -158,7 +160,7 @@ function CartPage() {
 
   return (
     <div className="min-h-screen"
-      style={{ background: 'linear-gradient(160deg,#f5f3ff 0%,#ede9fe 50%,#e0e7ff 100%)' }}
+      style={{ background: 'linear-gradient(160deg,#F8F7FF 0%,#F0EEF9 100%)' }}
       dir={isRTL ? 'rtl' : 'ltr'}>
 
       {pendingOrder && (
@@ -216,7 +218,7 @@ function CartPage() {
               </div>
             ) : totalUnits > 0 && (
               <div className="rounded-2xl px-4 py-3 text-center text-xs font-medium"
-                style={{ background: 'rgba(124,58,237,0.04)', border: '1px dashed rgba(124,58,237,0.25)', color: '#7c3aed' }}>
+                style={{ background: 'rgba(255,214,0,0.12)', border: '1px dashed rgba(255,214,0,0.6)', color: '#4A1A9E' }}>
                 {lang === 'ar'
                   ? 'توصيل مجاني إلى المكتب عند شراء 500 وحدة أو أكثر 🚚'
                   : 'Livraison Stop Desk gratuite dès 500 unités achetées 🚚'}

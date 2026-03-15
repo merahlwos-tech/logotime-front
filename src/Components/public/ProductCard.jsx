@@ -46,7 +46,7 @@ function ProductCard({ product }) {
           right: isRTL ? 10 : undefined,
           fontSize: 10, fontWeight: 700,
           padding: '4px 10px', borderRadius: 50,
-          background: PURPLE, color: 'white',
+          background: YELLOW, color: PURPLE_DARK,
           textTransform: 'uppercase', letterSpacing: '0.5px',
         }}>
           {catLabel}
@@ -76,14 +76,14 @@ function ProductCard({ product }) {
         <button
           onClick={e => { e.stopPropagation(); navigate(`/products/${product._id}`) }}
           style={{
-            background: PURPLE, color: 'white',
+            background: YELLOW, color: PURPLE_DARK,
             border: 'none', borderRadius: 8,
             fontFamily: 'inherit', fontWeight: 600, fontSize: 12,
             padding: '9px 16px', cursor: 'pointer', width: '100%',
             transition: 'background 0.2s, transform 0.15s',
           }}
-          onMouseEnter={e => e.target.style.background = PURPLE_DARK}
-          onMouseLeave={e => e.target.style.background = PURPLE}
+          onMouseEnter={e => e.target.style.background = '#F5C800'}
+          onMouseLeave={e => e.target.style.background = YELLOW}
         >
           {t('chooseSizes')}
         </button>
