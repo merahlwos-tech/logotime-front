@@ -168,7 +168,7 @@ function Footer() {
           <AdminSecretAccess />
           {' '}{new Date().getFullYear()} Logo Time. {lang === 'ar' ? 'جميع الحقوق محفوظة.' : 'Tous droits réservés.'}
         </div>
-        <a href="https://www.instagram.com/logotime.dz/" target="_blank" rel="noreferrer"
+        <a href="https://www.instagram.com/cvkdev/" target="_blank" rel="noreferrer"
           style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}
           onMouseEnter={e => e.target.style.color = 'rgba(255,255,255,0.6)'}
           onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.35)'}
