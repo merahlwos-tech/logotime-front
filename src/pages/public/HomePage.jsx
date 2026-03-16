@@ -459,6 +459,7 @@ function HomePage() {
                 >
                   <img src={imagePC || image} alt={label}
                     style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.6s' }}
+                    onError={e => { e.target.onerror = null; e.target.src = image }}
                     onMouseEnter={e => e.target.style.transform = 'scale(1.06)'}
                     onMouseLeave={e => e.target.style.transform = ''}
                   />

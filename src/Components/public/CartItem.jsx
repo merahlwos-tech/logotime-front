@@ -3,8 +3,10 @@ import { useCart } from '../../context/CartContext'
 import { useLang } from '../../context/LanguageContext'
 import { useState, useRef, useEffect } from 'react'
 
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const NAVY   = '#1E0A4A'
+const PURPLE = '#6C2BD9'
+const YELLOW = '#FFD600'
+const PURPLE_DARK = '#4A1A9E'
 const QTY_OPTIONS = [100,200,300,400,500,600,700,800,900,1000,1500,2000,3000,5000]
 
 function QtyDropdown({ value, onChange }) {
@@ -21,7 +23,7 @@ function QtyDropdown({ value, onChange }) {
         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border-2 text-xs font-bold transition-all"
         style={{ borderColor: open ? PURPLE : 'rgba(124,58,237,0.3)', color: NAVY, background: 'white' }}>
         {value.toLocaleString('fr-DZ')}
-        <ChevronDown size={12} className={`transition-transform ${open ? 'rotate-180' : ''}`} style={{ color: PURPLE }} />
+        <ChevronDown size={12} className={`transition-transform ${open ? 'rotate-180' : ''}`} style={{ color: YELLOW }} />
       </button>
       {open && (
         <div className="absolute bottom-full left-0 mb-1 rounded-xl overflow-hidden z-50 min-w-[90px]"
@@ -34,7 +36,7 @@ function QtyDropdown({ value, onChange }) {
                 onMouseEnter={e => { if (value !== q) e.currentTarget.style.background = 'rgba(124,58,237,0.04)' }}
                 onMouseLeave={e => { if (value !== q) e.currentTarget.style.background = 'transparent' }}>
                 {q.toLocaleString('fr-DZ')}
-                {value === q && <Check size={11} style={{ color: PURPLE }} />}
+                {value === q && <Check size={11} style={{ color: YELLOW }} />}
               </button>
             ))}
           </div>
@@ -105,7 +107,7 @@ function CartItem({ item }) {
             <p className="text-xs text-gray-400">
               {item.price.toLocaleString('fr-DZ')} DA × {item.quantity.toLocaleString('fr-DZ')}
             </p>
-            <p className="font-black text-base" style={{ color: PURPLE }}>
+            <p className="font-black text-base" style={{ color: YELLOW }}>
               {(item.price * item.quantity).toLocaleString('fr-DZ')} DA
             </p>
           </div>

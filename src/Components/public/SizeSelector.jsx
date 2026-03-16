@@ -1,5 +1,7 @@
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const NAVY   = '#1E0A4A'
+const PURPLE = '#6C2BD9'
+const YELLOW = '#FFD600'
+const PURPLE_DARK = '#4A1A9E'
 
 function SizeSelector({ sizes = [], selected, onChange }) {
   return (

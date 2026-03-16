@@ -68,7 +68,7 @@ function ColorDropdown({ colors, value, onChange, lang }) {
           {label}
         </span>
         <ChevronDown size={16} className={`transition-transform flex-shrink-0 ${open ? 'rotate-180' : ''}`}
-          style={{ color: PURPLE }} />
+          style={{ color: YELLOW }} />
       </button>
 
       {open && (
@@ -94,7 +94,7 @@ function ColorDropdown({ colors, value, onChange, lang }) {
                   <span className="flex items-center gap-2.5">
                     {name}
                   </span>
-                  {value === hex && <Check size={14} style={{ color: PURPLE }} />}
+                  {value === hex && <Check size={14} style={{ color: YELLOW }} />}
                 </button>
               )
             })}
@@ -238,7 +238,7 @@ function ProductDetailPage() {
           {/* Retour */}
           <button onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-sm font-medium mb-8 group transition-colors"
-            style={{ color: PURPLE }}>
+            style={{ color: YELLOW }}>
             <ArrowLeft size={16} className={`transition-transform ${isRTL ? 'rotate-180 group-hover:translate-x-1' : 'group-hover:-translate-x-1'}`} />
             {t('back')}
           </button>
@@ -303,7 +303,7 @@ function ProductDetailPage() {
                   </p>
                 )}
                 {product.colorDesignEnabled && nbColors > 0 && extraColors > 0 && (
-                  <p className="text-xs mt-1" style={{ color: PURPLE }}>
+                  <p className="text-xs mt-1" style={{ color: YELLOW }}>
                     {lang === 'ar'
                       ? `+${extraColors.toLocaleString('fr-DZ')} دج (${nbColors} × ${(product.colorDesignPricePerColor).toLocaleString('fr-DZ')} دج/لون)`
                       : `+${extraColors.toLocaleString('fr-DZ')} DA (${nbColors} × ${(product.colorDesignPricePerColor).toLocaleString('fr-DZ')} DA/couleur)`}
@@ -316,7 +316,7 @@ function ProductDetailPage() {
               <div>
                 <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
                   {t('availableSizes')}
-                  {selectedSize && <span style={{ color: PURPLE }} className="ml-2">— {selectedSize}</span>}
+                  {selectedSize && <span style={{ color: YELLOW }} className="ml-2">— {selectedSize}</span>}
                 </p>
                 <SizeSelector sizes={product.sizes || []} selected={selectedSize}
                   onChange={s => setSelectedSize(s)} />
@@ -496,7 +496,7 @@ function ProductDetailPage() {
           {/* Tailles */}
           <div>
             <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
-              {t('availableSizes')}{selectedSize && <span style={{ color: PURPLE }} className="ml-2">— {selectedSize}</span>}
+              {t('availableSizes')}{selectedSize && <span style={{ color: YELLOW }} className="ml-2">— {selectedSize}</span>}
             </p>
             <SizeSelector sizes={product.sizes || []} selected={selectedSize} onChange={s => setSelectedSize(s)} />
           </div>
@@ -578,7 +578,7 @@ function ProductDetailPage() {
               <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t('estimatedTotal')}</p>
               <p className="text-xs text-gray-400 mt-0.5">{quantity.toLocaleString()} × {unitPrice.toLocaleString('fr-DZ')} DA</p>
             </div>
-            <p className="font-black text-2xl" style={{ color: PURPLE }}>
+            <p className="font-black text-2xl" style={{ color: YELLOW }}>
               {totalPrice.toLocaleString('fr-DZ')}<span className="text-sm font-normal text-gray-400 ml-1">DA</span>
             </p>
           </div>

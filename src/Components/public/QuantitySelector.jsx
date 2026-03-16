@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
 
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const NAVY   = '#1E0A4A'
+const PURPLE = '#6C2BD9'
+const YELLOW = '#FFD600'
+const PURPLE_DARK = '#4A1A9E'
 
 const QTY_OPTIONS = [100,200,300,400,500,600,700,800,900,1000,2000,3000]
 
@@ -32,7 +34,7 @@ function QuantitySelector({ value, onChange }) {
         }}>
         <span>{value.toLocaleString('fr-DZ')} unités</span>
         <ChevronDown size={16} className={`transition-transform ${open ? 'rotate-180' : ''}`}
-          style={{ color: PURPLE }} />
+          style={{ color: YELLOW }} />
       </button>
 
       {/* Dropdown */}
@@ -55,7 +57,7 @@ function QuantitySelector({ value, onChange }) {
                 onMouseEnter={e => { if (value !== q) e.currentTarget.style.background = 'rgba(124,58,237,0.04)' }}
                 onMouseLeave={e => { if (value !== q) e.currentTarget.style.background = 'transparent' }}>
                 <span>{q.toLocaleString('fr-DZ')} unités</span>
-                {value === q && <Check size={14} style={{ color: PURPLE }} />}
+                {value === q && <Check size={14} style={{ color: YELLOW }} />}
               </button>
             ))}
           </div>
