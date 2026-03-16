@@ -104,7 +104,7 @@ function BeforeAfterSlider({ lang }) {
       style={{
         position: 'relative', width: '100%', overflow: 'hidden',
         borderRadius: 16, cursor: 'col-resize', userSelect: 'none',
-        aspectRatio: '16/9', maxHeight: 300,
+        aspectRatio: '16/9', maxHeight: 420,
         boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
       }}
       onMouseMove={e => { if (drag) calc(e.clientX) }}
@@ -381,7 +381,8 @@ function HomePage() {
       {/* ══════════════════════════════════
           CATÉGORIES
       ══════════════════════════════════ */}
-      <section style={{ padding: '28px 20px 0' }} className="max-w-5xl mx-auto md:px-8">
+      {/* ── CATÉGORIES MOBILE ── */}
+      <section className="block md:hidden" style={{ padding: '28px 20px 0' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 20 }}>
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: PURPLE_DEEP }}>
@@ -395,37 +396,91 @@ function HomePage() {
             {lang === 'ar' ? 'عرض الكل' : 'Voir tout'}
           </Link>
         </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, desc_fr, desc_ar }) => {
+            const label = lang === 'ar' ? label_ar : label_fr
+            const desc  = lang === 'ar' ? desc_ar  : desc_fr
+            return (
+              <Link key={cat} to={`/products?category=${cat}`} style={{ textDecoration: 'none' }}>
+                <div style={{ position: 'relative', height: 224, borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.08)', cursor: 'pointer' }}>
+                  <img src={image} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 14, background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)' }}>
+                    <h4 style={{ fontSize: 17, fontWeight: 800, color: 'white', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>{label}</h4>
+                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>{desc}</p>
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+      </section>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4" style={{ display: 'grid' }}>
-          {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, imagePC, desc_fr, desc_ar }) => {
+      {/* ── CATÉGORIES DESKTOP ── */}
+      <section className="hidden md:block" style={{ padding: '48px 48px 0', maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
+          <div>
+            <h2 style={{ fontSize: 28, fontWeight: 900, color: PURPLE_DEEP }}>
+              {lang === 'ar' ? 'الفئات' : 'Nos catégories'}
+            </h2>
+            <p style={{ fontSize: 14, color: '#6B6B8A', marginTop: 4 }}>
+              {lang === 'ar' ? 'حلول مخصصة لعلامتك التجارية' : 'Solutions sur mesure pour votre marque'}
+            </p>
+          </div>
+          <Link to="/products"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '10px 24px', borderRadius: 50,
+              background: YELLOW, color: PURPLE_DARK,
+              fontSize: 14, fontWeight: 800, textDecoration: 'none',
+              boxShadow: '0 4px 12px rgba(255,214,0,0.35)',
+            }}>
+            {lang === 'ar' ? 'عرض الكل' : 'Voir tout'} →
+          </Link>
+        </div>
+
+        {/* Grille desktop — 2 grandes + 2 petites */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.6fr 1fr 1fr', gridTemplateRows: '380px', gap: 16 }}>
+          {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, imagePC, desc_fr, desc_ar }, i) => {
             const label = lang === 'ar' ? label_ar : label_fr
             const desc  = lang === 'ar' ? desc_ar  : desc_fr
             return (
               <Link key={cat} to={`/products?category=${cat}`}
                 style={{ textDecoration: 'none', display: 'block' }}>
-                <div style={{
-                  position: 'relative', height: 224,
-                  borderRadius: 16, overflow: 'hidden',
-                  boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
-                  cursor: 'pointer', 
-                }}
+                <div
+                  style={{
+                    position: 'relative', height: '100%',
+                    borderRadius: 20, overflow: 'hidden',
+                    boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+                    cursor: 'pointer',
+                    transition: 'transform 0.3s, box-shadow 0.3s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(108,43,217,0.25)' }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.12)' }}
                 >
-                  {/* Mobile */}
-                  <img src={image} alt={label}
-                    className="block md:hidden"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  {/* Desktop — use imagePC if available */}
                   <img src={imagePC || image} alt={label}
-                    className="hidden md:block"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.6s' }}
+                    onMouseEnter={e => e.target.style.transform = 'scale(1.06)'}
+                    onMouseLeave={e => e.target.style.transform = ''}
+                  />
+                  {/* Overlay bas */}
                   <div style={{
                     position: 'absolute', inset: 0,
+                    background: 'linear-gradient(to top, rgba(20,5,50,0.75) 0%, rgba(20,5,50,0.1) 50%, transparent 100%)',
                     display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-                    padding: 14,
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)',
+                    padding: i < 2 ? 28 : 20,
                   }}>
-                    <h4 style={{ fontSize: 17, fontWeight: 800, color: 'white', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>{label}</h4>
-                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>{desc}</p>
+                    {/* Badge */}
+                    <span style={{
+                      display: 'inline-block', alignSelf: 'flex-start',
+                      background: YELLOW, color: PURPLE_DARK,
+                      fontSize: 11, fontWeight: 800,
+                      padding: '4px 12px', borderRadius: 50,
+                      marginBottom: 10, letterSpacing: '0.5px', textTransform: 'uppercase',
+                    }}>
+                      {label}
+                    </span>
+                    <h4 style={{ fontSize: i < 2 ? 24 : 18, fontWeight: 900, color: 'white', lineHeight: 1.2, marginBottom: 6 }}>{label}</h4>
+                    <p style={{ fontSize: i < 2 ? 13 : 11, color: 'rgba(255,255,255,0.75)' }}>{desc}</p>
                   </div>
                 </div>
               </Link>
@@ -475,7 +530,7 @@ function HomePage() {
       {/* ══════════════════════════════════
           AVANT / APRÈS SLIDER
       ══════════════════════════════════ */}
-      <div style={{ padding: '0 20px 28px' }}>
+      <div style={{ padding: '28px 20px', maxWidth: 900, margin: '0 auto' }}>
         <h3 style={{ fontSize: 20, fontWeight: 800, color: PURPLE_DEEP, marginBottom: 6 }}>
           {lang === 'ar' ? 'قبل / بعد' : 'Avant / Après'}
         </h3>

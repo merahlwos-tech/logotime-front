@@ -58,6 +58,7 @@ function WhatsAppButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Contacter sur WhatsApp"
+      className="md:hidden"
       style={{
         position: 'fixed', bottom: 90, left: 20, zIndex: 50,
         width: 52, height: 52, borderRadius: '50%',
