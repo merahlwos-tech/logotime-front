@@ -83,13 +83,24 @@ function AdminDashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard icon={TrendingUp} label="Chiffre d'affaires (confirmés)"
+          <StatCard icon={TrendingUp} label="Gains nets (hors livraison)"
             value={stats?.totalRevenue != null ? `${stats.totalRevenue.toLocaleString('fr-DZ')} DA` : '—'}
             color="#059669" accent />
           <StatCard icon={ShoppingBag} label="Total commandes"  value={stats?.totalOrders} />
           <StatCard icon={Package}     label="Confirmées"        value={stats?.confirmedOrders}  color="#10b981" />
           <StatCard icon={RefreshCcw}  label="Annulées"          value={stats?.cancelledOrders}  color="#ef4444" />
         </div>
+        {/* Pénalités annulations post-Ecotrack */}
+        {stats?.penaltyCount > 0 && (
+          <div className="flex items-center gap-3 px-5 py-3 rounded-xl border-2 border-red-200 bg-red-50 text-sm">
+            <AlertTriangle size={16} className="text-red-500 shrink-0" />
+            <span className="text-red-700 font-semibold">
+              {stats.penaltyCount} commande{stats.penaltyCount > 1 ? 's' : ''} annulée{stats.penaltyCount > 1 ? 's' : ''} après envoi Ecotrack
+              {' '}— pénalité : <strong>−{stats.penalty.toLocaleString('fr-DZ')} DA</strong>
+              {' '}(brut : {stats.grossRevenue?.toLocaleString('fr-DZ')} DA)
+            </span>
+          </div>
+        )}
       )}
 
       {/* Répartition */}
