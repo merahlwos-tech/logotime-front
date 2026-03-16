@@ -33,7 +33,7 @@ function ProductsPage() {
 
   return (
     <div className={fontCls} dir={isRTL ? 'rtl' : 'ltr'}
-      style={{ background: '#F8F7FF', minHeight: '100dvh', paddingTop: 72 }}>
+      style={{ background: 'transparent', minHeight: '100dvh', paddingTop: 72 }}>
       <div style={{ padding: '20px 16px 100px' }}>
         <ProductGrid
           products={filtered}

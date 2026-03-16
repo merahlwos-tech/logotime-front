@@ -3,8 +3,8 @@ import { useEffect } from 'react'
 import { useLang } from '../../context/LanguageContext'
 import { useSEO } from '../../utils/UseSEO'
 
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const NAVY   = '#1E0A4A'
+const PURPLE = '#6C2BD9'
 
 function ConfirmationPage() {
   const { t, isRTL, lang } = useLang()
@@ -16,7 +16,7 @@ function ConfirmationPage() {
 
   return (
     <div className="min-h-screen flex items-start justify-center px-4 sm:px-6 pt-24 pb-16"
-      style={{ background: 'linear-gradient(160deg,#f5f3ff 0%,#ede9fe 50%,#e0e7ff 100%)' }}
+      style={{ background: 'transparent' }}
       dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-lg w-full text-center">
 

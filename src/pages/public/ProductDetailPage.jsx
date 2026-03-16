@@ -228,7 +228,7 @@ function ProductDetailPage() {
 
   return (
     <div className="min-h-screen"
-      style={{ background: 'linear-gradient(160deg,#F8F7FF 0%,#F0EEF9 100%)' }}
+      style={{ background: 'transparent' }}
       dir={isRTL ? 'rtl' : 'ltr'}>
 
       {/* ── DESKTOP : grid 2 colonnes ── */}

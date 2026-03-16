@@ -88,6 +88,8 @@ function CartPage() {
   const { items, total, clearCart } = useCart()
   const { t, isRTL, lang } = useLang()
   const navigate = useNavigate()
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }) }, [])
+
   const [submitting, setSubmitting] = useState(false)
   const [deliveryInfo, setDeliveryInfo] = useState({ fee: null, method: null })
   const [pendingOrder, setPendingOrder] = useState(null)
@@ -160,7 +162,7 @@ function CartPage() {
 
   return (
     <div className="min-h-screen"
-      style={{ background: 'linear-gradient(160deg,#F8F7FF 0%,#F0EEF9 100%)' }}
+      style={{ background: 'transparent' }}
       dir={isRTL ? 'rtl' : 'ltr'}>
 
       {pendingOrder && (
