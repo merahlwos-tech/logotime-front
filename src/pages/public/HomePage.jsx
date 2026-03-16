@@ -202,7 +202,12 @@ function HomePage() {
 
       {/* ── DESKTOP HERO ── */}
       <section className="hidden md:block" style={{
-        background: `linear-gradient(135deg, ${PURPLE_DEEP} 0%, ${PURPLE} 55%, #8B45E8 100%)`,
+        background: `linear-gradient(135deg, #2d1a6e 0%, #6C2BD9 45%, #a0359e 75%, #c23b8a 100%)`,
+        backgroundImage: `
+          radial-gradient(ellipse at 0% 0%, rgba(90,60,190,0.85) 0%, transparent 55%),
+          radial-gradient(ellipse at 100% 0%, rgba(210,60,140,0.7) 0%, transparent 50%),
+          linear-gradient(135deg, #2d1a6e 0%, #6C2BD9 45%, #a0359e 75%, #c23b8a 100%)
+        `,
         position: 'relative', overflow: 'hidden', minHeight: 520,
       }}>
         {/* Déco */}
@@ -291,7 +296,7 @@ function HomePage() {
 
       {/* ── MOBILE HERO ── */}
       <section className="block md:hidden" style={{
-        background: `linear-gradient(160deg, ${PURPLE_DEEP} 0%, ${PURPLE} 60%, #8B45E8 100%)`,
+        background: 'linear-gradient(135deg, #2d1a6e 0%, #6C2BD9 45%, #a0359e 75%, #c23b8a 100%)',
         padding: '36px 24px 48px',
         position: 'relative', overflow: 'hidden',
       }}>

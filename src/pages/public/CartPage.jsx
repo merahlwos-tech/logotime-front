@@ -27,7 +27,7 @@ function ConfirmOrderPopup({ customerInfo, onConfirm, onCancel, t, isRTL, lang }
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
               style={{ background: 'rgba(124,58,237,0.1)' }}>
-              <AlertTriangle size={20} style={{ color: PURPLE }} />
+              <AlertTriangle size={20} style={{ color: YELLOW }} />
             </div>
             <h2 className={`font-black text-lg leading-tight ${lang === 'ar' ? 'font-arabic' : ''}`}
               style={{ color: NAVY }}>
@@ -162,7 +162,7 @@ function CartPage() {
 
   return (
     <div className="min-h-screen"
-      style={{ background: 'transparent' }}
+      style={{ background: '#F8F7FF' }}
       dir={isRTL ? 'rtl' : 'ltr'}>
 
       {pendingOrder && (
@@ -235,7 +235,7 @@ function CartPage() {
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className="font-black text-sm" style={{ color: PURPLE }}>
+                      <p className="font-black text-sm" style={{ color: YELLOW }}>
                         {(item.price * item.quantity).toLocaleString('fr-DZ')} DA
                       </p>
                       <p className="text-xs text-gray-400">× {item.quantity.toLocaleString()}</p>

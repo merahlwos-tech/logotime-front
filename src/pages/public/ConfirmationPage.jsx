@@ -16,7 +16,7 @@ function ConfirmationPage() {
 
   return (
     <div className="min-h-screen flex items-start justify-center px-4 sm:px-6 pt-24 pb-16"
-      style={{ background: 'transparent' }}
+      style={{ background: '#F8F7FF' }}
       dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-lg w-full text-center">
 
