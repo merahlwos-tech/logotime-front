@@ -58,7 +58,7 @@ function ProductCard({ product }) {
             left: isRTL ? 10 : undefined,
             fontSize: 9, fontWeight: 700,
             padding: '3px 8px', borderRadius: 50,
-            background: PURPLE_DEEP, color: 'white',
+            background: PURPLE_DEEP, color: '#1E0A4A',
           }}>
             {lang === 'ar' ? 'وجهان' : 'Recto-verso'}
           </span>

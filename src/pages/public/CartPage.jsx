@@ -36,7 +36,7 @@ function ConfirmOrderPopup({ customerInfo, onConfirm, onCancel, t, isRTL, lang }
           </div>
           <button onClick={onCancel}
             className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-gray-100 flex-shrink-0">
-            <X size={16} style={{ color: 'rgba(255,255,255,0.7)' }} />
+            <X size={16} style={{ color: '#6b7280' }} />
           </button>
         </div>
 
@@ -75,7 +75,7 @@ function ConfirmOrderPopup({ customerInfo, onConfirm, onCancel, t, isRTL, lang }
           </button>
           <button onClick={onCancel}
             className="w-full py-3 rounded-2xl border-2 font-bold text-sm transition-all hover:bg-gray-50"
-            style={{ borderColor: '#e5e7eb', color: 'rgba(255,255,255,0.7)' }}>
+            style={{ borderColor: '#e5e7eb', color: '#6b7280' }}>
             ✏️ {t('popupEdit')}
           </button>
         </div>

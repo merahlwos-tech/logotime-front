@@ -134,7 +134,7 @@ function BeforeAfterSlider({ lang }) {
       <span style={{
         position: 'absolute', top: 10, left: 10,
         fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px',
-        background: 'rgba(0,0,0,0.55)', color: 'white',
+        background: 'rgba(0,0,0,0.55)', color: '#1E0A4A',
         padding: '4px 10px', borderRadius: 50,
       }}>
         {lang === 'ar' ? 'قبل' : 'Avant'}
@@ -142,7 +142,7 @@ function BeforeAfterSlider({ lang }) {
       <span style={{
         position: 'absolute', top: 10, right: 10,
         fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px',
-        background: '#FFD600', color: 'white',
+        background: '#FFD600', color: '#1E0A4A',
         padding: '4px 10px', borderRadius: 50,
       }}>
         {lang === 'ar' ? 'بعد ✓' : 'Après ✓'}
@@ -256,7 +256,7 @@ function HomePage() {
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                   padding: '16px 28px', borderRadius: 10, fontSize: 15, fontWeight: 700,
-                  background: '#25D366', color: 'white', textDecoration: 'none',
+                  background: '#25D366', color: '#1E0A4A', textDecoration: 'none',
                   boxShadow: '0 4px 16px rgba(37,211,102,0.35)',
                 }}>
                 WhatsApp
@@ -276,7 +276,7 @@ function HomePage() {
               ].map(s => (
                 <div key={s.val} style={{ textAlign: 'center' }}>
                   <p style={{ fontSize: 28, fontWeight: 900, color: YELLOW, lineHeight: 1 }}>{s.val}</p>
-                  <p style={{ fontSize: 11, fontWeight: 700, marginTop: 4, textTransform: 'uppercase', letterSpacing: '1px', color: 'rgba(255,255,255,0.55)' }}>{s.label}</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, marginTop: 4, textTransform: 'uppercase', letterSpacing: '1px', color: '#9ca3af' }}>{s.label}</p>
                 </div>
               ))}
             </div>
@@ -323,7 +323,7 @@ function HomePage() {
         </h1>
 
         <p className="animate-fade-up" style={{
-          color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 1.6,
+          color: '#6b7280', fontSize: 14, lineHeight: 1.6,
           maxWidth: 280, marginBottom: 28, position: 'relative', zIndex: 1,
           animationDelay: '0.2s',
         }}>
@@ -369,7 +369,7 @@ function HomePage() {
             </p>
           </div>
           <div style={{
-            background: PURPLE, color: 'white',
+            background: PURPLE, color: '#1E0A4A',
             fontSize: 22, fontWeight: 900,
             padding: '12px 16px', borderRadius: 12,
             flexShrink: 0, textAlign: 'center',
@@ -390,14 +390,14 @@ function HomePage() {
       <section className="block md:hidden" style={{ padding: '28px 20px 0' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 20 }}>
           <div>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'white' }}>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A' }}>
               {lang === 'ar' ? 'الفئات' : 'Catégories'}
             </h2>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>
+            <p style={{ fontSize: 12, color: '#6B6B8A', marginTop: 2 }}>
               {lang === 'ar' ? 'حلول مخصصة لعلامتك التجارية' : 'Solutions sur mesure pour votre marque'}
             </p>
           </div>
-          <Link to="/products" style={{ fontSize: 13, fontWeight: 600, color: '#FFD600', textDecoration: 'none' }}>
+          <Link to="/products" style={{ fontSize: 13, fontWeight: 600, color: '#6C2BD9', textDecoration: 'none' }}>
             {lang === 'ar' ? 'عرض الكل' : 'Voir tout'}
           </Link>
         </div>
@@ -410,7 +410,7 @@ function HomePage() {
                 <div style={{ position: 'relative', height: 224, borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.08)', cursor: 'pointer' }}>
                   <img src={image} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 14, background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)' }}>
-                    <h4 style={{ fontSize: 17, fontWeight: 800, color: 'white', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>{label}</h4>
+                    <h4 style={{ fontSize: 17, fontWeight: 800, color: '#1E0A4A', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>{label}</h4>
                     <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>{desc}</p>
                   </div>
                 </div>
@@ -424,10 +424,10 @@ function HomePage() {
       <section className="hidden md:block" style={{ padding: '48px 48px 0', maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
           <div>
-            <h2 style={{ fontSize: 28, fontWeight: 900, color: 'white' }}>
+            <h2 style={{ fontSize: 28, fontWeight: 900, color: '#1E0A4A' }}>
               {lang === 'ar' ? 'الفئات' : 'Nos catégories'}
             </h2>
-            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)', marginTop: 4 }}>
+            <p style={{ fontSize: 14, color: '#6B6B8A', marginTop: 4 }}>
               {lang === 'ar' ? 'حلول مخصصة لعلامتك التجارية' : 'Solutions sur mesure pour votre marque'}
             </p>
           </div>
@@ -485,8 +485,8 @@ function HomePage() {
                     }}>
                       {label}
                     </span>
-                    <h4 style={{ fontSize: i < 2 ? 24 : 18, fontWeight: 900, color: 'white', lineHeight: 1.2, marginBottom: 6 }}>{label}</h4>
-                    <p style={{ fontSize: i < 2 ? 13 : 11, color: 'rgba(255,255,255,0.75)' }}>{desc}</p>
+                    <h4 style={{ fontSize: i < 2 ? 24 : 18, fontWeight: 900, color: '#1E0A4A', lineHeight: 1.2, marginBottom: 6 }}>{label}</h4>
+                    <p style={{ fontSize: i < 2 ? 13 : 11, color: '#6B6B8A' }}>{desc}</p>
                   </div>
                 </div>
               </Link>
@@ -503,7 +503,7 @@ function HomePage() {
           background: PURPLE, borderRadius: 24,
           padding: '28px 20px',
         }}>
-          <h3 style={{ fontSize: 20, fontWeight: 800, color: 'white', textAlign: 'center', marginBottom: 6 }}>
+          <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A', textAlign: 'center', marginBottom: 6 }}>
             {lang === 'ar' ? 'لماذا تختارنا؟' : 'Pourquoi nous choisir ?'}
           </h3>
           <div style={{ width: 40, height: 4, background: YELLOW, borderRadius: 2, margin: '0 auto 24px' }} />
@@ -524,7 +524,7 @@ function HomePage() {
                   {w.icon}
                 </div>
                 <div>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 3 }}>{w.title}</h4>
+                  <h4 style={{ fontSize: 14, fontWeight: 700, color: '#1E0A4A', marginBottom: 3 }}>{w.title}</h4>
                   <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>{w.desc}</p>
                 </div>
               </div>
@@ -537,10 +537,10 @@ function HomePage() {
           AVANT / APRÈS SLIDER
       ══════════════════════════════════ */}
       <div style={{ padding: '28px 20px', maxWidth: 900, margin: '0 auto' }}>
-        <h3 style={{ fontSize: 20, fontWeight: 800, color: 'white', marginBottom: 6 }}>
+        <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A', marginBottom: 6 }}>
           {lang === 'ar' ? 'قبل / بعد' : 'Avant / Après'}
         </h3>
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', marginBottom: 16 }}>
+        <p style={{ fontSize: 13, color: '#6B6B8A', marginBottom: 16 }}>
           {lang === 'ar' ? 'اسحب لترى الفرق' : 'Faites glisser pour voir la différence'}
         </p>
         <BeforeAfterSlider lang={lang} />
@@ -554,7 +554,7 @@ function HomePage() {
           background: 'white', borderRadius: 24,
           padding: '28px 20px', boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
         }}>
-          <h3 style={{ fontSize: 20, fontWeight: 800, color: 'white', textAlign: 'center', marginBottom: 6 }}>
+          <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A', textAlign: 'center', marginBottom: 6 }}>
             {lang === 'ar' ? 'كيف تطلب؟' : 'Comment commander ?'}
           </h3>
           <div style={{ width: 40, height: 4, background: YELLOW, borderRadius: 2, margin: '0 auto 24px' }} />
@@ -568,7 +568,7 @@ function HomePage() {
                     width: 48, height: 48, flexShrink: 0,
                     background: PURPLE, borderRadius: '50%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'white', fontSize: 20, fontWeight: 800,
+                    color: '#1E0A4A', fontSize: 20, fontWeight: 800,
                     boxShadow: '0 4px 12px rgba(108,43,217,0.3)',
                   }}>
                     {n}
@@ -601,7 +601,7 @@ function HomePage() {
           FAQ
       ══════════════════════════════════ */}
       <div style={{ padding: '0 20px 40px' }}>
-        <h3 style={{ fontSize: 20, fontWeight: 800, color: 'white', marginBottom: 20 }}>
+        <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A', marginBottom: 20 }}>
           {lang === 'ar' ? 'الأسئلة الشائعة' : 'Questions fréquentes'}
         </h3>
         {faqs.map(faq => <FAQItem key={faq.q} q={faq.q} a={faq.a} />)}

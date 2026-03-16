@@ -339,9 +339,9 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
               onClick={() => handleStopDesk(false)}
               className="flex-1 flex flex-col items-center justify-center gap-1 py-3 rounded-xl border-2 text-sm font-semibold transition-all"
               style={!form.stopDesk ? {
-                borderColor: '#6C2BD9', background: '#6C2BD9', color: 'white',
+                borderColor: '#6C2BD9', background: '#6C2BD9', color: '#1E0A4A',
                 boxShadow: '0 4px 14px rgba(124,58,237,0.35)',
-              } : { borderColor: '#e5e7eb', background: 'white', color: 'rgba(255,255,255,0.55)' }}>
+              } : { borderColor: '#e5e7eb', background: 'white', color: '#9ca3af' }}>
               <Truck size={18} />
               <span>À domicile</span>
               {currentFees && (
@@ -356,9 +356,9 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
               disabled={!hasStopDesk && communes.length > 0}
               className="flex-1 flex flex-col items-center justify-center gap-1 py-3 rounded-xl border-2 text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               style={form.stopDesk ? {
-                borderColor: '#6C2BD9', background: '#6C2BD9', color: 'white',
+                borderColor: '#6C2BD9', background: '#6C2BD9', color: '#1E0A4A',
                 boxShadow: '0 4px 14px rgba(124,58,237,0.35)',
-              } : { borderColor: '#e5e7eb', background: 'white', color: 'rgba(255,255,255,0.55)' }}>
+              } : { borderColor: '#e5e7eb', background: 'white', color: '#9ca3af' }}>
               <Store size={18} />
               <span>Stop Desk</span>
               {currentFees && !isFreeDelivery && (

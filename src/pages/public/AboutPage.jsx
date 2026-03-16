@@ -110,10 +110,10 @@ function AboutPage() {
             {c.hero_badge}
           </div>
 
-          <h1 style={{ fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 900, color: 'white', marginBottom: 16, lineHeight: 1.1 }}>
+          <h1 style={{ fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 900, color: '#1E0A4A', marginBottom: 16, lineHeight: 1.1 }}>
             {c.hero_title}
           </h1>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, maxWidth: 500, margin: '0 auto' }}>
+          <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.7, maxWidth: 500, margin: '0 auto' }}>
             {c.hero_sub}
           </p>
 
@@ -126,7 +126,7 @@ function AboutPage() {
             ].map(s => (
               <div key={s.val} style={{ textAlign: 'center' }}>
                 <p style={{ fontSize: 28, fontWeight: 900, color: YELLOW, lineHeight: 1 }}>{s.val}</p>
-                <p style={{ fontSize: 11, fontWeight: 700, marginTop: 4, textTransform: 'uppercase', letterSpacing: '1px', color: 'rgba(255,255,255,0.55)' }}>{s.label}</p>
+                <p style={{ fontSize: 11, fontWeight: 700, marginTop: 4, textTransform: 'uppercase', letterSpacing: '1px', color: '#9ca3af' }}>{s.label}</p>
               </div>
             ))}
           </div>
@@ -165,7 +165,7 @@ function AboutPage() {
               📦 Logo Time
             </div>
             <p style={{ fontSize: 56, marginBottom: 16, marginTop: 8 }}>📦</p>
-            <p style={{ fontSize: 20, fontWeight: 900, color: 'white', lineHeight: 1.3 }}>
+            <p style={{ fontSize: 20, fontWeight: 900, color: '#1E0A4A', lineHeight: 1.3 }}>
               "{c.mission_quote}"
             </p>
           </div>
@@ -258,16 +258,16 @@ function AboutPage() {
             {c.contact_tag}
           </span>
 
-          <h2 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 900, color: 'white', marginBottom: 20 }}>
+          <h2 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 900, color: '#1E0A4A', marginBottom: 20 }}>
             {c.contact_h2}
           </h2>
 
           <div className={`flex flex-col sm:flex-row gap-4 justify-center mb-8 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', color: 'rgba(255,255,255,0.75)', fontSize: 13 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', color: '#6B6B8A', fontSize: 13 }}>
               <MapPin size={16} color={YELLOW} />
               {c.contact_loc}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', color: 'rgba(255,255,255,0.75)', fontSize: 13 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', color: '#6B6B8A', fontSize: 13 }}>
               <Phone size={16} color={YELLOW} />
               {c.contact_pay}
             </div>
@@ -288,7 +288,7 @@ function AboutPage() {
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
                 padding: '14px 28px', borderRadius: 10,
-                background: '#25D366', color: 'white',
+                background: '#25D366', color: '#1E0A4A',
                 fontWeight: 700, fontSize: 15, textDecoration: 'none',
                 boxShadow: '0 4px 16px rgba(37,211,102,0.35)',
               }}>
