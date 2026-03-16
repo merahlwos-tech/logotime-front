@@ -27,6 +27,7 @@ function useEcotrackData() {
   const [communes, setCommunes]     = useState([])
   const [loadingW, setLoadingW]     = useState(false)
   const [loadingC, setLoadingC]     = useState(false)
+  const [communesError, setCommunesError] = useState(false)
   const [wilayaId, setWilayaIdState] = useState('')
 
   // Fetch wilayas + fees once
@@ -57,28 +58,34 @@ function useEcotrackData() {
 
   // Fetch communes when wilaya changes
   const loadCommunes = useCallback((id) => {
-    if (!id) { setCommunes([]); setWilayaIdState(''); return }
+    if (!id) { setCommunes([]); setWilayaIdState(''); setCommunesError(false); return }
     setWilayaIdState(id)
+    setCommunesError(false)
     const cacheKey = `eco_communes_v2_${id}`
     const cached = ssGet(cacheKey)
-    if (cached) { setCommunes(cached); return }
+    // Ne jamais utiliser un cache vide ([] = appel précédent échoué)
+    if (cached?.length) { setCommunes(cached); return }
 
     setLoadingC(true)
+    setCommunes([])
     fetch(`${API}/ecotrack/communes?wilaya_id=${id}`)
       .then(r => r.json())
       .then(data => {
         const list = Array.isArray(data) ? data : (data?.data || [])
+        if (!list.length) { setCommunesError(true); return }
         const sorted = [...list].sort((a, b) => a.nom?.localeCompare(b.nom))
-        setCommunes(sorted); ssSet(cacheKey, sorted)
-      }).catch(err => console.error('ECOTRACK communes:', err))
-        .finally(() => setLoadingC(false))
+        setCommunes(sorted)
+        ssSet(cacheKey, sorted) // on ne cache que si non vide
+      })
+      .catch(err => { console.error('ECOTRACK communes:', err); setCommunesError(true) })
+      .finally(() => setLoadingC(false))
   }, [])
 
   const getFeesForWilaya = useCallback((id) => {
     return fees.find(f => String(f.wilaya_id) === String(id)) || null
   }, [fees])
 
-  return { wilayas, communes, loadingW, loadingC, wilayaId, loadCommunes, getFeesForWilaya }
+  return { wilayas, communes, loadingW, loadingC, communesError, wilayaId, loadCommunes, getFeesForWilaya }
 }
 
 /* ── Field wrapper ── */
@@ -110,7 +117,7 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
   const fieldRefs = useRef({})
   const setFieldRef = (key) => (el) => { if (el) fieldRefs.current[key] = el }
 
-  const { wilayas, communes, loadingW, loadingC, loadCommunes, getFeesForWilaya } = useEcotrackData()
+  const { wilayas, communes, loadingW, loadingC, communesError, loadCommunes, getFeesForWilaya } = useEcotrackData()
 
   const currentFees = form.wilayaId ? getFeesForWilaya(form.wilayaId) : null
   const deliveryFee = currentFees ? Number(form.stopDesk ? currentFees.tarif_stopdesk : currentFees.tarif) : null
@@ -312,6 +319,14 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
                 : !form.wilayaId
                   ? <input type="text" disabled placeholder={t('selectWilaya')}
                       className={`${inputCls(false)} opacity-50 cursor-not-allowed`} />
+                  : communesError
+                    ? <div className="flex items-center justify-between gap-2 px-4 py-3 rounded-xl bg-red-50 border-2 border-red-200 text-sm text-red-600">
+                        <span>{lang === 'ar' ? 'فشل تحميل البلديات، أعد المحاولة' : 'Impossible de charger les communes'}</span>
+                        <button type="button" onClick={() => loadCommunes(form.wilayaId)}
+                          className="text-xs font-bold underline shrink-0">
+                          {lang === 'ar' ? 'إعادة' : 'Réessayer'}
+                        </button>
+                      </div>
                   : form.stopDesk && !hasStopDesk && communes.length > 0
                     ? <p className="text-sm text-amber-600 px-4 py-3 rounded-xl bg-amber-50 border-2 border-amber-200">
                         Pas de stop desk disponible dans cette wilaya.
