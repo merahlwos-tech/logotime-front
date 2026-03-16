@@ -323,7 +323,7 @@ function HomePage() {
         </h1>
 
         <p className="animate-fade-up" style={{
-          color: '#6b7280', fontSize: 14, lineHeight: 1.6,
+          color: 'rgba(255,255,255,0.85)', fontSize: 14, lineHeight: 1.6,
           maxWidth: 280, marginBottom: 28, position: 'relative', zIndex: 1,
           animationDelay: '0.2s',
         }}>
@@ -334,7 +334,7 @@ function HomePage() {
 
         <div className="animate-fade-up" style={{ borderRadius: 16, overflow: 'hidden', marginBottom: 28, boxShadow: '0 16px 40px rgba(0,0,0,0.3)', animationDelay: '0.25s' }}>
           <img src="/mainPC.webp" alt="Emballage premium Logo Time"
-            style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block' }}
+            style={{ width: '100%', height: 280, objectFit: 'cover', display: 'block' }}
             onError={e => { e.target.src = '/main.webp' }}
           />
         </div>
