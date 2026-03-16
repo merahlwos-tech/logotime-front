@@ -122,7 +122,7 @@ function AboutPage() {
             {[
               { val: '69',  label: lang === 'ar' ? 'ولاية' : 'Wilayas' },
               { val: '100%',label: lang === 'ar' ? 'مخصص' : 'Personnalisé' },
-              { val: '48h', label: lang === 'ar' ? 'توصيل' : 'Livraison' },
+              { val: '2-5j', label: lang === 'ar' ? 'توصيل' : 'Livraison' },
             ].map(s => (
               <div key={s.val} style={{ textAlign: 'center' }}>
                 <p style={{ fontSize: 28, fontWeight: 900, color: YELLOW, lineHeight: 1 }}>{s.val}</p>

@@ -43,12 +43,12 @@ const FAQS_AR = [
 ]
 
 const WHY_FR = [
-  { icon: '⚡', title: 'Livraison rapide',        desc: 'Expédition sous 48h partout en Algérie' },
+  { icon: '⚡', title: 'Livraison rapide',        desc: 'Livraison en 2 à 5 jours partout en Algérie' },
   { icon: '📦', title: 'Qualité professionnelle', desc: 'Matériaux premium, finitions soignées' },
   { icon: '💰', title: 'Prix grossiste',           desc: 'Tarifs dégressifs dès 100 unités' },
 ]
 const WHY_AR = [
-  { icon: '⚡', title: 'توصيل سريع',     desc: 'شحن خلال 48 ساعة إلى جميع أنحاء الجزائر' },
+  { icon: '⚡', title: 'توصيل سريع',     desc: 'توصيل خلال 2 إلى 5 أيام عمل في كل أنحاء الجزائر' },
   { icon: '📦', title: 'جودة احترافية', desc: 'مواد فاخرة وتشطيبات عالية الجودة' },
   { icon: '💰', title: 'أسعار الجملة',  desc: 'أسعار تنازلية من 100 وحدة' },
 ]
@@ -267,7 +267,7 @@ function HomePage() {
               {[
                 { val: '69',   label: lang === 'ar' ? 'ولاية' : 'Wilayas' },
                 { val: '100%', label: lang === 'ar' ? 'جودة ممتازة' : 'Qualité premium' },
-                { val: '48h',  label: lang === 'ar' ? 'توصيل' : 'Livraison' },
+                { val: '2-5j',  label: lang === 'ar' ? 'توصيل' : 'Livraison' },
               ].map(s => (
                 <div key={s.val} style={{ textAlign: 'center' }}>
                   <p style={{ fontSize: 28, fontWeight: 900, color: YELLOW, lineHeight: 1 }}>{s.val}</p>
