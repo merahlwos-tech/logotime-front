@@ -209,11 +209,11 @@ function HomePage() {
         <div style={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, background: 'radial-gradient(circle, rgba(255,214,0,0.15) 0%, transparent 65%)', borderRadius: '50%', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: -80, left: -60, width: 300, height: 300, background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 65%)', borderRadius: '50%', pointerEvents: 'none' }} />
 
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '72px 48px', display: 'flex', alignItems: 'center', gap: 64, position: 'relative', zIndex: 1 }}
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '64px 60px', display: 'flex', alignItems: 'center', gap: 48, position: 'relative', zIndex: 1 }}
           dir={isRTL ? 'rtl' : 'ltr'}>
 
           {/* Texte gauche */}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ flex: '0 0 48%', minWidth: 0, maxWidth: '48%' }}>
             <div className="animate-fade-up" style={{
               display: 'inline-block',
               background: 'rgba(255,214,0,0.18)', border: '1px solid rgba(255,214,0,0.4)',
@@ -225,7 +225,7 @@ function HomePage() {
             </div>
 
             <h1 className="animate-fade-up" style={{
-              fontSize: 'clamp(36px, 4vw, 52px)', fontWeight: 900, lineHeight: 1.1,
+              fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 900, lineHeight: 1.15,
               color: 'white', marginBottom: 20, animationDelay: '0.1s',
             }}>
               {lang === 'ar'
@@ -278,7 +278,7 @@ function HomePage() {
           </div>
 
           {/* Image droite */}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ flex: '0 0 48%', minWidth: 0, maxWidth: '48%' }}>
             <div style={{ borderRadius: 24, overflow: 'hidden', boxShadow: '0 24px 60px rgba(0,0,0,0.4)', aspectRatio: '4/3' }}>
               <img src="/mainPC.webp" alt="Emballage premium Logo Time"
                 style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
