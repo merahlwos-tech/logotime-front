@@ -61,7 +61,7 @@ function WhatsAppButton() {
       aria-label="Contacter sur WhatsApp"
       className="md:!hidden"
       style={{
-        position: 'fixed', bottom: 90, left: 20, zIndex: 50,
+        position: 'fixed', bottom: 24, left: 20, zIndex: 50,
         width: 52, height: 52, borderRadius: '50%',
         background: '#25D366',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
