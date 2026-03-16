@@ -10,10 +10,10 @@ const YELLOW      = '#FFD600'
 
 /* ─── Données ─── */
 const CAT_IMAGES = [
-  { label_fr: 'Boites',                  label_ar: 'صناديق',        cat: 'Board',        image: '/boite.webp',  imagePC: null, desc_fr: 'Boîtes rigides & luxe',         desc_ar: 'صناديق صلبة وفاخرة' },
-  { label_fr: 'Sacs',                    label_ar: 'أكياس',          cat: 'Bags',         image: '/sacs.webp',   imagePC: '/sacsPC.webp', desc_fr: 'Sacs shopping brandés',          desc_ar: 'أكياس تسوق مخصصة' },
-  { label_fr: 'Cartes et Autocollants',  label_ar: 'بطاقات وملصقات', cat: 'Autocollants', image: '/carte.webp',  desc_fr: 'Étiquettes & sceaux custom',     desc_ar: 'بطاقات وملصقات مخصصة' },
-  { label_fr: 'Papier',                  label_ar: 'ورق',            cat: 'Paper',        image: '/papier.webp', desc_fr: 'Papier de soie & emballage',     desc_ar: 'ورق التغليف والحرير' },
+  { label_fr: 'Boites',                  label_ar: 'صناديق',        cat: 'Board',        image: '/boite.webp',  imagePC: '/boitePC.webp',  desc_fr: 'Boîtes rigides & luxe',      desc_ar: 'صناديق صلبة وفاخرة' },
+  { label_fr: 'Sacs',                    label_ar: 'أكياس',          cat: 'Bags',         image: '/sacs.webp',   imagePC: '/sacsPC.webp',   desc_fr: 'Sacs shopping brandés',       desc_ar: 'أكياس تسوق مخصصة' },
+  { label_fr: 'Cartes et Autocollants',  label_ar: 'بطاقات وملصقات', cat: 'Autocollants', image: '/carte.webp',  imagePC: '/cartePC.webp',  desc_fr: 'Étiquettes & sceaux custom',  desc_ar: 'بطاقات وملصقات مخصصة' },
+  { label_fr: 'Papier',                  label_ar: 'ورق',            cat: 'Paper',        image: '/papier.webp', imagePC: '/papierPC.webp', desc_fr: 'Papier de soie & emballage',  desc_ar: 'ورق التغليف والحرير' },
 ]
 
 const STEPS_FR = [
@@ -67,7 +67,7 @@ function FAQItem({ q, a }) {
           width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           padding: '16px 18px', cursor: 'pointer', background: 'none', border: 'none', textAlign: 'left',
         }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: PURPLE_DEEP, fontFamily: 'inherit' }}>{q}</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: '#1E0A4A', fontFamily: 'inherit' }}>{q}</span>
         <span style={{
           color: PURPLE, fontSize: 22, flexShrink: 0,
           transition: 'transform 0.3s',
@@ -77,7 +77,7 @@ function FAQItem({ q, a }) {
       </button>
       {open && (
         <div style={{ padding: '0 18px 16px', borderTop: '1px solid #F0EEF9' }}>
-          <p style={{ fontSize: 13, color: '#6B6B8A', lineHeight: 1.6, paddingTop: 12 }}>{a}</p>
+          <p style={{ fontSize: 13, color: '#5B5B7A', lineHeight: 1.6, paddingTop: 12 }}>{a}</p>
         </div>
       )}
     </div>
@@ -142,7 +142,7 @@ function BeforeAfterSlider({ lang }) {
       <span style={{
         position: 'absolute', top: 10, right: 10,
         fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px',
-        background: '#FFD600', color: '#1E0A4A',
+        background: '#FFD600', color: 'white',
         padding: '4px 10px', borderRadius: 50,
       }}>
         {lang === 'ar' ? 'بعد ✓' : 'Après ✓'}
@@ -385,19 +385,19 @@ function HomePage() {
       <section className="block md:hidden" style={{ padding: '28px 20px 0' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 20 }}>
           <div>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: PURPLE_DEEP }}>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'white' }}>
               {lang === 'ar' ? 'الفئات' : 'Catégories'}
             </h2>
-            <p style={{ fontSize: 12, color: '#6B6B8A', marginTop: 2 }}>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>
               {lang === 'ar' ? 'حلول مخصصة لعلامتك التجارية' : 'Solutions sur mesure pour votre marque'}
             </p>
           </div>
-          <Link to="/products" style={{ fontSize: 13, fontWeight: 600, color: PURPLE, textDecoration: 'none' }}>
+          <Link to="/products" style={{ fontSize: 13, fontWeight: 600, color: '#FFD600', textDecoration: 'none' }}>
             {lang === 'ar' ? 'عرض الكل' : 'Voir tout'}
           </Link>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, desc_fr, desc_ar }) => {
+          {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, imagePC, desc_fr, desc_ar }) => {
             const label = lang === 'ar' ? label_ar : label_fr
             const desc  = lang === 'ar' ? desc_ar  : desc_fr
             return (
@@ -419,10 +419,10 @@ function HomePage() {
       <section className="hidden md:block" style={{ padding: '48px 48px 0', maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
           <div>
-            <h2 style={{ fontSize: 28, fontWeight: 900, color: PURPLE_DEEP }}>
+            <h2 style={{ fontSize: 28, fontWeight: 900, color: 'white' }}>
               {lang === 'ar' ? 'الفئات' : 'Nos catégories'}
             </h2>
-            <p style={{ fontSize: 14, color: '#6B6B8A', marginTop: 4 }}>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)', marginTop: 4 }}>
               {lang === 'ar' ? 'حلول مخصصة لعلامتك التجارية' : 'Solutions sur mesure pour votre marque'}
             </p>
           </div>
@@ -531,10 +531,10 @@ function HomePage() {
           AVANT / APRÈS SLIDER
       ══════════════════════════════════ */}
       <div style={{ padding: '28px 20px', maxWidth: 900, margin: '0 auto' }}>
-        <h3 style={{ fontSize: 20, fontWeight: 800, color: PURPLE_DEEP, marginBottom: 6 }}>
+        <h3 style={{ fontSize: 20, fontWeight: 800, color: 'white', marginBottom: 6 }}>
           {lang === 'ar' ? 'قبل / بعد' : 'Avant / Après'}
         </h3>
-        <p style={{ fontSize: 13, color: '#6B6B8A', marginBottom: 16 }}>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', marginBottom: 16 }}>
           {lang === 'ar' ? 'اسحب لترى الفرق' : 'Faites glisser pour voir la différence'}
         </p>
         <BeforeAfterSlider lang={lang} />
@@ -548,7 +548,7 @@ function HomePage() {
           background: 'white', borderRadius: 24,
           padding: '28px 20px', boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
         }}>
-          <h3 style={{ fontSize: 20, fontWeight: 800, color: PURPLE_DEEP, textAlign: 'center', marginBottom: 6 }}>
+          <h3 style={{ fontSize: 20, fontWeight: 800, color: 'white', textAlign: 'center', marginBottom: 6 }}>
             {lang === 'ar' ? 'كيف تطلب؟' : 'Comment commander ?'}
           </h3>
           <div style={{ width: 40, height: 4, background: YELLOW, borderRadius: 2, margin: '0 auto 24px' }} />
@@ -568,8 +568,8 @@ function HomePage() {
                     {n}
                   </div>
                   <div style={{ paddingTop: 4 }}>
-                    <h4 style={{ fontSize: 14, fontWeight: 700, color: PURPLE_DEEP, marginBottom: 4 }}>{title}</h4>
-                    <p style={{ fontSize: 13, color: '#6B6B8A', lineHeight: 1.5 }}>{desc}</p>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, color: '#1E0A4A', marginBottom: 4 }}>{title}</h4>
+                    <p style={{ fontSize: 13, color: '#5B5B7A', lineHeight: 1.5 }}>{desc}</p>
                   </div>
                 </div>
                 {i < steps.length - 1 && (
@@ -595,7 +595,7 @@ function HomePage() {
           FAQ
       ══════════════════════════════════ */}
       <div style={{ padding: '0 20px 40px' }}>
-        <h3 style={{ fontSize: 20, fontWeight: 800, color: PURPLE_DEEP, marginBottom: 20 }}>
+        <h3 style={{ fontSize: 20, fontWeight: 800, color: 'white', marginBottom: 20 }}>
           {lang === 'ar' ? 'الأسئلة الشائعة' : 'Questions fréquentes'}
         </h3>
         {faqs.map(faq => <FAQItem key={faq.q} q={faq.q} a={faq.a} />)}

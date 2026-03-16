@@ -12,8 +12,8 @@ const LOCAL_WILAYAS_FORMATTED = LOCAL_WILAYAS.map(w => ({
   wilaya_name: w.name,
 }))
 
-const NAVY   = '#1e1b4b'
-const PURPLE = '#7c3aed'
+const NAVY   = '#1E0A4A'
+const PURPLE = '#6C2BD9'
 const API    = import.meta.env.VITE_API_URL || ''
 
 /* ── sessionStorage cache helper ── */
@@ -129,7 +129,7 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
 
   const inputCls = err =>
     `w-full px-4 py-3 rounded-xl border-2 text-sm outline-none transition-all bg-white
-     ${err ? 'border-red-300 bg-red-50' : 'border-gray-200 focus:border-[#7c3aed] focus:ring-2 focus:ring-purple-100'}`
+     ${err ? 'border-red-300 bg-red-50' : 'border-gray-200 focus:border-[#6C2BD9] focus:ring-2 focus:ring-purple-100'}`
 
   const validate = () => {
     const e = {}
@@ -339,9 +339,9 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
               onClick={() => handleStopDesk(false)}
               className="flex-1 flex flex-col items-center justify-center gap-1 py-3 rounded-xl border-2 text-sm font-semibold transition-all"
               style={!form.stopDesk ? {
-                borderColor: '#7c3aed', background: '#7c3aed', color: 'white',
+                borderColor: '#6C2BD9', background: '#6C2BD9', color: 'white',
                 boxShadow: '0 4px 14px rgba(124,58,237,0.35)',
-              } : { borderColor: '#e5e7eb', background: 'white', color: '#9ca3af' }}>
+              } : { borderColor: '#e5e7eb', background: 'white', color: 'rgba(255,255,255,0.55)' }}>
               <Truck size={18} />
               <span>À domicile</span>
               {currentFees && (
@@ -356,9 +356,9 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
               disabled={!hasStopDesk && communes.length > 0}
               className="flex-1 flex flex-col items-center justify-center gap-1 py-3 rounded-xl border-2 text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               style={form.stopDesk ? {
-                borderColor: '#7c3aed', background: '#7c3aed', color: 'white',
+                borderColor: '#6C2BD9', background: '#6C2BD9', color: 'white',
                 boxShadow: '0 4px 14px rgba(124,58,237,0.35)',
-              } : { borderColor: '#e5e7eb', background: 'white', color: '#9ca3af' }}>
+              } : { borderColor: '#e5e7eb', background: 'white', color: 'rgba(255,255,255,0.55)' }}>
               <Store size={18} />
               <span>Stop Desk</span>
               {currentFees && !isFreeDelivery && (

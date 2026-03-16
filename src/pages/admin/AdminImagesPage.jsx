@@ -51,7 +51,10 @@ const GROUPS = [
         icon: <Monitor size={14} />,
         color: '#6C2BD9',
         items: [
-          { key: 'sacsPC', label: 'Sacs Desktop', hint: '900 × 700 px', ratio: '4:3', format: 'WebP', maxKb: 250 },
+          { key: 'boitePC',  label: 'Boites Desktop',  hint: '900 × 700 px', ratio: '9:7', format: 'WebP', maxKb: 250 },
+          { key: 'sacsPC',   label: 'Sacs Desktop',    hint: '900 × 700 px', ratio: '9:7', format: 'WebP', maxKb: 250 },
+          { key: 'cartePC',  label: 'Cartes Desktop',  hint: '900 × 700 px', ratio: '9:7', format: 'WebP', maxKb: 250 },
+          { key: 'papierPC', label: 'Papier Desktop',  hint: '900 × 700 px', ratio: '9:7', format: 'WebP', maxKb: 250 },
         ],
       },
     ],

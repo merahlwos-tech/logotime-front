@@ -67,7 +67,7 @@ function ProductCard({ product }) {
 
       {/* Infos */}
       <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
-        <h3 style={{ fontSize: 13, fontWeight: 700, color: PURPLE_DEEP, lineHeight: 1.3 }}>
+        <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1E0A4A', lineHeight: 1.3 }}>
           {product.name}
         </h3>
         <p style={{ fontSize: 12, color: PURPLE, fontWeight: 600, marginBottom: 2 }}>
