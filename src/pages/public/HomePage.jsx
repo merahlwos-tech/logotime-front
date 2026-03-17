@@ -116,6 +116,7 @@ function BeforeAfterSlider({ lang }) {
       {/* AFTER — full image background */}
       <img src="/after.webp" alt="Après" draggable={false}
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        loading="lazy" decoding="async"
         onError={e => { e.target.src = '/sacs.webp' }}
       />
 
@@ -126,6 +127,7 @@ function BeforeAfterSlider({ lang }) {
       }}>
         <img src="/before.webp" alt="Avant" draggable={false}
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(70%) brightness(0.75)' }}
+          loading="lazy" decoding="async"
           onError={e => { e.target.src = '/boite.webp'; e.target.style.filter = 'grayscale(70%) brightness(0.75)' }}
         />
       </div>
@@ -287,6 +289,7 @@ function HomePage() {
             <div style={{ borderRadius: 24, overflow: 'hidden', boxShadow: '0 24px 60px rgba(0,0,0,0.4)', aspectRatio: '4/3' }}>
               <img src="/mainPC.webp" alt="Emballage premium Logo Time"
                 style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                fetchpriority="high" loading="eager" decoding="async"
                 onError={e => { e.target.src = '/main.webp' }}
               />
             </div>
@@ -335,6 +338,7 @@ function HomePage() {
         <div className="animate-fade-up" style={{ borderRadius: 16, overflow: 'hidden', marginBottom: 28, boxShadow: '0 16px 40px rgba(0,0,0,0.3)', animationDelay: '0.25s' }}>
           <img src="/mainPC.webp" alt="Emballage premium Logo Time"
             style={{ width: '100%', height: 280, objectFit: 'cover', display: 'block' }}
+            fetchpriority="high" loading="eager" decoding="async"
             onError={e => { e.target.src = '/main.webp' }}
           />
         </div>

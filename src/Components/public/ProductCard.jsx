@@ -1,95 +1,48 @@
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import api from '../../utils/api'
+import ProductGrid from '../../Components/public/ProductGrid'
+import { useSEO } from '../../utils/UseSEO'
 import { useLang } from '../../context/LanguageContext'
 
-const PURPLE      = '#6C2BD9'
-const PURPLE_DARK = '#4A1A9E'
-const PURPLE_DEEP = '#1E0A4A'
-const YELLOW      = '#FFD600'
+function ProductsPage() {
+  const [searchParams]          = useSearchParams()
+  const [products, setProducts] = useState([])
+  const [loading, setLoading]   = useState(true)
+  const { lang, isRTL }         = useLang()
+  const activeCategory = searchParams.get('category') || 'Tous'
+  const fontCls = lang === 'ar' ? 'font-arabic' : ''
 
-const CAT_LABELS_FR = { Board: 'Boites', Bags: 'Sacs', Autocollants: 'Cartes', Paper: 'Papier' }
-const CAT_LABELS_AR = { Board: 'صناديق', Bags: 'أكياس', Autocollants: 'بطاقات', Paper: 'ورق' }
+  useSEO({
+    title: 'Catalogue — Logo Time',
+    description: "Tous les emballages personnalisés Logo Time — boites, sacs, cartes, papier.",
+  })
 
-function ProductCard({ product }) {
-  const navigate = useNavigate()
-  const { t, lang, isRTL } = useLang()
+  useEffect(() => { window.scrollTo(0, 0) }, [])
 
-  const imageUrl  = product.images?.[0] || '/placeholder.jpg'
-  const minPrice  = product.sizes?.length ? Math.min(...product.sizes.map(s => s.price ?? 0)) : 0
-  const catLabel  = (lang === 'ar' ? CAT_LABELS_AR : CAT_LABELS_FR)[product.category] || product.category
+  useEffect(() => {
+    setLoading(true)
+    const params = activeCategory !== 'Tous' ? `?category=${activeCategory}` : ''
+    api.get(`/products${params}`)
+      .then(res => setProducts(res.data || []))
+      .catch(() => setProducts([]))
+      .finally(() => setLoading(false))
+  }, [activeCategory])
+
+  const filtered = products
 
   return (
-    <div
-      onClick={() => navigate(`/products/${product._id}`)}
-      dir={isRTL ? 'rtl' : 'ltr'}
-      style={{
-        background: 'white', borderRadius: 16,
-        boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
-        overflow: 'hidden', cursor: 'pointer',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        display: 'flex', flexDirection: 'column',
-      }}
-      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(108,43,217,0.22)' }}
-      onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 16px rgba(0,0,0,0.08)' }}
-    >
-      {/* Image */}
-      <div style={{ position: 'relative', width: '100%', aspectRatio: '4/3', overflow: 'hidden', background: '#F0EEF9' }}>
-        <img src={imageUrl} alt={product.name}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s', display: 'block' }}
-          loading="lazy"
-          onMouseEnter={e => e.target.style.transform = 'scale(1.05)'}
-          onMouseLeave={e => e.target.style.transform = ''}
+    <div className={fontCls} dir={isRTL ? 'rtl' : 'ltr'}
+      style={{ background: '#F8F7FF', minHeight: '100dvh', paddingTop: 72 }}>
+      <div style={{ padding: '20px 16px 100px' }}>
+        <ProductGrid
+          products={filtered}
+          loading={loading}
+          emptyMessage={lang === 'ar' ? 'لا توجد منتجات في هذه الفئة.' : 'Aucun produit dans cette catégorie.'}
         />
-        {/* Badge catégorie */}
-        <span style={{
-          position: 'absolute', top: 10,
-          left: isRTL ? undefined : 10,
-          right: isRTL ? 10 : undefined,
-          fontSize: 10, fontWeight: 700,
-          padding: '4px 10px', borderRadius: 50,
-          background: YELLOW, color: PURPLE_DARK,
-          textTransform: 'uppercase', letterSpacing: '0.5px',
-        }}>
-          {catLabel}
-        </span>
-        {product.doubleSided && (
-          <span style={{
-            position: 'absolute', top: 10,
-            right: isRTL ? undefined : 10,
-            left: isRTL ? 10 : undefined,
-            fontSize: 9, fontWeight: 700,
-            padding: '3px 8px', borderRadius: 50,
-            background: PURPLE_DEEP, color: '#1E0A4A',
-          }}>
-            {lang === 'ar' ? 'وجهان' : 'Recto-verso'}
-          </span>
-        )}
-      </div>
-
-      {/* Infos */}
-      <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
-        <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1E0A4A', lineHeight: 1.3 }}>
-          {product.name}
-        </h3>
-        <p style={{ fontSize: 12, color: PURPLE, fontWeight: 600, marginBottom: 2 }}>
-          {t('fromPrice')} <strong style={{ fontSize: 15 }}>{minPrice.toLocaleString('fr-DZ')}</strong> DA
-        </p>
-        <button
-          onClick={e => { e.stopPropagation(); navigate(`/products/${product._id}`) }}
-          style={{
-            background: YELLOW, color: PURPLE_DARK,
-            border: 'none', borderRadius: 8,
-            fontFamily: 'inherit', fontWeight: 600, fontSize: 12,
-            padding: '9px 16px', cursor: 'pointer', width: '100%',
-            transition: 'background 0.2s, transform 0.15s',
-          }}
-          onMouseEnter={e => e.target.style.background = '#F5C800'}
-          onMouseLeave={e => e.target.style.background = YELLOW}
-        >
-          {t('chooseSizes')}
-        </button>
       </div>
     </div>
   )
 }
 
-export default ProductCard
+export default ProductsPage
