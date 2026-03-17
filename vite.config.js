@@ -32,10 +32,10 @@ export default defineConfig({
     minify: 'esbuild',
     cssCodeSplit: true,
     assetsInlineLimit: 4096,
+  },
 
-    // Supprime les console.log en production
-    esbuildOptions: {
-      drop: ['console', 'debugger'],
-    },
+  // Supprime les console.log en production
+  esbuild: {
+    drop: ['console', 'debugger'],
   },
 })
