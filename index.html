@@ -18,20 +18,13 @@
     <meta property="og:description" content="Emballages personnalisés pour votre business en Algérie — boites, sacs, cartes, papier." />
     <meta property="og:image"       content="/main.webp" />
 
-    <!-- Preload hero image → améliore le LCP (Largest Contentful Paint) -->
-    <link rel="preload" as="image" href="/mainPC.webp" fetchpriority="high" />
-
-    <!-- Fonts — display=swap évite le FOIT (flash invisible text) -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap"
       rel="stylesheet"
-      media="print" onload="this.media='all'"
     />
-    <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
-    </noscript>
 
     <!-- Meta Pixel — init uniquement, PAS de PageView ici
          Le PageView est déclenché par App.jsx (PageViewTracker) à chaque

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import api from '../../utils/api'
 import ProductGrid from '../../Components/public/ProductGrid'
@@ -21,15 +21,15 @@ function ProductsPage() {
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
   useEffect(() => {
-    setLoading(true)
-    const params = activeCategory !== 'Tous' ? `?category=${activeCategory}` : ''
-    api.get(`/products${params}`)
+    api.get('/products')
       .then(res => setProducts(res.data || []))
       .catch(() => setProducts([]))
       .finally(() => setLoading(false))
-  }, [activeCategory])
+  }, [])
 
-  const filtered = products
+  const filtered = useMemo(() => products.filter(p =>
+    activeCategory === 'Tous' || p.category === activeCategory
+  ), [products, activeCategory])
 
   return (
     <div className={fontCls} dir={isRTL ? 'rtl' : 'ltr'}
