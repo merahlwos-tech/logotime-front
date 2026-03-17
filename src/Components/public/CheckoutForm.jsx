@@ -200,7 +200,7 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
     setLogoUrls(p  => p.filter((_, i) => i !== idx))
     if (urlToDelete) {
       try {
-        await fetch(`${API}/upload/logo`, {
+        await fetch(`${API}/api/upload/logo`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: urlToDelete }),
