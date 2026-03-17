@@ -130,7 +130,8 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
         method: form.stopDesk ? 'Stop Desk' : 'Domicile',
       })
     }
-  }, [deliveryFee, form.stopDesk])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deliveryFee, form.stopDesk, onDeliveryChange])
   const hasStopDesk = communes.some(c => c.has_stop_desk === 1)
   const visibleCommunes = form.stopDesk ? communes.filter(c => c.has_stop_desk === 1) : communes
 
@@ -200,7 +201,7 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
     setLogoUrls(p  => p.filter((_, i) => i !== idx))
     if (urlToDelete) {
       try {
-        await fetch(`${API}/api/upload/logo`, {
+        await fetch(`${API}/upload/logo`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: urlToDelete }),
