@@ -401,17 +401,17 @@ function HomePage() {
             {lang === 'ar' ? 'عرض الكل' : 'Voir tout'}
           </Link>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, imagePC, desc_fr, desc_ar }) => {
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, desc_fr, desc_ar }) => {
             const label = lang === 'ar' ? label_ar : label_fr
             const desc  = lang === 'ar' ? desc_ar  : desc_fr
             return (
               <Link key={cat} to={`/products?category=${cat}`} style={{ textDecoration: 'none' }}>
-                <div style={{ position: 'relative', height: 224, borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.08)', cursor: 'pointer' }}>
+                <div style={{ position: 'relative', aspectRatio: '1/1', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.08)', cursor: 'pointer' }}>
                   <img src={image} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 14, background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)' }}>
-                    <h4 style={{ fontSize: 17, fontWeight: 800, color: '#1E0A4A', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>{label}</h4>
-                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>{desc}</p>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 12, background: 'linear-gradient(to top, rgba(0,0,0,0.60) 0%, transparent 60%)' }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 800, color: 'white', textShadow: '0 1px 4px rgba(0,0,0,0.4)', marginBottom: 2 }}>{label}</h4>
+                    <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>{desc}</p>
                   </div>
                 </div>
               </Link>
@@ -443,8 +443,8 @@ function HomePage() {
           </Link>
         </div>
 
-        {/* Grille desktop — 2 grandes + 2 petites */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.6fr 1fr 1fr', gridTemplateRows: '380px', gap: 16 }}>
+        {/* Grille desktop — 4 colonnes égales */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: '380px', gap: 16 }}>
           {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, imagePC, desc_fr, desc_ar }, i) => {
             const label = lang === 'ar' ? label_ar : label_fr
             const desc  = lang === 'ar' ? desc_ar  : desc_fr
@@ -473,7 +473,7 @@ function HomePage() {
                     position: 'absolute', inset: 0,
                     background: 'linear-gradient(to top, rgba(20,5,50,0.75) 0%, rgba(20,5,50,0.1) 50%, transparent 100%)',
                     display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-                    padding: i < 2 ? 28 : 20,
+                    padding: 20,
                   }}>
                     {/* Badge */}
                     <span style={{
@@ -485,8 +485,8 @@ function HomePage() {
                     }}>
                       {label}
                     </span>
-                    <h4 style={{ fontSize: i < 2 ? 24 : 18, fontWeight: 900, color: '#1E0A4A', lineHeight: 1.2, marginBottom: 6 }}>{label}</h4>
-                    <p style={{ fontSize: i < 2 ? 13 : 11, color: '#6B6B8A' }}>{desc}</p>
+                    <h4 style={{ fontSize: 18, fontWeight: 900, color: '#1E0A4A', lineHeight: 1.2, marginBottom: 6 }}>{label}</h4>
+                    <p style={{ fontSize: 12, color: '#6B6B8A' }}>{desc}</p>
                   </div>
                 </div>
               </Link>
