@@ -485,8 +485,8 @@ function HomePage() {
                     }}>
                       {label}
                     </span>
-                    <h4 style={{ fontSize: 18, fontWeight: 900, color: '#1E0A4A', lineHeight: 1.2, marginBottom: 6 }}>{label}</h4>
-                    <p style={{ fontSize: 12, color: '#6B6B8A' }}>{desc}</p>
+                    <h4 style={{ fontSize: 18, fontWeight: 900, color: 'white', lineHeight: 1.2, marginBottom: 6 }}>{label}</h4>
+                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>{desc}</p>
                   </div>
                 </div>
               </Link>
