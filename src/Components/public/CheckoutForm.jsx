@@ -130,8 +130,7 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
         method: form.stopDesk ? 'Stop Desk' : 'Domicile',
       })
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deliveryFee, form.stopDesk, onDeliveryChange])
+  }, [deliveryFee, form.stopDesk])
   const hasStopDesk = communes.some(c => c.has_stop_desk === 1)
   const visibleCommunes = form.stopDesk ? communes.filter(c => c.has_stop_desk === 1) : communes
 
