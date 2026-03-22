@@ -62,8 +62,23 @@ function PackBuilder({ packItems, onChange, error }) {
   useEffect(() => {
     api.get('/products')
       .then(res => {
-        // Exclure les packs eux-mêmes
-        setAllProducts((res.data || []).filter(p => p.category !== 'Pack'))
+        const prods = (res.data || []).filter(p => p.category !== 'Pack')
+        setAllProducts(prods)
+
+        // Sync les prix actuels dans les packItems existants (en cas d'édition)
+        if (packItems.length > 0) {
+          const synced = packItems.map(item => {
+            const prod = prods.find(p => p._id === item.productId)
+            if (!prod) return item
+            const sizeObj = prod.sizes?.find(s => s.size === item.size)
+            if (sizeObj && sizeObj.price !== item.unitPrice) {
+              return { ...item, unitPrice: sizeObj.price }
+            }
+            return item
+          })
+          const hasChange = synced.some((s, i) => s.unitPrice !== packItems[i].unitPrice)
+          if (hasChange) onChange(synced)
+        }
       })
       .catch(() => toast.error('Erreur chargement produits'))
       .finally(() => setLoading(false))
@@ -379,13 +394,18 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
         }
       } else {
         payload = {
-          ...form,
-          sizes: form.sizes.filter(s => s.size.trim()).map(s => ({ size: s.size, price: Number(s.price) })),
-          colorDesignEnabled: form.colorDesignEnabled,
+          name:     form.name,
+          category: form.category,
+          sizes:    form.sizes.filter(s => s.size.trim()).map(s => ({ size: s.size, price: Number(s.price) })),
+          colors:   form.colors,
+          images:   form.images,
+          tags:     form.tags || [],
+          colorDesignEnabled:       form.colorDesignEnabled,
           colorDesignPricePerColor: form.colorDesignEnabled && form.colorDesignPricePerColor !== '' ? Number(form.colorDesignPricePerColor) : 0,
-          colorDesignMaxColors: form.colorDesignEnabled && form.colorDesignMaxColors !== '' ? Number(form.colorDesignMaxColors) : null,
+          colorDesignMaxColors:     form.colorDesignEnabled && form.colorDesignMaxColors !== '' ? Number(form.colorDesignMaxColors) : null,
+          doubleSided:      form.doubleSided,
           doubleSidedPrice: form.doubleSided ? Number(form.doubleSidedPrice) : 0,
-          packItems: [],
+          // NE PAS envoyer packItems pour les produits normaux
         }
       }
 
