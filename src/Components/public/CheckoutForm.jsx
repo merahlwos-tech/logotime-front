@@ -1,7 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { ChevronDown, User, Phone, MapPin, Map, Loader2, Package, Image, X, FileText, Store, Truck } from 'lucide-react'
+import { ChevronDown, User, Phone, MapPin, Map, Loader2, Package, Store, Truck } from 'lucide-react'
 import { useLang } from '../../context/LanguageContext'
-import { uploadToCloudinary } from '../../utils/uploadCloudinary'
 import { trackFormEngagement } from '../../utils/metaPixel'
 import { wilayas as LOCAL_WILAYAS } from '../../data/wilayas'
 import toast from 'react-hot-toast'
@@ -108,10 +107,7 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
   const { t, isRTL, lang } = useLang()
   const [form, setForm]   = useState({ firstName: '', lastName: '', phone: '', wilayaId: '', wilayaName: '', commune: '', stopDesk: false, description: '' })
   const [errors, setErrors] = useState({})
-  const [logoFiles, setLogoFiles] = useState([])
   const formEngagementFired = useRef(false)
-  const [logoUrls, setLogoUrls] = useState([])
-  const [uploading, setUploading] = useState(false)
 
   // Refs pour scroll-to-error
   const fieldRefs = useRef({})
@@ -147,7 +143,6 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
       e.phone = t('errorPhoneFormat')
     if (!form.wilayaId)           e.wilaya      = t('errorWilaya')
     if (!form.commune)            e.commune     = t('errorCommune')
-    if (logoUrls.length === 0)    e.logo        = t('errorLogo')
     return e
   }
 
@@ -171,42 +166,7 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
     setErrors(p => ({ ...p, commune: '' }))
   }, [])
 
-  const handleLogoSelect = async (files) => {
-    if (!files?.length) return
-    const remaining = 2 - logoFiles.length
-    if (remaining <= 0) return
-    const toUpload = Array.from(files).slice(0, remaining)
-    setUploading(true)
-    try {
-      const uploaded = await Promise.all(toUpload.map(uploadToCloudinary))
-      setLogoFiles(p => [...p, ...toUpload])
-      setLogoUrls(p  => [...p, ...uploaded])
-      setErrors(p => ({ ...p, logo: '' }))
-    } catch (err) {
-      console.error('Cloudinary upload error:', err)
-      const isConfigError = err?.message?.includes('env') || err?.message?.includes('missing')
-      const msg = isConfigError
-        ? (lang === 'ar' ? 'خطأ في الإعداد — تحقق من VITE_CLOUDINARY_*' : 'Config Cloudinary manquante (.env)')
-        : (lang === 'ar' ? 'فشل رفع الصورة، حاول مجدداً' : "Échec de l'upload — " + (err?.message || 'réessayez'))
-      setErrors(p => ({ ...p, logo: msg }))
-      toast.error(msg)
-    } finally { setUploading(false) }
-  }
 
-  const removeLogo = async idx => {
-    const urlToDelete = logoUrls[idx]
-    setLogoFiles(p => p.filter((_, i) => i !== idx))
-    setLogoUrls(p  => p.filter((_, i) => i !== idx))
-    if (urlToDelete) {
-      try {
-        await fetch(`${API}/api/upload/logo`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: urlToDelete }),
-        })
-      } catch (err) { console.error('Cloudinary logo delete error:', err.message) }
-    }
-  }
 
   const handleSubmit = e => {
     e.preventDefault()
@@ -214,7 +174,7 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
     if (Object.keys(errs).length > 0) {
       setErrors(errs)
       // Scroll vers le premier champ en erreur
-      const order = ['firstName', 'lastName', 'phone', 'wilaya', 'commune', 'logo']
+      const order = ['firstName', 'lastName', 'phone', 'wilaya', 'commune']
       const firstErr = order.find(k => errs[k])
       if (firstErr && fieldRefs.current[firstErr]) {
         fieldRefs.current[firstErr].scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -229,7 +189,6 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
       wilayaCode:      form.wilayaId ? Number(form.wilayaId) : null,
       deliveryMethod:  form.stopDesk ? 'Stop Desk' : 'Domicile',
       deliveryFee:     isFreeDelivery ? 0 : deliveryFee,
-      logoUrls,
     })
   }
 
@@ -398,54 +357,12 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
           </div>
         )}
 
-        {/* Logo — pleine largeur */}
-        <div ref={setFieldRef('logo')} className="lg:col-span-2">
-          <Field label={t('logoPhotos')} icon={Image} error={errors.logo}>
-            {logoFiles.length > 0 && (
-              <div className="flex gap-2 mb-3">
-                {logoFiles.map((file, idx) => (
-                  <div key={idx} className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 border-2"
-                    style={{ borderColor: PURPLE }}>
-                    <img src={URL.createObjectURL(file)} alt="logo"
-                      className="w-full h-full object-cover" />
-                    <button type="button" onClick={() => removeLogo(idx)}
-                      className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-500 rounded-full
-                                 flex items-center justify-center">
-                      <X size={10} className="text-white" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            {logoFiles.length < 2 && (
-              <label className={`flex items-center justify-center gap-2 w-full py-4 rounded-xl
-                                border-2 border-dashed cursor-pointer transition-all text-sm font-medium
-                                ${uploading ? 'opacity-60 pointer-events-none' : 'hover:border-purple-400 hover:bg-purple-50'}`}
-                style={{ borderColor: errors.logo ? '#fca5a5' : 'rgba(124,58,237,0.3)', color: PURPLE }}>
-                <input type="file" accept="image/*" multiple className="hidden"
-                  onChange={e => handleLogoSelect(e.target.files)} />
-                {uploading
-                  ? <><Loader2 size={16} className="animate-spin" /> {t('processing')}</>
-                  : <><Image size={16} /> {t('logoPhotos').split('(')[0].trim()}</>}
-              </label>
-            )}
-          </Field>
-        </div>
 
-        {/* Description — pleine largeur */}
-        <div ref={setFieldRef('description')} className="lg:col-span-2">
-          <Field label={t('description')} icon={FileText} error={errors.description}>
-            <textarea name="description" value={form.description}
-              onChange={handleChange} rows={3}
-              placeholder={t('descPlaceholder')}
-              className={`${inputCls(errors.description)} resize-none`} />
-          </Field>
-        </div>
 
       </div>
 
       {/* Bouton */}
-      <button type="submit" disabled={loading || uploading}
+      <button type="submit" disabled={loading}
         className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl
                    text-white font-black text-base transition-all hover:opacity-90
                    disabled:opacity-60 shadow-lg mt-2"

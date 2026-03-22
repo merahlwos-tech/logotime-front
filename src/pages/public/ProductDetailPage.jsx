@@ -16,7 +16,7 @@ const PURPLE      = '#6C2BD9'
 const YELLOW      = '#FFD600'
 const PURPLE_DARK = '#4A1A9E'
 const CAT_LABELS_FR = { Board: 'Boites', Bags: 'Sacs', Autocollants: 'Cartes et Autocollants', Paper: 'Papier', Pack: 'Packs' }
-const CAT_LABELS_AR = { Board: 'صناديق', Bags: 'أكياس', Autocollants: 'بطاقات', Paper: 'ورق', Pack: 'العروض' }
+const CAT_LABELS_AR = { Board: 'علب', Bags: 'أكياس', Autocollants: 'بطاقات', Paper: 'ورق', Pack: 'العروض' }
 
 const COLOR_NAMES = {
   '#000000': { fr: 'Noir',        ar: 'أسود' },

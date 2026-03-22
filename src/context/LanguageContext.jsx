@@ -85,7 +85,7 @@ export const T = {
   ar: {
     // Nav
     home: 'الرئيسية', products: 'المنتجات', about: 'من نحن', cart: 'السلة',
-    boxes: 'صناديق', bags: 'أكياس', cards: 'بطاقات', paper: 'ورق', all: 'الكل',
+    boxes: 'علب', bags: 'أكياس', cards: 'بطاقات', paper: 'ورق', all: 'الكل',
     // Product
     availableSizes: 'المقاسات المتاحة', availableColors: 'الألوان المتاحة',
     numberOfColors: 'عدد الألوان في تصميمك', numberOfColorsPlaceholder: 'مثال: 2',

@@ -10,7 +10,7 @@ const YELLOW      = '#FFD600'
 
 /* ─── Données ─── */
 const CAT_IMAGES = [
-  { label_fr: 'Boites',                  label_ar: 'صناديق',        cat: 'Board',        image: '/boite.webp',  imagePC: '/boitePC.webp',  desc_fr: 'Boîtes rigides & luxe',      desc_ar: 'صناديق صلبة وفاخرة' },
+  { label_fr: 'Boites',                  label_ar: 'علب',        cat: 'Board',        image: '/boite.webp',  imagePC: '/boitePC.webp',  desc_fr: 'Boîtes rigides & luxe',      desc_ar: 'علب صلبة وفاخرة' },
   { label_fr: 'Sacs',                    label_ar: 'أكياس',          cat: 'Bags',         image: '/sacs.webp',   imagePC: '/sacsPC.webp',   desc_fr: 'Sacs shopping brandés',       desc_ar: 'أكياس تسوق مخصصة' },
   { label_fr: 'Cartes et Autocollants',  label_ar: 'بطاقات وملصقات', cat: 'Autocollants', image: '/carte.webp',  imagePC: '/cartePC.webp',  desc_fr: 'Étiquettes & sceaux custom',  desc_ar: 'بطاقات وملصقات مخصصة' },
   { label_fr: 'Papier',                  label_ar: 'ورق',            cat: 'Paper',        image: '/papier.webp', imagePC: '/papierPC.webp', desc_fr: 'Papier de soie & emballage',  desc_ar: 'ورق التغليف والحرير' },
@@ -514,9 +514,6 @@ function HomePage() {
                     onMouseLeave={e => e.target.style.transform = ''}
                   />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(20,5,50,0.75) 0%, rgba(20,5,50,0.1) 50%, transparent 100%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 20 }}>
-                    <span style={{ display: 'inline-block', alignSelf: 'flex-start', background: YELLOW, color: PURPLE_DARK, fontSize: 11, fontWeight: 800, padding: '4px 12px', borderRadius: 50, marginBottom: 10, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                      {label}
-                    </span>
                     <h4 style={{ fontSize: 18, fontWeight: 900, color: 'white', lineHeight: 1.2, marginBottom: 6 }}>{label}</h4>
                     <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>{desc}</p>
                   </div>

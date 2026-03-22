@@ -27,7 +27,7 @@ function Navbar() {
   const fontCls = lang === 'ar' ? 'font-arabic' : ''
 
   const NAV_LINKS = [
-    { to: '/products?category=Board',        label: lang === 'ar' ? 'الصناديق'  : 'Boites' },
+    { to: '/products?category=Board',        label: lang === 'ar' ? 'العلب'  : 'Boites' },
     { to: '/products?category=Bags',         label: lang === 'ar' ? 'الأكياس'   : 'Sacs' },
     { to: '/products?category=Autocollants', label: lang === 'ar' ? 'البطاقات'  : 'Cartes' },
     { to: '/products?category=Paper',        label: lang === 'ar' ? 'الورق'     : 'Papier' },
