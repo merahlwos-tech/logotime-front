@@ -44,14 +44,15 @@ const FAQS_AR = [
 ]
 
 const WHY_FR = [
-  { icon: '⚡', title: 'Livraison rapide',        desc: 'Livraison en 2 à 5 jours partout en Algérie' },
-  { icon: '📦', title: 'Qualité professionnelle', desc: 'Matériaux premium, finitions soignées' },
+  { icon: '🚀', title: "Les plus rapides du marché",  desc: "Livraison en 2 à 5 jours ouvrables partout en Algérie. Les délais les plus courts du secteur." },
+  { icon: '💎', title: "Qualité & meilleurs prix",    desc: "Matériaux premium, finitions soignées, aux tarifs les plus compétitifs du marché." },
+  { icon: '🤝', title: "Une marque de confiance",     desc: "Des centaines de clients satisfaits à travers toute l'Algérie nous font confiance chaque jour." },
 ]
 const WHY_AR = [
-  { icon: '⚡', title: 'تعديل على توصيل سريع', desc: 'توصيل خلال 2 إلى 5 أيام عمل في كل أنحاء الجزائر' },
-  { icon: '📦', title: 'جودة احترافية', desc: 'مواد فاخرة وتشطيبات عالية الجودة' },
+  { icon: '🚀', title: 'الأسرع في السوق',          desc: 'توصيل خلال 2 إلى 5 أيام عمل في كل أنحاء الجزائر.' },
+  { icon: '💎', title: 'جودة بأفضل الأسعار',        desc: 'مواد فاخرة وتشطيبات راقية بأسعار لا تُنافَس في السوق.' },
+  { icon: '🤝', title: 'علامة تجارية موثوقة',       desc: 'مئات العملاء الراضين من كل أنحاء الجزائر يثقون بنا يومياً.' },
 ]
-
 /* ─── FAQ Item ─── */
 function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false)
