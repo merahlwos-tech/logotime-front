@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ShoppingBag, ArrowLeft, ChevronLeft, ChevronRight, Zap, ChevronDown, Check } from 'lucide-react'
+import { ShoppingBag, ArrowLeft, ChevronLeft, ChevronRight, Zap, ChevronDown, Check, Upload, X, Loader2 } from 'lucide-react'
 import api from '../../utils/api'
 import { useCart } from '../../context/CartContext'
 import SizeSelector from '../../Components/public/SizeSelector'
@@ -8,6 +8,7 @@ import QuantitySelector from '../../Components/public/QuantitySelector'
 import { useLang } from '../../context/LanguageContext'
 import { trackViewContent, trackAddToCart, trackHighQualityVisitor, trackScrollToForm } from '../../utils/metaPixel'
 import { useSEO } from '../../utils/UseSEO'
+import { uploadToCloudinary } from '../../utils/uploadCloudinary'
 import toast from 'react-hot-toast'
 
 const NAVY        = '#1E0A4A'
@@ -120,6 +121,17 @@ function ProductDetailPage() {
   const [selectedColor, setSelectedColor]   = useState('')
   const [numberOfColors, setNumberOfColors] = useState('1')
 
+  // Logo upload
+  const [logoFiles, setLogoFiles]       = useState([])
+  const [logoUrls, setLogoUrls]         = useState([])
+  const [logoUploading, setLogoUploading] = useState(false)
+
+  // Description / instructions
+  const [description, setDescription] = useState('')
+
+  // Popup après ajout au panier
+  const [showCartPopup, setShowCartPopup] = useState(false)
+
   // SEO dynamique — se met à jour dès que le produit est chargé
   const seoCatLabels = { Board: 'Boite', Bags: 'Sac', Autocollants: 'Cartes et Autocollants', Paper: 'Papier' }
   const minPrice = product ? Math.min(...(product.sizes?.map(s => s.price) || [0])) : 0
@@ -214,20 +226,41 @@ function ProductDetailPage() {
   const totalPrice    = unitPrice * quantity
   const images        = product.images?.length > 0 ? product.images : ['/placeholder.jpg']
 
-  const handleAddToCart = () => {
-    if (!selectedSize) { toast.error(t('selectSize')); return }
-    if (product.colors?.length > 0 && !selectedColor) { toast.error(lang === 'ar' ? 'يرجى اختيار لون' : 'Veuillez choisir une couleur'); return }
-    addToCart({ ...product, computedPrice: unitPrice }, selectedSize, quantity, doubleSided, selectedColor ? [COLOR_NAMES[selectedColor]?.[lang] || COLOR_NAMES[selectedColor]?.fr || selectedColor] : [], nbColors)
+  const handleLogoUpload = async (files) => {
+    if (!files?.length) return
+    const remaining = 3 - logoFiles.length
+    if (remaining <= 0) return
+    const toUpload = Array.from(files).slice(0, remaining)
+    setLogoUploading(true)
+    try {
+      const uploaded = await Promise.all(toUpload.map(uploadToCloudinary))
+      setLogoFiles(p => [...p, ...toUpload])
+      setLogoUrls(p  => [...p, ...uploaded])
+    } catch {
+      toast.error(lang === 'ar' ? 'فشل رفع الصورة، حاول مجدداً' : "Échec de l'upload — réessayez")
+    } finally { setLogoUploading(false) }
+  }
+
+  const removeLogo = (idx) => {
+    setLogoFiles(p => p.filter((_, i) => i !== idx))
+    setLogoUrls(p  => p.filter((_, i) => i !== idx))
+  }
+
+  const doAddToCart = () => {
+    if (!selectedSize) { toast.error(t('selectSize')); return false }
+    if (product.colors?.length > 0 && !selectedColor) { toast.error(lang === 'ar' ? 'يرجى اختيار لون' : 'Veuillez choisir une couleur'); return false }
+    if (logoUrls.length === 0) { toast.error(lang === 'ar' ? 'يرجى رفع صورة الشعار' : 'Veuillez uploader votre logo'); return false }
+    addToCart({ ...product, computedPrice: unitPrice, logoUrls, description: description.trim() }, selectedSize, quantity, doubleSided, selectedColor ? [COLOR_NAMES[selectedColor]?.[lang] || COLOR_NAMES[selectedColor]?.fr || selectedColor] : [], nbColors)
     trackAddToCart(product, selectedSize, quantity, unitPrice)
-    toast.success(`${product.name} ${t('added')}`)
+    return true
+  }
+
+  const handleAddToCart = () => {
+    if (doAddToCart()) setShowCartPopup(true)
   }
 
   const handleBuyNow = () => {
-    if (!selectedSize) { toast.error(t('selectSize')); return }
-    if (product.colors?.length > 0 && !selectedColor) { toast.error(lang === 'ar' ? 'يرجى اختيار لون' : 'Veuillez choisir une couleur'); return }
-    addToCart({ ...product, computedPrice: unitPrice }, selectedSize, quantity, doubleSided, selectedColor ? [COLOR_NAMES[selectedColor]?.[lang] || COLOR_NAMES[selectedColor]?.fr || selectedColor] : [], nbColors)
-    trackAddToCart(product, selectedSize, quantity, unitPrice)
-    navigate('/cart')
+    if (doAddToCart()) navigate('/cart')
   }
 
   return (
@@ -462,6 +495,62 @@ function ProductDetailPage() {
                 </p>
               </div>
 
+
+              {/* Logo upload */}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
+                  {lang === 'ar' ? 'صورة الشعار *' : 'Logo *'}
+                  <span className="ml-2 text-gray-400 font-normal normal-case" style={{ fontSize: 10 }}>
+                    {lang === 'ar' ? '(مطلوب — 3 كحد أقصى)' : '(obligatoire — 3 max)'}
+                  </span>
+                </p>
+                {logoFiles.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {logoFiles.map((file, idx) => (
+                      <div key={idx} className="relative w-16 h-16 rounded-xl overflow-hidden border-2"
+                        style={{ borderColor: PURPLE }}>
+                        <img src={URL.createObjectURL(file)} alt="logo" className="w-full h-full object-cover" />
+                        <button type="button" onClick={() => removeLogo(idx)}
+                          className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                          <X size={10} className="text-white" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {logoFiles.length < 3 && (
+                  <label className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed cursor-pointer transition-all text-sm font-medium hover:border-purple-400 hover:bg-purple-50"
+                    style={{ borderColor: 'rgba(124,58,237,0.35)', color: PURPLE }}>
+                    <input type="file" accept="image/*" multiple className="hidden"
+                      onChange={e => handleLogoUpload(e.target.files)} disabled={logoUploading} />
+                    {logoUploading
+                      ? <><Loader2 size={15} className="animate-spin" /> {lang === 'ar' ? 'جارٍ الرفع...' : 'Upload...'}</>
+                      : <><Upload size={15} /> {lang === 'ar' ? 'رفع الشعار' : 'Uploader le logo'}</>}
+                  </label>
+                )}
+              </div>
+
+              {/* Description / instructions */}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
+                  {lang === 'ar' ? 'تعليمات / وصف' : 'Instructions / Description'}
+                  <span className="ml-2 font-normal normal-case text-gray-400" style={{ fontSize: 10 }}>
+                    ({lang === 'ar' ? 'اختياري' : 'optionnel'})
+                  </span>
+                </p>
+                <textarea
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  rows={3}
+                  placeholder={lang === 'ar'
+                    ? 'اللون المطلوب، النص المراد طباعته، تعليمات خاصة...'
+                    : 'Couleur souhaitée, texte à imprimer, instructions spéciales...'}
+                  className="w-full px-4 py-3 rounded-xl border-2 text-sm outline-none resize-none transition-all"
+                  style={{ borderColor: 'rgba(108,43,217,0.2)', background: 'white' }}
+                  onFocus={e => e.target.style.borderColor = '#6C2BD9'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(108,43,217,0.2)'}
+                />
+              </div>
               {/* Boutons */}
               <div className="flex gap-3">
                 <button onClick={handleAddToCart}
@@ -671,6 +760,62 @@ function ProductDetailPage() {
             </p>
           </div>
 
+
+          {/* Logo upload mobile */}
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
+              {lang === 'ar' ? 'صورة الشعار *' : 'Logo *'}
+              <span className="ml-2 text-gray-400 font-normal normal-case" style={{ fontSize: 10 }}>
+                {lang === 'ar' ? '(مطلوب — 3 كحد أقصى)' : '(obligatoire — 3 max)'}
+              </span>
+            </p>
+            {logoFiles.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {logoFiles.map((file, idx) => (
+                  <div key={idx} className="relative w-16 h-16 rounded-xl overflow-hidden border-2"
+                    style={{ borderColor: PURPLE }}>
+                    <img src={URL.createObjectURL(file)} alt="logo" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => removeLogo(idx)}
+                      className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                      <X size={10} className="text-white" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {logoFiles.length < 3 && (
+              <label className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed cursor-pointer transition-all text-sm font-medium hover:border-purple-400 hover:bg-purple-50"
+                style={{ borderColor: 'rgba(124,58,237,0.35)', color: PURPLE }}>
+                <input type="file" accept="image/*" multiple className="hidden"
+                  onChange={e => handleLogoUpload(e.target.files)} disabled={logoUploading} />
+                {logoUploading
+                  ? <><Loader2 size={15} className="animate-spin" /> {lang === 'ar' ? 'جارٍ الرفع...' : 'Upload...'}</>
+                  : <><Upload size={15} /> {lang === 'ar' ? 'رفع الشعار' : 'Uploader le logo'}</>}
+              </label>
+            )}
+          </div>
+
+          {/* Description / instructions mobile */}
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
+              {lang === 'ar' ? 'تعليمات / وصف' : 'Instructions / Description'}
+              <span className="ml-2 font-normal normal-case text-gray-400" style={{ fontSize: 10 }}>
+                ({lang === 'ar' ? 'اختياري' : 'optionnel'})
+              </span>
+            </p>
+            <textarea
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={3}
+              placeholder={lang === 'ar'
+                ? 'اللون المطلوب، النص المراد طباعته، تعليمات خاصة...'
+                : 'Couleur souhaitée, texte à imprimer, instructions spéciales...'}
+              className="w-full px-4 py-3 rounded-xl border-2 text-sm outline-none resize-none transition-all"
+              style={{ borderColor: 'rgba(108,43,217,0.2)', background: 'white' }}
+              onFocus={e => e.target.style.borderColor = '#6C2BD9'}
+              onBlur={e => e.target.style.borderColor = 'rgba(108,43,217,0.2)'}
+            />
+          </div>
           {/* Boutons */}
           <div className="flex flex-col gap-3">
             <button onClick={handleAddToCart}
@@ -698,6 +843,168 @@ function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* ════════════════════════════════════════
+          POPUP APRÈS AJOUT AU PANIER
+          Mobile : plein écran | Desktop : demi-écran droit
+      ════════════════════════════════════════ */}
+      {showCartPopup && (
+        <>
+          {/* Overlay sombre */}
+          <div
+            className="fixed inset-0 z-50"
+            style={{ background: 'rgba(30,10,74,0.6)', backdropFilter: 'blur(4px)' }}
+            onClick={() => setShowCartPopup(false)}
+          />
+
+          {/* Panel mobile : plein écran depuis le bas */}
+          <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
+            <div className="bg-white rounded-t-3xl shadow-2xl p-6 space-y-5 animate-slide-up"
+              dir={isRTL ? 'rtl' : 'ltr'}>
+
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center"
+                    style={{ background: 'rgba(16,185,129,0.12)' }}>
+                    <span className="text-xl">✅</span>
+                  </div>
+                  <p className="font-black text-base" style={{ color: NAVY }}>
+                    {lang === 'ar' ? 'أُضيف إلى السلة!' : 'Ajouté au panier !'}
+                  </p>
+                </div>
+                <button onClick={() => setShowCartPopup(false)}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center bg-gray-100">
+                  <X size={16} className="text-gray-500" />
+                </button>
+              </div>
+
+              {/* Aperçu produit */}
+              <div className="flex items-center gap-3 p-3 rounded-2xl"
+                style={{ background: '#f8f7ff', border: '1px solid rgba(108,43,217,0.1)' }}>
+                <img src={product.images?.[0]} alt={product.name}
+                  className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm truncate" style={{ color: NAVY }}>{product.name}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{selectedSize} · {quantity.toLocaleString()} {lang === 'ar' ? 'وحدة' : 'unités'}</p>
+                  <p className="font-black text-sm mt-1" style={{ color: PURPLE }}>{totalPrice.toLocaleString('fr-DZ')} DA</p>
+                </div>
+              </div>
+
+              {/* Logos uploadés */}
+              {logoFiles.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400">{lang === 'ar' ? 'الشعار:' : 'Logo :'}</span>
+                  {logoFiles.map((f, i) => (
+                    <img key={i} src={URL.createObjectURL(f)} alt="logo"
+                      className="w-8 h-8 rounded-lg object-cover border" style={{ borderColor: 'rgba(108,43,217,0.3)' }} />
+                  ))}
+                </div>
+              )}
+
+              {/* Boutons */}
+              <div className="flex flex-col gap-3 pb-2">
+                <button onClick={() => navigate('/cart')}
+                  className="w-full py-4 rounded-2xl font-black text-base text-white shadow-lg"
+                  style={{ background: PURPLE }}>
+                  {lang === 'ar' ? '🛒 الذهاب إلى السلة' : '🛒 Voir le panier'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCartPopup(false)
+                    // Scroll vers les catégories sur la homepage
+                    navigate('/#categories')
+                    setTimeout(() => {
+                      const el = document.getElementById('categories-section')
+                      if (el) el.scrollIntoView({ behavior: 'smooth' })
+                    }, 100)
+                  }}
+                  className="w-full py-4 rounded-2xl font-bold text-base border-2"
+                  style={{ borderColor: YELLOW, color: PURPLE_DARK, background: 'rgba(255,214,0,0.08)' }}>
+                  {lang === 'ar' ? '🛍️ مواصلة التسوق' : '🛍️ Continuer les achats'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Panel desktop : demi-écran droit */}
+          <div className="hidden lg:flex fixed top-0 right-0 bottom-0 z-50 w-1/2 flex-col justify-center p-10"
+            style={{ background: 'white', boxShadow: '-8px 0 48px rgba(30,10,74,0.18)' }}
+            dir={isRTL ? 'rtl' : 'ltr'}>
+
+            <button onClick={() => setShowCartPopup(false)}
+              className="absolute top-6 right-6 w-10 h-10 rounded-2xl flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors">
+              <X size={18} className="text-gray-600" />
+            </button>
+
+            <div className="space-y-6 max-w-md mx-auto w-full">
+              {/* Header */}
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(16,185,129,0.12)' }}>
+                  <span className="text-3xl">✅</span>
+                </div>
+                <div>
+                  <p className="font-black text-xl" style={{ color: NAVY }}>
+                    {lang === 'ar' ? 'أُضيف إلى السلة!' : 'Ajouté au panier !'}
+                  </p>
+                  <p className="text-sm text-gray-400 mt-0.5">
+                    {lang === 'ar' ? 'ماذا تريد أن تفعل بعد ذلك؟' : 'Que souhaitez-vous faire ensuite ?'}
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ height: 1, background: '#f3f4f6' }} />
+
+              {/* Aperçu produit */}
+              <div className="flex items-center gap-4 p-4 rounded-2xl"
+                style={{ background: '#f8f7ff', border: '1.5px solid rgba(108,43,217,0.12)' }}>
+                <img src={product.images?.[0]} alt={product.name}
+                  className="w-20 h-20 rounded-xl object-cover flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold truncate" style={{ color: NAVY }}>{product.name}</p>
+                  <p className="text-sm text-gray-400 mt-1">{selectedSize} · {quantity.toLocaleString()} {lang === 'ar' ? 'وحدة' : 'unités'}</p>
+                  <p className="font-black text-lg mt-1" style={{ color: PURPLE }}>{totalPrice.toLocaleString('fr-DZ')} DA</p>
+                </div>
+              </div>
+
+              {/* Logos */}
+              {logoFiles.length > 0 && (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-400">{lang === 'ar' ? 'الشعار:' : 'Logo :'}</span>
+                  {logoFiles.map((f, i) => (
+                    <img key={i} src={URL.createObjectURL(f)} alt="logo"
+                      className="w-10 h-10 rounded-xl object-cover border-2" style={{ borderColor: 'rgba(108,43,217,0.3)' }} />
+                  ))}
+                </div>
+              )}
+
+              {/* Boutons */}
+              <div className="flex flex-col gap-3">
+                <button onClick={() => navigate('/cart')}
+                  className="w-full py-4 rounded-2xl font-black text-lg text-white shadow-lg hover:opacity-90 transition-opacity"
+                  style={{ background: PURPLE }}>
+                  {lang === 'ar' ? '🛒 الذهاب إلى السلة' : '🛒 Voir le panier'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCartPopup(false)
+                    navigate('/')
+                    setTimeout(() => {
+                      const el = document.getElementById('categories-section')
+                      if (el) el.scrollIntoView({ behavior: 'smooth' })
+                    }, 150)
+                  }}
+                  className="w-full py-4 rounded-2xl font-bold text-base border-2 hover:bg-yellow-50 transition-colors"
+                  style={{ borderColor: YELLOW, color: PURPLE_DARK }}>
+                  {lang === 'ar' ? '🛍️ مواصلة التسوق' : '🛍️ Continuer les achats'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
     </div>
   )
 }

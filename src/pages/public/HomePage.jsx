@@ -426,7 +426,7 @@ function HomePage() {
           CATÉGORIES
       ══════════════════════════════════ */}
       {/* ── CATÉGORIES MOBILE ── */}
-      <section className="block md:hidden" style={{ padding: '28px 20px 0' }}>
+      <section id="categories-section" className="block md:hidden" style={{ padding: '28px 20px 0' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 20 }}>
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A' }}>
@@ -470,7 +470,7 @@ function HomePage() {
       </section>
 
       {/* ── CATÉGORIES DESKTOP ── */}
-      <section className="hidden md:block" style={{ padding: '48px 48px 0', maxWidth: 1200, margin: '0 auto' }}>
+      <section id="categories-section" className="hidden md:block" style={{ padding: '48px 48px 0', maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
           <div>
             <h2 style={{ fontSize: 28, fontWeight: 900, color: '#1E0A4A' }}>
@@ -602,7 +602,7 @@ function HomePage() {
       ══════════════════════════════════ */}
       <div style={{ padding: '28px 20px', maxWidth: 900, margin: '0 auto' }}>
         <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A', marginBottom: 6 }}>
-          {lang === 'ar' ? 'قبل / بعد' : 'Avant / Après'}
+          {lang === 'ar' ? 'لماذا التغليف المخصص؟' : 'Pourquoi un emballage ?'}
         </h3>
         <p style={{ fontSize: 13, color: '#6B6B8A', marginBottom: 16 }}>
           {lang === 'ar' ? 'انقر على الصورة لترى الفرق' : 'Cliquez sur une photo pour voir la différence'}

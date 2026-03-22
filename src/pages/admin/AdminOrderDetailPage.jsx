@@ -141,6 +141,8 @@ export default function AdminOrderDetailPage() {
           numberOfColors: i.numberOfColors || null,
           quantity:       Number(i.quantity),
           price:          Number(i.price),
+          logoUrls:       i.logoUrls || [],
+          description:    i.description || '',
         })),
         total: computedTotal,
         ...(editClient ? { customerInfo: { ...clientForm, deliveryMethod: clientForm.deliveryMethod || order.customerInfo.deliveryMethod, deliveryFee: clientForm.deliveryFee !== undefined ? clientForm.deliveryFee : order.customerInfo.deliveryFee } } : {}),
@@ -479,45 +481,86 @@ export default function AdminOrderDetailPage() {
 
             <div className="space-y-2">
               {items.map((item, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:bg-gray-50">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm truncate" style={{ color: NAVY }}>{item.name}</p>
-                    <p className="text-xs text-gray-400">{item.size} — {Number(item.price).toLocaleString('fr-DZ')} DA/u</p>
-                    {item.selectedColors?.length > 0 && (
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        Couleur : <span className="font-semibold" style={{ color: NAVY }}>{item.selectedColors[0]}</span>
-                      </p>
-                    )}
-                    {item.numberOfColors != null && (
-                      <p className="text-xs text-gray-400 mt-0.5">Design : {item.numberOfColors} couleur(s)</p>
-                    )}
+                <div key={i} className="rounded-xl border border-gray-100 hover:bg-gray-50 overflow-hidden">
+                  <div className="flex items-start gap-3 p-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm truncate" style={{ color: NAVY }}>{item.name}</p>
+                      <p className="text-xs text-gray-400">{item.size} — {Number(item.price).toLocaleString('fr-DZ')} DA/u</p>
+                      {item.selectedColors?.length > 0 && (
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          Couleur : <span className="font-semibold" style={{ color: NAVY }}>{item.selectedColors[0]}</span>
+                        </p>
+                      )}
+                      {item.numberOfColors != null && (
+                        <p className="text-xs text-gray-400 mt-0.5">Design : {item.numberOfColors} couleur(s)</p>
+                      )}
+
+                      {/* Description par produit */}
+                      {item.description && (
+                        <p className="text-xs text-amber-700 mt-1 bg-amber-50 rounded-lg px-2 py-1">
+                          💬 {item.description}
+                        </p>
+                      )}
+
+                      {/* Logos par produit */}
+                      {item.logoUrls?.length > 0 && (
+                        <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Logo :</span>
+                          {item.logoUrls.map((url, li) => {
+                            const isPdf = url?.toLowerCase().includes('.pdf') || url?.includes('/raw/')
+                            if (isPdf) return (
+                              <a key={li} href={url} target="_blank" rel="noopener noreferrer"
+                                className="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold text-white"
+                                style={{ background: PURPLE }}>
+                                <FileText size={9} /> PDF
+                              </a>
+                            )
+                            return (
+                              <div key={li} className="relative group/logo">
+                                <img src={url} alt={`logo ${li+1}`}
+                                  className="w-10 h-10 object-contain rounded-lg border bg-gray-50 cursor-pointer"
+                                  style={{ borderColor: 'rgba(108,43,217,0.2)' }}
+                                  onClick={() => window.open(url, '_blank')}
+                                />
+                                <button
+                                  onClick={() => downloadLogo(url, li)}
+                                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center opacity-0 group-hover/logo:opacity-100 transition-opacity"
+                                  style={{ background: PURPLE }}>
+                                  <Download size={8} className="text-white" />
+                                </button>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                    {/* Qty / Prix / Supprimer */}
+                    <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={e => {
+                          const val = parseInt(e.target.value, 10)
+                          if (!isNaN(val) && val >= 1) updateQty(i, val)
+                        }}
+                        onBlur={e => {
+                          const val = parseInt(e.target.value, 10)
+                          if (isNaN(val) || val < 1) updateQty(i, 1)
+                        }}
+                        className="w-20 text-center text-sm font-black rounded-lg border-2 py-1.5 outline-none focus:border-purple-400 transition-all"
+                        style={{ borderColor: '#e5e7eb', color: PURPLE }}
+                      />
+                      <span className="text-xs text-gray-400">unités</span>
+                      <span className="text-sm font-black ml-auto" style={{ color: PURPLE }}>
+                        {(Number(item.price) * Number(item.quantity)).toLocaleString('fr-DZ')} DA
+                      </span>
+                      <button onClick={() => removeItem(i)}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50">
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </div>
-                  {/* Qty — saisie directe au clavier */}
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="number"
-                      min="1"
-                      value={item.quantity}
-                      onChange={e => {
-                        const val = parseInt(e.target.value, 10)
-                        if (!isNaN(val) && val >= 1) updateQty(i, val)
-                      }}
-                      onBlur={e => {
-                        const val = parseInt(e.target.value, 10)
-                        if (isNaN(val) || val < 1) updateQty(i, 1)
-                      }}
-                      className="w-20 text-center text-sm font-black rounded-lg border-2 py-1.5 outline-none focus:border-purple-400 transition-all"
-                      style={{ borderColor: '#e5e7eb', color: PURPLE }}
-                    />
-                    <span className="text-xs text-gray-400">unités</span>
-                  </div>
-                  <span className="text-sm font-black w-24 text-right" style={{ color: PURPLE }}>
-                    {(Number(item.price) * Number(item.quantity)).toLocaleString('fr-DZ')} DA
-                  </span>
-                  <button onClick={() => removeItem(i)}
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50">
-                    <Trash2 size={13} />
-                  </button>
                 </div>
               ))}
             </div>
@@ -555,7 +598,7 @@ export default function AdminOrderDetailPage() {
                   style={{ background: 'rgba(108,43,217,0.08)' }}>
                   <Tag size={14} style={{ color: PURPLE }} />
                 </div>
-                <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: PURPLE }}>Fichiers client</h2>
+                <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: PURPLE }}>Fichiers généraux</h2>
               </div>
               <div className="flex gap-4 flex-wrap">
                 {order.customerInfo.logoUrls.map((url, idx) => {

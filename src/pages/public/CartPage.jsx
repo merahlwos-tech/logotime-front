@@ -130,6 +130,8 @@ function CartPage() {
           numberOfColors: item.numberOfColors || null,
           quantity:       item.quantity,
           price:          item.price,
+          logoUrls:       item.logoUrls || [],
+          description:    item.description || '',
         })),
         total: totalWithDelivery,
         metaEventId,

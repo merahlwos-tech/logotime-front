@@ -148,7 +148,6 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
     if (!form.wilayaId)           e.wilaya      = t('errorWilaya')
     if (!form.commune)            e.commune     = t('errorCommune')
     if (logoUrls.length === 0)    e.logo        = t('errorLogo')
-    if (!form.description.trim()) e.description = t('errorDesc')
     return e
   }
 
@@ -215,7 +214,7 @@ function CheckoutForm({ onSubmit, loading, onDeliveryChange, isFreeDelivery }) {
     if (Object.keys(errs).length > 0) {
       setErrors(errs)
       // Scroll vers le premier champ en erreur
-      const order = ['firstName', 'lastName', 'phone', 'wilaya', 'commune', 'logo', 'description']
+      const order = ['firstName', 'lastName', 'phone', 'wilaya', 'commune', 'logo']
       const firstErr = order.find(k => errs[k])
       if (firstErr && fieldRefs.current[firstErr]) {
         fieldRefs.current[firstErr].scrollIntoView({ behavior: 'smooth', block: 'center' })

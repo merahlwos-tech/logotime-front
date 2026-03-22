@@ -100,6 +100,25 @@ function CartItem({ item }) {
                 : `Couleurs dans le design : ${item.numberOfColors}`}
             </p>
           )}
+
+          {/* Logos uploadés */}
+          {item.logoUrls?.length > 0 && (
+            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+              <span className="text-xs text-gray-400">{lang === 'ar' ? 'الشعار:' : 'Logo :'}</span>
+              {item.logoUrls.map((url, i) => (
+                <img key={i} src={url} alt="logo"
+                  className="w-7 h-7 rounded-lg object-cover border"
+                  style={{ borderColor: 'rgba(108,43,217,0.3)' }} />
+              ))}
+            </div>
+          )}
+
+          {/* Description / instructions */}
+          {item.description && (
+            <p className="text-xs text-gray-500 mt-1.5 leading-relaxed italic">
+              💬 {item.description}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center justify-between mt-2">

@@ -30,7 +30,7 @@ export const T = {
     firstName: 'Prénom', lastName: 'Nom', phone: 'Téléphone', wilaya: 'Wilaya',
     commune: 'Commune', selectWilaya: 'Sélectionner une wilaya',
     logoPhotos: 'Photos du logo (obligatoire, 2 max)', logoDesc: 'Votre logo sera imprimé sur l\'emballage',
-    description: 'Description / instructions', descPlaceholder: 'Couleur souhaitée, texte à imprimer, instructions spéciales...',
+    description: 'Description / instructions (optionnel)', descPlaceholder: 'Couleur souhaitée, texte à imprimer, instructions spéciales...',
     confirmOrder: 'Confirmer la commande', processing: 'Traitement en cours...',
     // Order confirmation popup
     popupTitle: 'Vérifiez vos informations',
@@ -109,7 +109,7 @@ export const T = {
     firstName: 'الاسم الأول', lastName: 'اللقب', phone: 'الهاتف', wilaya: 'الولاية',
     commune: 'البلدية', selectWilaya: 'اختر الولاية',
     logoPhotos: 'صور الشعار (مطلوب، 2 كحد أقصى)', logoDesc: 'سيُطبع شعارك على التغليف',
-    description: 'وصف / تعليمات', descPlaceholder: 'اللون المطلوب، النص المراد طباعته، تعليمات خاصة...',
+    description: 'وصف / تعليمات (اختياري)', descPlaceholder: 'اللون المطلوب، النص المراد طباعته، تعليمات خاصة...',
     confirmOrder: 'تأكيد الطلب', processing: 'جارٍ المعالجة...',
     // Order confirmation popup
     popupTitle: 'تحقق من معلوماتك',

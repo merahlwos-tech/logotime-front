@@ -36,6 +36,8 @@ function cartReducer(state, action) {
         isPack,
         freeDelivery: product.freeDelivery || isPack,
         packItems: isPack ? (product.packItems || []) : undefined,
+        logoUrls: product.logoUrls || [],
+        description: product.description || '',
       }]
     }
 
