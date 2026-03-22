@@ -93,21 +93,25 @@ function BeforeAfterSlider({ lang }) {
 
       {/* ── AVANT ── */}
       <div style={{ position: 'relative', flex: 1, borderRadius: 16, overflow: 'hidden', aspectRatio: '3/4', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', transition: 'transform 0.25s', cursor: 'default' }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 0 0 3px #ef4444, 0 8px 32px #ef444455' }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.12)' }}
+        onMouseEnter={e => {
+          e.currentTarget.style.transform = 'scale(1.02)'
+          e.currentTarget.style.boxShadow = '0 0 0 3px #ef4444, 0 8px 32px #ef444455'
+          e.currentTarget.querySelector('.before-overlay').style.background = 'rgba(220,38,38,0.45)'
+          e.currentTarget.querySelector('.before-icon').style.opacity = '1'
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.transform = 'scale(1)'
+          e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.12)'
+          e.currentTarget.querySelector('.before-overlay').style.background = 'transparent'
+          e.currentTarget.querySelector('.before-icon').style.opacity = '0'
+        }}
       >
         <img src="/before.webp" alt="Avant" draggable={false}
           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'filter 0.3s' }}
           onError={e => { e.target.src = '/boite.webp' }}
         />
-        {/* Overlay rouge au hover via CSS — géré avec un pseudo-element inline */}
-        <div className="before-overlay" style={{
-          position: 'absolute', inset: 0, background: 'rgba(220,38,38,0)', transition: 'background 0.3s', pointerEvents: 'none',
-        }} />
-        <div className="before-icon" style={{
-          position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          opacity: 0, transition: 'opacity 0.3s', pointerEvents: 'none',
-        }}>
+        <div className="before-overlay" style={{ position: 'absolute', inset: 0, background: 'transparent', transition: 'background 0.3s', pointerEvents: 'none' }} />
+        <div className="before-icon" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.3s', pointerEvents: 'none' }}>
           <span style={{ fontSize: 72, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}>❌</span>
         </div>
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '32px 14px 14px', background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
@@ -116,7 +120,6 @@ function BeforeAfterSlider({ lang }) {
             {lang === 'ar' ? 'قبل' : 'Avant'}
           </span>
         </div>
-        <style>{`.before-wrap:hover .before-overlay { background: rgba(220,38,38,0.45) !important } .before-wrap:hover .before-icon { opacity: 1 !important }`}</style>
       </div>
 
       {/* ── APRÈS ── */}
@@ -159,9 +162,10 @@ const API = import.meta.env.VITE_API_URL || ''
 
 /* ─── Retours clients ─── */
 function ClientReviews({ lang }) {
-  const [photos, setPhotos] = useState([])
+  const [photos, setPhotos]   = useState([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
+  const [showAll, setShowAll]   = useState(false)
 
   useEffect(() => {
     fetch(`${API}/github/reviews`)
@@ -175,15 +179,12 @@ function ClientReviews({ lang }) {
 
   return (
     <div style={{ padding: '0 20px 48px' }}>
-      <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A', marginBottom: 6 }}>
-        {lang === 'ar' ? 'آراء عملائنا' : 'Retours de nos clients'}
+      <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A', marginBottom: 20 }}>
+        {lang === 'ar' ? 'عملاؤنا :' : 'Nos clients :'}
       </h3>
-      <p style={{ fontSize: 13, color: '#6B6B8A', marginBottom: 20 }}>
-        {lang === 'ar' ? 'ما قالوه عن منتجاتنا 💬' : "Ce qu'ils disent de nous 💬"}
-      </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
-        {photos.map((photo, i) => (
+        {(showAll ? photos : photos.slice(0, 4)).map((photo, i) => (
           <div key={i}
             onClick={() => setSelected(photo)}
             style={{
@@ -202,6 +203,28 @@ function ClientReviews({ lang }) {
           </div>
         ))}
       </div>
+
+      {/* Bouton Afficher plus */}
+      {photos.length > 4 && (
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <button
+            onClick={() => setShowAll(v => !v)}
+            style={{
+              padding: '10px 28px', borderRadius: 50,
+              border: '2px solid rgba(108,43,217,0.3)',
+              background: 'white', color: '#6C2BD9',
+              fontSize: 14, fontWeight: 700, cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#6C2BD9'; e.currentTarget.style.color = 'white' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.color = '#6C2BD9' }}
+          >
+            {showAll
+              ? (lang === 'ar' ? 'عرض أقل ↑' : 'Voir moins ↑')
+              : (lang === 'ar' ? `عرض الكل (${photos.length}) ↓` : `Afficher tout (${photos.length}) ↓`)}
+          </button>
+        </div>
+      )}
 
       {/* Lightbox */}
       {selected && (
@@ -599,9 +622,6 @@ function HomePage() {
         <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A', marginBottom: 6 }}>
           {lang === 'ar' ? 'لماذا التغليف المخصص؟' : 'Pourquoi un emballage ?'}
         </h3>
-        <p style={{ fontSize: 13, color: '#6B6B8A', marginBottom: 16 }}>
-          {lang === 'ar' ? 'انقر على الصورة لترى الفرق' : 'Cliquez sur une photo pour voir la différence'}
-        </p>
         <BeforeAfterSlider lang={lang} />
       </div>
 
@@ -625,10 +645,11 @@ function HomePage() {
                   flexDirection: isRTL ? 'row-reverse' : 'row' }}>
                   <div style={{
                     width: 48, height: 48, flexShrink: 0,
-                    background: PURPLE, borderRadius: '50%',
+                    background: YELLOW, borderRadius: '50%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#1E0A4A', fontSize: 20, fontWeight: 800,
-                    boxShadow: '0 4px 12px rgba(108,43,217,0.3)',
+                    color: PURPLE_DARK, fontSize: 20, fontWeight: 900,
+                    boxShadow: '0 4px 12px rgba(255,214,0,0.4)',
+                    flexShrink: 0,
                   }}>
                     {n}
                   </div>
