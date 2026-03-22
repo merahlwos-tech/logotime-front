@@ -284,7 +284,7 @@ function AboutPage() {
               }}>
               {c.cta} →
             </Link>
-            <a href="https://wa.me/213554691650" target="_blank" rel="noreferrer"
+            <a href="https://wa.me/213772793771" target="_blank" rel="noreferrer"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
                 padding: '14px 28px', borderRadius: 10,

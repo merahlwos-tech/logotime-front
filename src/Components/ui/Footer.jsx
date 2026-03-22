@@ -6,8 +6,8 @@ import { useLang } from '../../context/LanguageContext'
 const PURPLE_DEEP = '#1E0A4A'
 const PURPLE      = '#6C2BD9'
 const YELLOW      = '#FFD600'
-const PHONE       = '+213554691650'
-const WA          = '213554691650'
+const PHONE       = '+213772793771'
+const WA          = '213772793771'
 
 function AdminSecretAccess() {
   const [clicks, setClicks]       = useState(0)

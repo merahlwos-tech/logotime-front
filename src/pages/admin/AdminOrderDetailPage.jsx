@@ -1,838 +1,1015 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import {
-  ArrowLeft, Loader2, CheckCircle2, Truck,
-  Phone, MapPin, User, Package, FileText, Tag, Hash,
-  Download, Pencil, Plus, Trash2, Save, X, Printer
-} from 'lucide-react'
+import { ShoppingBag, ArrowLeft, ChevronLeft, ChevronRight, Zap, ChevronDown, Check, Upload, X, Loader2 } from 'lucide-react'
 import api from '../../utils/api'
+import { useCart } from '../../context/CartContext'
+import SizeSelector from '../../Components/public/SizeSelector'
+import QuantitySelector from '../../Components/public/QuantitySelector'
+import { useLang } from '../../context/LanguageContext'
+import { trackViewContent, trackAddToCart, trackHighQualityVisitor, trackScrollToForm } from '../../utils/metaPixel'
+import { useSEO } from '../../utils/UseSEO'
+import { uploadToCloudinary } from '../../utils/uploadCloudinary'
 import toast from 'react-hot-toast'
 
-const API    = import.meta.env.VITE_API_URL || ''
-const NAVY   = '#1E0A4A'
-const PURPLE = '#6C2BD9'
+const NAVY        = '#1E0A4A'
+const PURPLE      = '#6C2BD9'
+const YELLOW      = '#FFD600'
+const PURPLE_DARK = '#4A1A9E'
+const CAT_LABELS_FR = { Board: 'Boites', Bags: 'Sacs', Autocollants: 'Cartes et Autocollants', Paper: 'Papier', Pack: 'Packs' }
+const CAT_LABELS_AR = { Board: 'علب', Bags: 'أكياس', Autocollants: 'بطاقات', Paper: 'ورق', Pack: 'العروض' }
 
-const STATUS_OPTIONS = [
-  { value: 'en attente', label: 'En attente', color: '#9ca3af', bg: '#f3f4f6' },
-  { value: 'confirmé',   label: 'Confirmé',   color: '#10b981', bg: '#ecfdf5' },
-  { value: 'annulé',     label: 'Annulé',     color: '#ef4444', bg: '#fef2f2' },
-]
-// Statuts modifiables manuellement par l'admin (confirmé = auto via Ecotrack uniquement)
-const EDITABLE_STATUSES = [
-  { value: 'annulé', label: 'Annulé', color: '#ef4444', bg: '#fef2f2' },
-]
-
-function InfoBlock({ icon: Icon, label, children, highlight }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1">
-        {Icon && <Icon size={10} />} {label}
-      </span>
-      <span className="font-semibold text-sm" style={{ color: highlight ? PURPLE : NAVY }}>
-        {children}
-      </span>
-    </div>
-  )
+const COLOR_NAMES = {
+  '#000000': { fr: 'Noir',        ar: 'أسود' },
+  '#FFFFFF': { fr: 'Blanc',       ar: 'أبيض' },
+  '#EF4444': { fr: 'Rouge',       ar: 'أحمر' },
+  '#3B82F6': { fr: 'Bleu',        ar: 'أزرق' },
+  '#22C55E': { fr: 'Vert',        ar: 'أخضر' },
+  '#EAB308': { fr: 'Jaune',       ar: 'أصفر' },
+  '#F97316': { fr: 'Orange',      ar: 'برتقالي' },
+  '#EC4899': { fr: 'Rose',        ar: 'وردي' },
+  '#A855F7': { fr: 'Violet',      ar: 'بنفسجي' },
+  '#92400E': { fr: 'Marron',      ar: 'بني' },
+  '#6B7280': { fr: 'Gris',        ar: 'رمادي' },
+  '#D97706': { fr: 'Doré',        ar: 'ذهبي' },
+  '#94A3B8': { fr: 'Argenté',     ar: 'فضي' },
+  '#1E3A8A': { fr: 'Bleu marine', ar: 'أزرق داكن' },
+  '#7F1D1D': { fr: 'Bordeaux',    ar: 'بوردو' },
+  '#0D9488': { fr: 'Turquoise',   ar: 'تركوازي' },
+  '#F5E6C8': { fr: 'Beige',       ar: 'بيج' },
+  '#8B5CF6': { fr: 'Lavande',     ar: 'لافندر' },
 }
 
-export default function AdminOrderDetailPage() {
-  const { id }     = useParams()
-  const navigate   = useNavigate()
-
-  const [order, setOrder]       = useState(null)
-  const [loading, setLoading]   = useState(true)
-  const [saving, setSaving]     = useState(false)
-  const [sendingEco, setSendingEco] = useState(false)  // envoi Ecotrack manuel
-
-  // Edit mode
-  const [editClient, setEditClient] = useState(false)
-  const [clientForm, setClientForm] = useState({})
-  const [items, setItems]           = useState([])
-  const [status, setStatus]         = useState('')
-  const [dirty, setDirty]           = useState(false)
-
-  // Ecotrack wilaya/commune
-  const [wilayas, setWilayas]       = useState([])
-  const [communes, setCommunes]     = useState([])
-  const [loadingW, setLoadingW]     = useState(false)
-  const [loadingC, setLoadingC]     = useState(false)
-  const [fees, setFees]             = useState([])
-
-  // Add product modal
-  const [addModal, setAddModal]     = useState(false)
-  const [products, setProducts]     = useState([])
-  const [newItem, setNewItem]       = useState({ productId: '', name: '', size: '', quantity: 1, price: 0 })
-  const [selProduct, setSelProduct] = useState(null)
+function ColorDropdown({ colors, value, onChange, lang }) {
+  const [open, setOpen] = React.useState(false)
+  const ref = useRef(null)
 
   useEffect(() => {
-    const fetch_ = async () => {
-      try {
-        const res = await api.get(`/orders/${id}`)
-        setOrder(res.data)
-        setStatus(res.data.status)
-        setItems(res.data.items)
-        setClientForm({
-          firstName: res.data.customerInfo.firstName,
-          lastName:  res.data.customerInfo.lastName,
-          phone:     res.data.customerInfo.phone,
-          wilaya:    res.data.customerInfo.wilaya,
-          commune:   res.data.customerInfo.commune,
-        })
-      } catch {
-        toast.error('Commande introuvable')
-        navigate('/admin/orders', { replace: true })
-      } finally { setLoading(false) }
-    }
-    fetch_()
+    const handler = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
-    // Load wilayas + fees from Ecotrack
-    setLoadingW(true)
-    Promise.all([
-      fetch(`${API}/ecotrack/wilayas`).then(r => r.json()).catch(() => []),
-      fetch(`${API}/ecotrack/fees`).then(r => r.json()).catch(() => null),
-    ]).then(([w, f]) => {
-      const wList = Array.isArray(w) ? w : (w?.data || [])
-      const fList = Array.isArray(f) ? f : (f?.livraison || f?.data || [])
-      setWilayas([...wList].sort((a, b) => Number(a.wilaya_id) - Number(b.wilaya_id)))
-      setFees(fList)
-    }).finally(() => setLoadingW(false))
-  }, [id])
-
-  const computedTotal = items.reduce((s, i) => s + (Number(i.price) * Number(i.quantity)), 0)
-    + Number(order?.customerInfo?.deliveryFee ?? 0)
-
-  const loadCommunes = async (wilayaId) => {
-    if (!wilayaId) { setCommunes([]); return }
-    setLoadingC(true)
-    try {
-      const data = await fetch(`${API}/ecotrack/communes?wilaya_id=${wilayaId}`).then(r => r.json())
-      const list = Array.isArray(data) ? data : (data?.data || [])
-      setCommunes([...list].sort((a, b) => (a.nom || '').localeCompare(b.nom || '')))
-    } catch { setCommunes([]) }
-    finally { setLoadingC(false) }
-  }
-
-  const handleWilayaChange = (wilayaId) => {
-    const w = wilayas.find(w => String(w.wilaya_id) === String(wilayaId))
-    setClientForm(p => ({ ...p, wilaya: w?.wilaya_name || wilayaId, wilayaId, commune: '' }))
-    setDirty(true)
-    loadCommunes(wilayaId)
-  }
-
-  const handleDeliveryMethodChange = (method) => {
-    const wilayaId = clientForm.wilayaId || wilayas.find(w => w.wilaya_name === clientForm.wilaya)?.wilaya_id
-    const fee = fees.find(f => String(f.wilaya_id) === String(wilayaId))
-    const feeAmount = fee ? Number(method === 'Stop Desk' ? fee.tarif_stopdesk : fee.tarif) : null
-    setClientForm(p => ({ ...p, deliveryMethod: method, deliveryFee: feeAmount }))
-    setDirty(true)
-  }
-
-  const handleSave = async () => {
-    setSaving(true)
-    try {
-      const payload = {
-        status,
-        items: items.map(i => ({
-          product:        i.product?._id || i.product,
-          name:           i.name,
-          size:           i.size,
-          doubleSided:    i.doubleSided,
-          selectedColors: i.selectedColors || [],
-          numberOfColors: i.numberOfColors || null,
-          quantity:       Number(i.quantity),
-          price:          Number(i.price),
-          logoUrls:       i.logoUrls || [],
-          description:    i.description || '',
-        })),
-        total: computedTotal,
-        ...(editClient ? { customerInfo: { ...clientForm, deliveryMethod: clientForm.deliveryMethod || order.customerInfo.deliveryMethod, deliveryFee: clientForm.deliveryFee !== undefined ? clientForm.deliveryFee : order.customerInfo.deliveryFee } } : {}),
-      }
-      const res = await api.put(`/orders/${id}`, payload)
-
-      // Feedback Ecotrack
-      const eco = res.data._ecotrackResult
-      if (eco) {
-        if (eco.tracking && !eco.alreadySent)   toast.success(`📦 Envoyé à Ecotrack — ${eco.tracking}`)
-        else if (eco.alreadySent)               toast('Déjà envoyé à Ecotrack', { icon: 'ℹ️' })
-        else if (eco.error)                     toast.error(`⚠️ Ecotrack : ${eco.error}`)
-      }
-
-      const { _ecotrackResult, ...orderData } = res.data
-      setOrder(orderData)
-      setItems(orderData.items)
-      setDirty(false)
-      setEditClient(false)
-      toast.success('Commande mise à jour')
-    } catch {
-      toast.error('Erreur lors de la sauvegarde')
-    } finally { setSaving(false) }
-  }
-
-  // Envoi manuel à Ecotrack (si pas encore envoyé)
-  const handleSendEcotrack = async () => {
-    setSendingEco(true)
-    try {
-      const res = await api.post(`/ecotrack/send-order/${id}`)
-      const { tracking, alreadySent } = res.data
-      setOrder(p => ({ ...p, ecotrackTracking: tracking }))
-      if (alreadySent) toast('Déjà envoyé à Ecotrack', { icon: 'ℹ️' })
-      else             toast.success(`📦 Envoyé ! Tracking : ${tracking}`)
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Erreur Ecotrack')
-    } finally { setSendingEco(false) }
-  }
-
-  // Imprimer / télécharger l'étiquette
-  const handlePrintLabel = async () => {
-    const tracking = order?.ecotrackTracking
-    if (!tracking) return
-
-    try {
-      toast.loading('Chargement de l\'étiquette…', { id: 'label' })
-      const resp = await api.get(`/ecotrack/label/${tracking}`, {
-        responseType: 'blob',
-      })
-
-      const blob = new Blob([resp.data], { type: 'application/pdf' })
-      const url  = URL.createObjectURL(blob)
-
-      const win = window.open(url, '_blank')
-      if (!win) {
-        const a = document.createElement('a')
-        a.href     = url
-        a.download = `etiquette-${tracking}.pdf`
-        a.click()
-      }
-      toast.success('Étiquette prête', { id: 'label' })
-      setTimeout(() => URL.revokeObjectURL(url), 60000)
-    } catch (err) {
-      toast.error('Impossible de charger l\'étiquette', { id: 'label' })
-      console.error('[LABEL]', err.message)
-    }
-  }
-
-  // Item helpers
-  const updateQty = (idx, qty) => {
-    if (qty < 1) return
-    setItems(p => p.map((it, i) => i === idx ? { ...it, quantity: qty } : it))
-    setDirty(true)
-  }
-  const removeItem = (idx) => {
-    setItems(p => p.filter((_, i) => i !== idx))
-    setDirty(true)
-  }
-
-  // Add product
-  const openAddModal = async () => {
-    if (!products.length) {
-      try {
-        const res = await api.get('/products')
-        setProducts(res.data)
-      } catch { toast.error('Erreur chargement produits') }
-    }
-    setNewItem({ productId: '', name: '', size: '', quantity: 1, price: 0 })
-    setSelProduct(null)
-    setAddModal(true)
-  }
-
-  const handleProductSelect = (e) => {
-    const p = products.find(p => p._id === e.target.value)
-    setSelProduct(p || null)
-    setNewItem(prev => ({ ...prev, productId: p?._id || '', name: p?.name || '', size: '', price: 0 }))
-  }
-
-  const handleSizeSelect = (e) => {
-    const sizeData = selProduct?.sizes?.find(s => s.size === e.target.value)
-    setNewItem(prev => ({ ...prev, size: e.target.value, price: sizeData?.price || 0 }))
-  }
-
-  const confirmAddItem = () => {
-    if (!newItem.productId || !newItem.size) { toast.error('Choisir un produit et une taille'); return }
-    setItems(p => [...p, {
-      product:     newItem.productId,
-      name:        newItem.name,
-      size:        newItem.size,
-      doubleSided: false,
-      quantity:    Number(newItem.quantity),
-      price:       Number(newItem.price),
-    }])
-    setDirty(true)
-    setAddModal(false)
-  }
-
-  const downloadLogo = async (url, idx) => {
-    try {
-      const res  = await fetch(url)
-      const blob = await res.blob()
-      const a    = document.createElement('a')
-      a.href     = URL.createObjectURL(blob)
-      a.download = `logo-${id}-${idx + 1}.jpg`
-      a.click()
-    } catch { toast.error('Erreur téléchargement') }
-  }
-
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <Loader2 size={32} className="animate-spin" style={{ color: PURPLE }} />
-    </div>
-  )
-  if (!order) return null
-
-  const currentOpt = STATUS_OPTIONS.find(o => o.value === status)
-  const createdAt  = new Date(order.createdAt).toLocaleDateString('fr-DZ', {
-    day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
-  })
+  const label = value
+    ? (COLOR_NAMES[value]?.[lang] || COLOR_NAMES[value]?.fr || value)
+    : (lang === 'ar' ? 'اختر لوناً' : 'Choisir une couleur')
 
   return (
-    <div className="max-w-5xl mx-auto space-y-4 pb-10">
+    <div ref={ref} className="relative w-full">
+      <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
+        {lang === 'ar' ? 'الألوان المتاحة' : 'Couleur disponible'}
+      </p>
+      <button type="button" onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border-2 text-sm font-bold transition-all"
+        style={{
+          borderColor: open ? PURPLE : value ? PURPLE : 'rgba(124,58,237,0.3)',
+          background: 'white', color: NAVY,
+          boxShadow: open ? '0 0 0 3px rgba(124,58,237,0.1)' : 'none',
+        }}>
+        <span className="flex items-center gap-2.5">
+          {label}
+        </span>
+        <ChevronDown size={16} className={`transition-transform flex-shrink-0 ${open ? 'rotate-180' : ''}`}
+          style={{ color: YELLOW }} />
+      </button>
 
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/admin/orders')}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold"
-            style={{ background: 'white', color: NAVY, border: '1.5px solid #e5e7eb' }}>
-            <ArrowLeft size={15} /><span className="hidden sm:inline">Retour</span>
-          </button>
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: PURPLE }}>Commande</p>
-            <h1 className="text-xl sm:text-2xl font-black italic" style={{ color: NAVY }}>
-              #{order._id.slice(-6).toUpperCase()}
-            </h1>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold px-3 py-1.5 rounded-full"
-            style={{ background: currentOpt?.bg, color: currentOpt?.color, border: `1.5px solid ${currentOpt?.color}30` }}>
-            {currentOpt?.label}
-          </span>
-          {dirty && (
-            <button onClick={handleSave} disabled={saving}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-white text-sm font-bold"
-              style={{ background: PURPLE }}>
-              {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-              Enregistrer
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-        {/* Colonne gauche */}
-        <div className="lg:col-span-2 space-y-4">
-
-          {/* Infos client */}
-          <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                  style={{ background: 'rgba(108,43,217,0.08)' }}>
-                  <User size={14} style={{ color: PURPLE }} />
-                </div>
-                <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: PURPLE }}>
-                  Informations client
-                </h2>
-              </div>
-              <button onClick={() => setEditClient(e => !e)}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all"
-                style={editClient
-                  ? { background: PURPLE, color: 'white', borderColor: PURPLE }
-                  : { background: 'white', color: PURPLE, borderColor: 'rgba(108,43,217,0.3)' }}>
-                <Pencil size={11} /> {editClient ? 'Annuler' : 'Modifier'}
-              </button>
-            </div>
-
-            {editClient ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                  { key: 'firstName', label: 'Prénom' },
-                  { key: 'lastName',  label: 'Nom' },
-                  { key: 'phone',     label: 'Téléphone' },
-                ].map(({ key, label }) => (
-                  <div key={key}>
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">{label}</label>
-                    <input
-                      value={clientForm[key] || ''}
-                      onChange={e => { setClientForm(p => ({ ...p, [key]: e.target.value })); setDirty(true) }}
-                      className="w-full px-3 py-2 rounded-xl border-2 text-sm outline-none focus:border-purple-400"
-                      style={{ borderColor: '#e5e7eb', color: NAVY }}
-                    />
-                  </div>
-                ))}
-
-                {/* Wilaya */}
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">Wilaya</label>
-                  {loadingW
-                    ? <div className="px-3 py-2 rounded-xl border-2 text-sm text-gray-400" style={{ borderColor: '#e5e7eb' }}>Chargement…</div>
-                    : <select
-                        value={wilayas.find(w => w.wilaya_name === clientForm.wilaya)?.wilaya_id || ''}
-                        onChange={e => handleWilayaChange(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border-2 text-sm outline-none focus:border-purple-400 appearance-none"
-                        style={{ borderColor: '#e5e7eb', color: NAVY }}>
-                        <option value="">— Choisir —</option>
-                        {wilayas.map(w => (
-                          <option key={w.wilaya_id} value={w.wilaya_id}>
-                            {w.wilaya_id} — {w.wilaya_name}
-                          </option>
-                        ))}
-                      </select>
-                  }
-                </div>
-
-                {/* Commune */}
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">Commune</label>
-                  {loadingC
-                    ? <div className="px-3 py-2 rounded-xl border-2 text-sm text-gray-400" style={{ borderColor: '#e5e7eb' }}>Chargement…</div>
-                    : !clientForm.wilayaId && !wilayas.find(w => w.wilaya_name === clientForm.wilaya)
-                      ? <div className="px-3 py-2 rounded-xl border-2 text-sm text-gray-400" style={{ borderColor: '#e5e7eb' }}>Sélectionnez une wilaya</div>
-                      : <select
-                          value={clientForm.commune || ''}
-                          onChange={e => { setClientForm(p => ({ ...p, commune: e.target.value })); setDirty(true) }}
-                          className="w-full px-3 py-2 rounded-xl border-2 text-sm outline-none focus:border-purple-400 appearance-none"
-                          style={{ borderColor: '#e5e7eb', color: NAVY }}>
-                          <option value="">— Choisir —</option>
-                          {communes.map(c => (
-                            <option key={c.nom} value={c.nom}>{c.nom}</option>
-                          ))}
-                        </select>
-                  }
-                </div>
-
-                {/* Type de livraison */}
-                <div className="sm:col-span-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2">Type de livraison</label>
-                  <div className="flex gap-2">
-                    {['Domicile', 'Stop Desk'].map(method => {
-                      const active = (clientForm.deliveryMethod || order.customerInfo.deliveryMethod) === method
-                      return (
-                        <button key={method} type="button"
-                          onClick={() => handleDeliveryMethodChange(method)}
-                          className="flex-1 py-2.5 rounded-xl border-2 text-sm font-bold transition-all"
-                          style={active ? {
-                            background: PURPLE, borderColor: PURPLE, color: 'white',
-                            boxShadow: '0 4px 12px rgba(108,43,217,0.3)',
-                          } : {
-                            background: 'white', borderColor: '#e5e7eb', color: '#9ca3af',
-                          }}>
-                          {method === 'Domicile' ? '🚚 À domicile' : '🏪 Stop Desk'}
-                          {clientForm.deliveryFee != null && active && (
-                            <span className="ml-1 text-xs opacity-80">
-                              ({Number(clientForm.deliveryFee).toLocaleString('fr-DZ')} DA)
-                            </span>
-                          )}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-4">
-                <InfoBlock label="Nom" icon={User}>
-                  {order.customerInfo.firstName} {order.customerInfo.lastName}
-                </InfoBlock>
-                <InfoBlock label="Téléphone" icon={Phone} highlight>
-                  <a href={`tel:${order.customerInfo.phone}`} style={{ color: PURPLE }}>
-                    {order.customerInfo.phone}
-                  </a>
-                </InfoBlock>
-                <InfoBlock label="Wilaya" icon={MapPin}>{order.customerInfo.wilaya}</InfoBlock>
-                <InfoBlock label="Commune" icon={MapPin}>{order.customerInfo.commune}</InfoBlock>
-                {order.customerInfo.deliveryMethod && (
-                  <InfoBlock label="Livraison" icon={Truck}>{order.customerInfo.deliveryMethod}</InfoBlock>
-                )}
-              </div>
-            )}
-
-            {order.customerInfo.description && (
-              <div className="mt-4 pt-4" style={{ borderTop: '1px solid #f3f4f6' }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <FileText size={13} style={{ color: PURPLE }} />
-                  <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: PURPLE }}>Instructions</span>
-                </div>
-                <p className="text-sm text-gray-600 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
-                  {order.customerInfo.description}
-                </p>
-              </div>
-            )}
-          </section>
-
-          {/* Articles */}
-          <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                  style={{ background: 'rgba(108,43,217,0.08)' }}>
-                  <Package size={14} style={{ color: PURPLE }} />
-                </div>
-                <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: PURPLE }}>
-                  Articles commandés
-                </h2>
-              </div>
-              <button onClick={openAddModal}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold border"
-                style={{ background: 'white', color: PURPLE, borderColor: 'rgba(108,43,217,0.3)' }}>
-                <Plus size={11} /> Ajouter
-              </button>
-            </div>
-
-            <div className="space-y-2">
-              {items.map((item, i) => (
-                <div key={i} className="rounded-xl border border-gray-100 hover:bg-gray-50 overflow-hidden">
-                  <div className="flex items-start gap-3 p-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm truncate" style={{ color: NAVY }}>{item.name}</p>
-                      <p className="text-xs text-gray-400">{item.size} — {Number(item.price).toLocaleString('fr-DZ')} DA/u</p>
-                      {item.selectedColors?.length > 0 && (
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          Couleur : <span className="font-semibold" style={{ color: NAVY }}>{item.selectedColors[0]}</span>
-                        </p>
-                      )}
-                      {item.numberOfColors != null && (
-                        <p className="text-xs text-gray-400 mt-0.5">Design : {item.numberOfColors} couleur(s)</p>
-                      )}
-
-                      {/* Description par produit */}
-                      {item.description && (
-                        <p className="text-xs text-amber-700 mt-1 bg-amber-50 rounded-lg px-2 py-1">
-                          💬 {item.description}
-                        </p>
-                      )}
-
-                      {/* Logos par produit */}
-                      {item.logoUrls?.length > 0 && (
-                        <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Logo :</span>
-                          {item.logoUrls.map((url, li) => {
-                            const isPdf = url?.toLowerCase().includes('.pdf') || url?.includes('/raw/')
-                            if (isPdf) return (
-                              <a key={li} href={url} target="_blank" rel="noopener noreferrer"
-                                className="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold text-white"
-                                style={{ background: PURPLE }}>
-                                <FileText size={9} /> PDF
-                              </a>
-                            )
-                            return (
-                              <div key={li} className="relative group/logo">
-                                <img src={url} alt={`logo ${li+1}`}
-                                  className="w-10 h-10 object-contain rounded-lg border bg-gray-50 cursor-pointer"
-                                  style={{ borderColor: 'rgba(108,43,217,0.2)' }}
-                                  onClick={() => window.open(url, '_blank')}
-                                />
-                                <button
-                                  onClick={() => downloadLogo(url, li)}
-                                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center opacity-0 group-hover/logo:opacity-100 transition-opacity"
-                                  style={{ background: PURPLE }}>
-                                  <Download size={8} className="text-white" />
-                                </button>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      )}
-                    </div>
-                    {/* Qty / Prix / Supprimer */}
-                    <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                      <input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={e => {
-                          const val = parseInt(e.target.value, 10)
-                          if (!isNaN(val) && val >= 1) updateQty(i, val)
-                        }}
-                        onBlur={e => {
-                          const val = parseInt(e.target.value, 10)
-                          if (isNaN(val) || val < 1) updateQty(i, 1)
-                        }}
-                        className="w-20 text-center text-sm font-black rounded-lg border-2 py-1.5 outline-none focus:border-purple-400 transition-all"
-                        style={{ borderColor: '#e5e7eb', color: PURPLE }}
-                      />
-                      <span className="text-xs text-gray-400">unités</span>
-                      <span className="text-sm font-black ml-auto" style={{ color: PURPLE }}>
-                        {(Number(item.price) * Number(item.quantity)).toLocaleString('fr-DZ')} DA
-                      </span>
-                      <button onClick={() => removeItem(i)}
-                        className="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50">
-                        <Trash2 size={13} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Total */}
-            {order.customerInfo?.deliveryFee != null && (
-              <div className="flex items-center justify-between px-4 py-2 mt-3 rounded-xl"
-                style={{ background: 'rgba(108,43,217,0.03)', border: '1px solid rgba(108,43,217,0.1)' }}>
-                <span className="text-sm text-gray-500">
-                  Frais de livraison
-                  {order.customerInfo.deliveryMethod && (
-                    <span className="ml-1 text-xs text-purple-400">({order.customerInfo.deliveryMethod})</span>
-                  )}
-                </span>
-                <span className="font-bold text-sm" style={{ color: NAVY }}>
-                  {Number(order.customerInfo.deliveryFee).toLocaleString('fr-DZ')} DA
-                </span>
-              </div>
-            )}
-            <div className="flex items-center justify-between px-4 py-3 mt-2 rounded-xl"
-              style={{ background: 'rgba(108,43,217,0.06)', border: '1px solid rgba(108,43,217,0.15)' }}>
-              <span className="font-bold text-sm" style={{ color: NAVY }}>Total commande</span>
-              <span className="font-black text-2xl" style={{ color: PURPLE }}>
-                {computedTotal.toLocaleString('fr-DZ')}
-                <span className="text-xs font-normal text-gray-400 ml-1">DA</span>
-              </span>
-            </div>
-          </section>
-
-          {/* Logos */}
-          {order.customerInfo.logoUrls?.length > 0 && (
-            <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                  style={{ background: 'rgba(108,43,217,0.08)' }}>
-                  <Tag size={14} style={{ color: PURPLE }} />
-                </div>
-                <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: PURPLE }}>Fichiers généraux</h2>
-              </div>
-              <div className="flex gap-4 flex-wrap">
-                {order.customerInfo.logoUrls.map((url, idx) => {
-                  const isPdf = url?.toLowerCase().includes('.pdf') || url?.includes('/raw/')
-                  if (isPdf) {
-                    const filename = url.split('/').pop()?.split('?')[0] || `logo-${idx + 1}.pdf`
-                    return (
-                      <div key={idx} className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 w-28"
-                        style={{ borderColor: 'rgba(108,43,217,0.2)', background: 'rgba(108,43,217,0.03)' }}>
-                        <FileText size={32} style={{ color: PURPLE }} />
-                        <span className="text-[10px] text-gray-500 text-center break-all line-clamp-2">
-                          {filename.length > 18 ? filename.slice(0, 16) + '…' : filename}
-                        </span>
-                        <div className="flex gap-1.5 w-full">
-                          <a href={url} target="_blank" rel="noopener noreferrer"
-                            className="flex-1 flex items-center justify-center py-1 rounded-lg text-[10px] font-bold text-white"
-                            style={{ background: PURPLE }}>Ouvrir</a>
-                          <button onClick={() => downloadLogo(url, idx)}
-                            className="w-7 flex items-center justify-center rounded-lg"
-                            style={{ background: 'rgba(108,43,217,0.12)', color: PURPLE }}>
-                            <Download size={11} />
-                          </button>
-                        </div>
-                      </div>
-                    )
-                  }
-                  return (
-                    <div key={idx} className="relative group">
-                      <img src={url} alt={`logo ${idx + 1}`}
-                        className="w-24 h-24 object-contain rounded-xl border-2 bg-gray-50"
-                        style={{ borderColor: 'rgba(108,43,217,0.2)' }} />
-                      <button onClick={() => downloadLogo(url, idx)}
-                        className="absolute -bottom-2 -right-2 flex items-center gap-1 px-2 py-1 rounded-lg text-white text-[10px] font-bold shadow-md"
-                        style={{ background: PURPLE }}>
-                        <Download size={10} /> DL
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
-            </section>
-          )}
-        </div>
-
-        {/* Colonne droite */}
-        <div className="space-y-4">
-
-          {/* Détails */}
-          <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                style={{ background: 'rgba(108,43,217,0.08)' }}>
-                <Hash size={14} style={{ color: PURPLE }} />
-              </div>
-              <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: PURPLE }}>Détails</h2>
-            </div>
-            <div className="space-y-3">
-              <InfoBlock label="Référence">#{order._id.slice(-6).toUpperCase()}</InfoBlock>
-              <InfoBlock label="Date">{createdAt}</InfoBlock>
-              <InfoBlock label="Unités">
-                {items.reduce((s, i) => s + Number(i.quantity), 0).toLocaleString()} unités
-              </InfoBlock>
-            </div>
-          </section>
-
-          {/* Statut */}
-          <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                style={{ background: 'rgba(108,43,217,0.08)' }}>
-                <CheckCircle2 size={14} style={{ color: PURPLE }} />
-              </div>
-              <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: PURPLE }}>Statut</h2>
-            </div>
-            <div className="flex flex-col gap-2">
-              {/* Confirmé : lecture seule, attribué automatiquement via Ecotrack */}
-              {status === 'confirmé' && (
-                <div className="py-3 px-4 rounded-xl text-sm font-bold border-2 flex items-center gap-2"
-                  style={{ background: '#10b981', borderColor: '#10b981', color: 'white', boxShadow: '0 4px 12px #10b98140' }}>
-                  <span className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
-                  Confirmé
-                  <span className="ml-auto text-xs font-normal opacity-75">via Ecotrack</span>
-                </div>
-              )}
-              {/* En attente : lecture seule */}
-              {status === 'en attente' && (
-                <div className="py-3 px-4 rounded-xl text-sm font-bold border-2 flex items-center gap-2"
-                  style={{ background: '#9ca3af', borderColor: '#9ca3af', color: 'white' }}>
-                  <span className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
-                  En attente
-                </div>
-              )}
-              {/* Annulé : seul statut cliquable */}
-              {EDITABLE_STATUSES.map(opt => (
-                <button key={opt.value}
-                  onClick={() => { setStatus(opt.value); setDirty(opt.value !== order.status || dirty) }}
-                  className="py-3 px-4 rounded-xl text-sm font-bold border-2 transition-all text-left flex items-center gap-2"
+      {open && (
+        <div className="absolute top-full left-0 right-0 mt-1 rounded-xl overflow-hidden z-50"
+          style={{
+            background: 'white',
+            border: '2px solid rgba(124,58,237,0.2)',
+            boxShadow: '0 8px 32px rgba(124,58,237,0.15)',
+          }}>
+          <div className="max-h-52 overflow-y-auto py-1">
+            {colors.map(hex => {
+              const name = COLOR_NAMES[hex]?.[lang] || COLOR_NAMES[hex]?.fr || hex
+              return (
+                <button key={hex} type="button"
+                  onClick={() => { onChange(hex); setOpen(false) }}
+                  className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-bold transition-all text-left"
                   style={{
-                    background:  status === opt.value ? opt.color : 'white',
-                    borderColor: status === opt.value ? opt.color : '#e5e7eb',
-                    color:       status === opt.value ? 'white'   : opt.color,
-                    boxShadow:   status === opt.value ? `0 4px 12px ${opt.color}40` : 'none',
-                  }}>
-                  <span className="w-2 h-2 rounded-full flex-shrink-0"
-                    style={{ background: status === opt.value ? 'white' : opt.color }} />
-                  {opt.label}
+                    background: value === hex ? 'rgba(124,58,237,0.08)' : 'transparent',
+                    color: value === hex ? PURPLE : NAVY,
+                  }}
+                  onMouseEnter={e => { if (value !== hex) e.currentTarget.style.background = 'rgba(124,58,237,0.04)' }}
+                  onMouseLeave={e => { if (value !== hex) e.currentTarget.style.background = 'transparent' }}>
+                  <span className="flex items-center gap-2.5">
+                    {name}
+                  </span>
+                  {value === hex && <Check size={14} style={{ color: YELLOW }} />}
                 </button>
-              ))}
-            </div>
-          </section>
-
-          {/* Ecotrack */}
-          <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                style={{ background: 'rgba(16,185,129,0.1)' }}>
-                <Truck size={14} style={{ color: '#10b981' }} />
-              </div>
-              <h2 className="font-black text-sm uppercase tracking-widest" style={{ color: '#10b981' }}>
-                Ecotrack
-              </h2>
-            </div>
-
-            {order.ecotrackTracking ? (
-              <div className="space-y-3">
-                {/* Numéro de tracking */}
-                <div className="rounded-xl px-3 py-2.5"
-                  style={{ background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.25)' }}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Numéro de tracking</p>
-                  <p className="font-black text-sm tracking-wider" style={{ color: '#065f46' }}>
-                    {order.ecotrackTracking}
-                  </p>
-                  {order.ecotrackSentAt && (
-                    <p className="text-[10px] text-gray-400 mt-1">
-                      Envoyé le {new Date(order.ecotrackSentAt).toLocaleDateString('fr-DZ', { day: '2-digit', month: 'short', year: 'numeric' })}
-                    </p>
-                  )}
-                </div>
-
-                {/* Bouton étiquette */}
-                <button onClick={handlePrintLabel}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90"
-                  style={{ background: '#10b981' }}>
-                  <Printer size={14} /> Imprimer l'étiquette
-                </button>
-
-
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-xs text-gray-400 leading-relaxed">
-                  La commande sera envoyée automatiquement à Ecotrack lors du passage au statut <strong>Confirmé</strong>.
-                </p>
-                {/* Envoi manuel si pas encore fait */}
-                <button
-                  onClick={handleSendEcotrack}
-                  disabled={sendingEco}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm border-2 transition-all disabled:opacity-50"
-                  style={{ borderColor: '#10b981', color: '#10b981', background: 'white' }}>
-                  {sendingEco
-                    ? <><Loader2 size={14} className="animate-spin" /> Envoi en cours…</>
-                    : <><Truck size={14} /> Envoyer à Ecotrack</>}
-                </button>
-              </div>
-            )}
-          </section>
-        </div>
-      </div>
-
-      {/* Modal ajout produit */}
-      {addModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.4)' }}
-          onClick={e => { if (e.target === e.currentTarget) setAddModal(false) }}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-black text-lg" style={{ color: NAVY }}>Ajouter un article</h3>
-              <button onClick={() => setAddModal(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100">
-                <X size={16} />
-              </button>
-            </div>
-
-            {/* Produit */}
-            <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">Produit</label>
-              <select value={newItem.productId} onChange={handleProductSelect}
-                className="w-full px-3 py-2.5 rounded-xl border-2 text-sm outline-none"
-                style={{ borderColor: '#e5e7eb', color: NAVY }}>
-                <option value="">— Choisir —</option>
-                {products.map(p => (
-                  <option key={p._id} value={p._id}>{p.name}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Taille */}
-            {selProduct && (
-              <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">Taille</label>
-                <select value={newItem.size} onChange={handleSizeSelect}
-                  className="w-full px-3 py-2.5 rounded-xl border-2 text-sm outline-none"
-                  style={{ borderColor: '#e5e7eb', color: NAVY }}>
-                  <option value="">— Choisir —</option>
-                  {selProduct.sizes.map(s => (
-                    <option key={s.size} value={s.size}>{s.size} — {s.price.toLocaleString('fr-DZ')} DA</option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Quantité */}
-            <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">Quantité</label>
-              <input type="number" min="1" value={newItem.quantity}
-                onChange={e => setNewItem(p => ({ ...p, quantity: Number(e.target.value) }))}
-                className="w-full px-3 py-2.5 rounded-xl border-2 text-sm outline-none"
-                style={{ borderColor: '#e5e7eb', color: NAVY }} />
-            </div>
-
-            {newItem.price > 0 && (
-              <p className="text-sm font-bold text-center" style={{ color: PURPLE }}>
-                Total : {(newItem.price * newItem.quantity).toLocaleString('fr-DZ')} DA
-              </p>
-            )}
-
-            <button onClick={confirmAddItem}
-              className="w-full py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2"
-              style={{ background: PURPLE }}>
-              <Plus size={15} /> Confirmer l'ajout
-            </button>
+              )
+            })}
           </div>
         </div>
       )}
     </div>
   )
 }
+
+function ProductDetailPage() {
+  const { id }          = useParams()
+  const navigate        = useNavigate()
+  const { addToCart }   = useCart()
+  const { t, lang, isRTL } = useLang()
+
+  const [product, setProduct]           = useState(null)
+  const [loading, setLoading]           = useState(true)
+  const [selectedSize, setSelectedSize] = useState(null)
+  const [doubleSided, setDoubleSided]   = useState(false)
+  const [quantity, setQuantity]         = useState(100)
+  const [currentImage, setCurrentImage] = useState(0)
+  const [selectedColor, setSelectedColor]   = useState('')
+  const [numberOfColors, setNumberOfColors] = useState('1')
+
+  // Logo upload
+  const [logoFiles, setLogoFiles]       = useState([])
+  const [logoUrls, setLogoUrls]         = useState([])
+  const [logoUploading, setLogoUploading] = useState(false)
+
+  // Description / instructions
+  const [description, setDescription] = useState('')
+
+  // Popup après ajout au panier
+  const [showCartPopup, setShowCartPopup] = useState(false)
+
+  // SEO dynamique — se met à jour dès que le produit est chargé
+  const seoCatLabels = { Board: 'Boite', Bags: 'Sac', Autocollants: 'Cartes et Autocollants', Paper: 'Papier' }
+  const minPrice = product ? Math.min(...(product.sizes?.map(s => s.price) || [0])) : 0
+  useSEO({
+    title: product ? product.name : 'Produit',
+    description: product
+      ? `${product.name} — ${seoCatLabels[product.category] || 'Emballage'} personnalisé à partir de ${minPrice.toLocaleString('fr-DZ')} DA. Commandez sur BrandPack Algérie.`
+      : 'Emballage personnalisé BrandPack Algérie.',
+    canonical: product ? `/products/${product._id}` : undefined,
+    image: product?.images?.[0],
+    schema: product ? {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.name,
+      image: product.images || [],
+      description: `${seoCatLabels[product.category] || 'Emballage'} personnalisé à partir de ${minPrice.toLocaleString('fr-DZ')} DA.`,
+      brand: { '@type': 'Brand', name: 'BrandPack' },
+      offers: product.sizes?.map(s => ({
+        '@type': 'Offer',
+        price: s.price,
+        priceCurrency: 'DZD',
+        availability: 'https://schema.org/InStock',
+        name: s.size,
+      })),
+    } : undefined,
+  })
+  useEffect(() => { window.scrollTo(0, 0) }, [id])
+
+  // ── High Intent : timer 30s + scroll vers le formulaire ──────────────────
+  useEffect(() => {
+    if (!product) return
+
+    // 1. HighQualityVisitor — resté +30s sur la fiche produit
+    const timer = setTimeout(() => {
+      trackHighQualityVisitor(product._id, product.name)
+    }, 30000)
+
+    // 2. ScrollToForm — scroll jusqu'au bas de page (où se trouve le formulaire)
+    let scrollFired = false
+    const onScroll = () => {
+      if (scrollFired) return
+      const scrolled = window.scrollY + window.innerHeight
+      const threshold = document.body.scrollHeight - 500
+      if (scrolled >= threshold) {
+        scrollFired = true
+        trackScrollToForm(product._id, product.name)
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('scroll', onScroll)
+    }
+  }, [product])
+
+  useEffect(() => {
+    api.get(`/products/${id}`)
+      .then(res => {
+        setProduct(res.data)
+        if (res.data.sizes?.length > 0) setSelectedSize(res.data.sizes[0].size)
+        // Pour les packs, on sélectionne automatiquement la seule taille
+        setDoubleSided(false)  // toujours désactivé par défaut, le client l'active si besoin
+        // ViewContent : on utilise le prix de la première taille disponible
+        const firstPrice = res.data.sizes?.[0]?.price ?? 0
+        trackViewContent(res.data, firstPrice)
+      })
+      .catch(() => navigate('/products'))
+      .finally(() => setLoading(false))
+  }, [id])
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center"
+      style={{ background: 'linear-gradient(160deg,#f5f3ff,#ede9fe,#e0e7ff)' }}>
+      <div className="w-10 h-10 rounded-full border-4 border-purple-200 border-t-purple-600 animate-spin" />
+    </div>
+  )
+  if (!product) return null
+
+  const isPack = product.category === 'Pack'
+  const GREEN = '#10b981'
+
+  const catLabels     = lang === 'ar' ? CAT_LABELS_AR : CAT_LABELS_FR
+  const catLabel      = catLabels[product.category] || product.category
+  const sizeObj       = product.sizes?.find(s => s.size === selectedSize)
+  const basePrice     = sizeObj?.price ?? 0
+  const extraDouble   = (doubleSided && product.doubleSided) ? (product.doubleSidedPrice ?? 0) : 0
+  const nbColors      = numberOfColors !== '' ? Math.max(1, Number(numberOfColors)) : 1
+  // 1 couleur = incluse dans le prix de base, extra commence à partir de 2 couleurs
+  const extraColors   = (product.colorDesignEnabled && nbColors > 1) ? (nbColors - 1) * (product.colorDesignPricePerColor ?? 0) : 0
+  const extraPrice    = extraDouble + extraColors
+  const unitPrice     = basePrice + extraPrice
+  const totalPrice    = unitPrice * quantity
+  const images        = product.images?.length > 0 ? product.images : ['/placeholder.jpg']
+
+  const handleLogoUpload = async (files) => {
+    if (!files?.length) return
+    const remaining = 3 - logoFiles.length
+    if (remaining <= 0) return
+    const toUpload = Array.from(files).slice(0, remaining)
+    setLogoUploading(true)
+    try {
+      const uploaded = await Promise.all(toUpload.map(uploadToCloudinary))
+      setLogoFiles(p => [...p, ...toUpload])
+      setLogoUrls(p  => [...p, ...uploaded])
+    } catch {
+      toast.error(lang === 'ar' ? 'فشل رفع الصورة، حاول مجدداً' : "Échec de l'upload — réessayez")
+    } finally { setLogoUploading(false) }
+  }
+
+  const removeLogo = (idx) => {
+    setLogoFiles(p => p.filter((_, i) => i !== idx))
+    setLogoUrls(p  => p.filter((_, i) => i !== idx))
+  }
+
+  const doAddToCart = () => {
+    if (!selectedSize) { toast.error(t('selectSize')); return false }
+    if (product.colors?.length > 0 && !selectedColor) { toast.error(lang === 'ar' ? 'يرجى اختيار لون' : 'Veuillez choisir une couleur'); return false }
+    if (logoUrls.length === 0) { toast.error(lang === 'ar' ? 'يرجى رفع صورة الشعار' : 'Veuillez uploader votre logo'); return false }
+    addToCart({ ...product, computedPrice: unitPrice, logoUrls, description: description.trim() }, selectedSize, quantity, doubleSided, selectedColor ? [COLOR_NAMES[selectedColor]?.[lang] || COLOR_NAMES[selectedColor]?.fr || selectedColor] : [], nbColors)
+    trackAddToCart(product, selectedSize, quantity, unitPrice)
+    return true
+  }
+
+  const handleAddToCart = () => {
+    if (doAddToCart()) setShowCartPopup(true)
+  }
+
+  const handleBuyNow = () => {
+    if (doAddToCart()) navigate('/cart')
+  }
+
+  return (
+    <div className="min-h-screen"
+      style={{ background: '#F8F7FF' }}
+      dir={isRTL ? 'rtl' : 'ltr'}>
+
+      {/* ── DESKTOP : grid 2 colonnes ── */}
+      <div className="hidden lg:block pt-20">
+        <div className="max-w-7xl mx-auto px-8 py-10">
+
+          {/* Retour */}
+          <button onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-sm font-medium mb-8 group transition-colors"
+            style={{ color: YELLOW }}>
+            <ArrowLeft size={16} className={`transition-transform ${isRTL ? 'rotate-180 group-hover:translate-x-1' : 'group-hover:-translate-x-1'}`} />
+            {t('back')}
+          </button>
+
+          <div className="grid grid-cols-2 gap-16 items-start">
+
+            {/* Colonne gauche — Galerie */}
+            <div className="sticky top-28 space-y-3">
+              <div className="relative rounded-3xl overflow-hidden bg-white group shadow-sm"
+                style={{ aspectRatio: '1/1' }}>
+                <img src={images[currentImage]} alt={product.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                {images.length > 1 && (<>
+                  <button onClick={() => setCurrentImage(i => i === 0 ? images.length - 1 : i - 1)}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full
+                               flex items-center justify-center text-white opacity-0 group-hover:opacity-100
+                               transition-all backdrop-blur-sm"
+                    style={{ background: 'rgba(30,27,75,0.5)' }}>
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button onClick={() => setCurrentImage(i => i === images.length - 1 ? 0 : i + 1)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full
+                               flex items-center justify-center text-white opacity-0 group-hover:opacity-100
+                               transition-all backdrop-blur-sm"
+                    style={{ background: 'rgba(30,27,75,0.5)' }}>
+                    <ChevronRight size={20} />
+                  </button>
+                </>)}
+                <div className="absolute top-4 left-4">
+                  <span className="text-xs font-bold px-3 py-1.5 rounded-full text-white shadow"
+                    style={{ background: PURPLE }}>{catLabel}</span>
+                </div>
+              </div>
+
+              {/* Miniatures */}
+              {images.length > 1 && (
+                <div className="grid grid-cols-5 gap-2">
+                  {images.map((img, i) => (
+                    <button key={i} onClick={() => setCurrentImage(i)}
+                      className="aspect-square rounded-xl overflow-hidden border-2 transition-all"
+                      style={{ borderColor: i === currentImage ? YELLOW : 'transparent' }}>
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Colonne droite — Options */}
+            <div className="space-y-7">
+              <div>
+                <h1 className="font-black italic text-5xl leading-tight mb-3" style={{ color: NAVY }}>
+                  {product.name}
+                </h1>
+                <p className="font-black text-3xl" style={{ color: PURPLE_DARK }}>
+                  {unitPrice.toLocaleString('fr-DZ')}
+                  <span className="text-base font-normal text-gray-400 ml-2">DA / {t('units').slice(0,-1) || 'unité'}</span>
+                </p>
+                {doubleSided && extraDouble > 0 && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    {lang === 'ar' ? `يشمل +${extraDouble.toLocaleString('fr-DZ')} دج (وجهان)` : `Inclut +${extraDouble.toLocaleString('fr-DZ')} DA (recto-verso)`}
+                  </p>
+                )}
+                {product.colorDesignEnabled && nbColors > 0 && extraColors > 0 && (
+                  <p className="text-xs mt-1" style={{ color: YELLOW }}>
+                    {lang === 'ar'
+                      ? `+${extraColors.toLocaleString('fr-DZ')} دج (${nbColors} × ${(product.colorDesignPricePerColor).toLocaleString('fr-DZ')} دج/لون)`
+                      : `+${extraColors.toLocaleString('fr-DZ')} DA (${nbColors} × ${(product.colorDesignPricePerColor).toLocaleString('fr-DZ')} DA/couleur)`}
+                  </p>
+                )}
+              </div>
+              <div className="h-px bg-purple-100" />
+
+              {/* Livraison gratuite — Pack uniquement */}
+              {isPack && (
+                <div className="rounded-2xl px-5 py-4 flex items-center gap-3"
+                  style={{ background: 'rgba(16,185,129,0.1)', border: '2px solid rgba(16,185,129,0.4)' }}>
+                  <span className="text-3xl">🚚</span>
+                  <div>
+                    <p className="font-black text-base" style={{ color: '#065f46' }}>
+                      {lang === 'ar' ? 'توصيل مجاني 🎉' : 'Livraison GRATUITE 🎉'}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {lang === 'ar' ? 'هذا العرض يشمل التوصيل مجاناً' : 'Ce pack inclut la livraison gratuite'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Composition du pack */}
+              {isPack && product.packItems?.length > 0 && (
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
+                    {lang === 'ar' ? 'محتوى العرض' : 'Contenu du pack'}
+                  </p>
+                  <div className="space-y-2 rounded-2xl p-4"
+                    style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                    {product.packItems.map((item, i) => (
+                      <div key={i} className="flex items-center justify-between py-1.5 text-sm"
+                        style={{ borderBottom: i < product.packItems.length - 1 ? '1px solid rgba(16,185,129,0.15)' : 'none' }}>
+                        <span className="font-semibold" style={{ color: NAVY }}>
+                          📦 {item.productName}
+                          {item.size && item.size !== 'Pack Complet' && (
+                            <span className="text-gray-400 font-normal ml-1">({item.size})</span>
+                          )}
+                        </span>
+                        <span className="font-black" style={{ color: '#065f46' }}>
+                          × {item.quantity.toLocaleString('fr-DZ')} {lang === 'ar' ? 'وحدة' : 'unités'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Tailles (masquées pour les packs) */}
+              {!isPack && <div>
+                <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
+                  {t('availableSizes')}
+                  {selectedSize && <span style={{ color: YELLOW }} className="ml-2">— {selectedSize}</span>}
+                </p>
+                <SizeSelector sizes={product.sizes || []} selected={selectedSize}
+                  onChange={s => setSelectedSize(s)} />
+              </div>}
+
+              {/* Couleurs (non applicable aux packs) */}
+              {!isPack && product.colors?.length > 0 && (
+                <ColorDropdown
+                  colors={product.colors}
+                  value={selectedColor}
+                  onChange={setSelectedColor}
+                  lang={lang}
+                />
+              )}
+
+              {/* Nombre de couleurs dans le design (non applicable aux packs) */}
+              {!isPack && product.colorDesignEnabled && (
+                <div className="rounded-2xl border-2 p-4 transition-all"
+                  style={{ borderColor: nbColors > 0 ? PURPLE : '#e5e7eb', background: nbColors > 0 ? 'rgba(124,58,237,0.04)' : '#f9fafb' }}>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
+                    {t('numberOfColors')}
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setNumberOfColors(v => String(Math.max(1, Number(v) - 1)))}
+                      className="w-10 h-10 rounded-xl font-black text-lg flex items-center justify-center transition-all hover:opacity-80 active:scale-95 flex-shrink-0"
+                      style={{ background: YELLOW, color: PURPLE_DARK, fontWeight: 900 }}>−</button>
+                    <span className="flex-1 text-center font-black text-xl" style={{ color: NAVY }}>{numberOfColors}</span>
+                    <button
+                      onClick={() => setNumberOfColors(v => {
+                        const max = product.colorDesignMaxColors
+                        return String(max ? Math.min(max, Number(v) + 1) : Number(v) + 1)
+                      })}
+                      className="w-10 h-10 rounded-xl font-black text-lg flex items-center justify-center transition-all hover:opacity-80 active:scale-95 flex-shrink-0"
+                      style={{ background: YELLOW, color: PURPLE_DARK, fontWeight: 900 }}>+</button>
+                  </div>
+                  <p className="text-xs mt-1.5" style={{ color: PURPLE_DARK }}>
+                    {lang === 'ar'
+                      ? `1 لون مجاني · +${(product.colorDesignPricePerColor ?? 0).toLocaleString('fr-DZ')} دج لكل لون إضافي`
+                      : `1 couleur incluse · +${(product.colorDesignPricePerColor ?? 0).toLocaleString('fr-DZ')} DA par couleur supplémentaire`}
+                  </p>
+                  {product.colorDesignMaxColors && (
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {t('colorDesignMax', { max: product.colorDesignMaxColors })}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Double impression (non applicable aux packs) */}
+              {!isPack && product.doubleSided && (
+                <div className="rounded-2xl border-2 p-4 cursor-pointer transition-all"
+                  style={{
+                    borderColor: doubleSided ? YELLOW : '#e5e7eb',
+                    background:  doubleSided ? 'rgba(124,58,237,0.04)' : '#f9fafb',
+                  }}
+                  onClick={() => setDoubleSided(d => !d)}>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <div className="flex-1">
+                      <p className="text-sm font-bold" style={{ color: NAVY }}>{t('doubleSided')}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {product.doubleSidedPrice > 0
+                          ? `+${product.doubleSidedPrice.toLocaleString('fr-DZ')} DA / ${t('units')}`
+                          : (t('included'))}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="relative w-11 h-6 rounded-full transition-colors"
+                        style={{ background: doubleSided ? YELLOW : '#d1d5db' }}>
+                        <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${doubleSided ? 'left-5' : 'left-0.5'}`} />
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              )}
+
+              {/* Quantité */}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
+                  {t('quantity')}
+                </p>
+                <QuantitySelector value={quantity} onChange={setQuantity} />
+              </div>
+
+              {/* Total */}
+              <div className="rounded-2xl p-5 flex items-center justify-between"
+                style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.15)' }}>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t('estimatedTotal')}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {quantity.toLocaleString()} × {unitPrice.toLocaleString('fr-DZ')} DA
+                  </p>
+                </div>
+                <p className="font-black text-3xl" style={{ color: PURPLE_DARK }}>
+                  {totalPrice.toLocaleString('fr-DZ')}
+                  <span className="text-sm font-normal text-gray-400 ml-1">DA</span>
+                </p>
+              </div>
+
+
+              {/* Logo upload */}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
+                  {lang === 'ar' ? 'صورة الشعار *' : 'Logo *'}
+                  <span className="ml-2 text-gray-400 font-normal normal-case" style={{ fontSize: 10 }}>
+                    {lang === 'ar' ? '(مطلوب — 3 كحد أقصى)' : '(obligatoire — 3 max)'}
+                  </span>
+                </p>
+                {logoFiles.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {logoFiles.map((file, idx) => (
+                      <div key={idx} className="relative w-16 h-16 rounded-xl overflow-hidden border-2"
+                        style={{ borderColor: PURPLE }}>
+                        <img src={URL.createObjectURL(file)} alt="logo" className="w-full h-full object-cover" />
+                        <button type="button" onClick={() => removeLogo(idx)}
+                          className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                          <X size={10} className="text-white" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {logoFiles.length < 3 && (
+                  <label className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed cursor-pointer transition-all text-sm font-medium hover:border-purple-400 hover:bg-purple-50"
+                    style={{ borderColor: 'rgba(124,58,237,0.35)', color: PURPLE }}>
+                    <input type="file" accept="image/*" multiple className="hidden"
+                      onChange={e => handleLogoUpload(e.target.files)} disabled={logoUploading} />
+                    {logoUploading
+                      ? <><Loader2 size={15} className="animate-spin" /> {lang === 'ar' ? 'جارٍ الرفع...' : 'Upload...'}</>
+                      : <><Upload size={15} /> {lang === 'ar' ? 'رفع الشعار' : 'Uploader le logo'}</>}
+                  </label>
+                )}
+              </div>
+
+              {/* Description / instructions */}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
+                  {lang === 'ar' ? 'تعليمات / وصف' : 'Instructions / Description'}
+                  <span className="ml-2 font-normal normal-case text-gray-400" style={{ fontSize: 10 }}>
+                    ({lang === 'ar' ? 'اختياري' : 'optionnel'})
+                  </span>
+                </p>
+                <textarea
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  rows={3}
+                  placeholder={lang === 'ar'
+                    ? 'اللون المطلوب، النص المراد طباعته، تعليمات خاصة...'
+                    : 'Couleur souhaitée, texte à imprimer, instructions spéciales...'}
+                  className="w-full px-4 py-3 rounded-xl border-2 text-sm outline-none resize-none transition-all"
+                  style={{ borderColor: 'rgba(108,43,217,0.2)', background: 'white' }}
+                  onFocus={e => e.target.style.borderColor = '#6C2BD9'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(108,43,217,0.2)'}
+                />
+              </div>
+              {/* Boutons */}
+              <div className="flex gap-3">
+                <button onClick={handleAddToCart}
+                  className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl
+                             font-black text-base transition-all hover:bg-purple-50 border-2"
+                  style={{ borderColor: YELLOW, color: PURPLE_DARK, background: 'rgba(255,214,0,0.1)' }}>
+                  <ShoppingBag size={20} />
+                  {t('addToCart')}
+                </button>
+                <button onClick={handleBuyNow}
+                  className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl
+                             text-white font-black text-base transition-all hover:opacity-90 shadow-lg"
+                  style={{ background: PURPLE }}>
+                  <Zap size={20} />
+                  {t('orderNow')}
+                </button>
+              </div>
+
+              {/* Livraison */}
+              <div className="rounded-2xl p-4 flex items-start gap-3"
+                style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.15)' }}>
+                <span className="text-2xl">🚚</span>
+                <div>
+                  <p className="font-bold text-sm" style={{ color: NAVY }}>{t('deliveryInfo')}</p>
+                  <p className="text-gray-500 text-xs mt-0.5">{t('deliveryDetail')}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── MOBILE : image pleine largeur ── */}
+      <div className="lg:hidden">
+        {/* Image hero */}
+        <div className="relative w-full" style={{ height: '60vh', minHeight: 300 }}>
+          <img src={images[currentImage]} alt={product.name} className="w-full h-full object-cover" />
+          <div className="absolute inset-0"
+            style={{ background: 'linear-gradient(to bottom,rgba(30,27,75,0.1),rgba(30,27,75,0.6))' }} />
+
+          <button onClick={() => navigate(-1)}
+            className="absolute top-20 left-4 flex items-center gap-2 px-3 py-2 rounded-full
+                       text-white text-sm font-medium backdrop-blur-sm"
+            style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)' }}>
+            <ArrowLeft size={15} /> {t('back')}
+          </button>
+
+          <div className="absolute top-20 right-4">
+            <span className="text-xs font-bold px-3 py-1.5 rounded-full text-white"
+              style={{ background: PURPLE }}>{catLabel}</span>
+          </div>
+
+          {images.length > 1 && (<>
+            <button onClick={() => setCurrentImage(i => i === 0 ? images.length - 1 : i - 1)}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center text-white"
+              style={{ background: 'rgba(255,255,255,0.2)' }}>
+              <ChevronLeft size={18} />
+            </button>
+            <button onClick={() => setCurrentImage(i => i === images.length - 1 ? 0 : i + 1)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center text-white"
+              style={{ background: 'rgba(255,255,255,0.2)' }}>
+              <ChevronRight size={18} />
+            </button>
+          </>)}
+
+          <div className="absolute bottom-5 left-5 right-5">
+            <h1 className="text-white font-black italic text-2xl drop-shadow mb-1">{product.name}</h1>
+            <p className="text-white font-black text-lg drop-shadow">
+              {unitPrice.toLocaleString('fr-DZ')}
+              <span className="text-xs opacity-70 ml-1">DA / {t('units')}</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Panel mobile */}
+        <div className="px-4 py-8 space-y-6 max-w-3xl mx-auto">
+
+          {/* Livraison gratuite — Pack uniquement mobile */}
+          {isPack && (
+            <div className="rounded-2xl px-4 py-4 flex items-center gap-3"
+              style={{ background: 'rgba(16,185,129,0.1)', border: '2px solid rgba(16,185,129,0.4)' }}>
+              <span className="text-2xl">🚚</span>
+              <div>
+                <p className="font-black text-sm" style={{ color: '#065f46' }}>
+                  {lang === 'ar' ? 'توصيل مجاني 🎉' : 'Livraison GRATUITE 🎉'}
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {lang === 'ar' ? 'هذا العرض يشمل التوصيل مجاناً' : 'Ce pack inclut la livraison gratuite'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Composition du pack — mobile */}
+          {isPack && product.packItems?.length > 0 && (
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
+                {lang === 'ar' ? 'محتوى العرض' : 'Contenu du pack'}
+              </p>
+              <div className="space-y-2 rounded-2xl p-4"
+                style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                {product.packItems.map((item, i) => (
+                  <div key={i} className="flex items-center justify-between py-1.5 text-sm"
+                    style={{ borderBottom: i < product.packItems.length - 1 ? '1px solid rgba(16,185,129,0.15)' : 'none' }}>
+                    <span className="font-semibold" style={{ color: NAVY }}>
+                      📦 {item.productName}
+                      {item.size && item.size !== 'Pack Complet' && (
+                        <span className="text-gray-400 font-normal ml-1">({item.size})</span>
+                      )}
+                    </span>
+                    <span className="font-black" style={{ color: '#065f46' }}>
+                      × {item.quantity.toLocaleString('fr-DZ')} {lang === 'ar' ? 'وحدة' : 'unités'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tailles (masquées pour les packs) */}
+          {!isPack && <div>
+            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
+              {t('availableSizes')}{selectedSize && <span style={{ color: YELLOW }} className="ml-2">— {selectedSize}</span>}
+            </p>
+            <SizeSelector sizes={product.sizes || []} selected={selectedSize} onChange={s => setSelectedSize(s)} />
+          </div>}
+
+          {/* Couleurs */}
+          {!isPack && product.colors?.length > 0 && (
+            <ColorDropdown
+              colors={product.colors}
+              value={selectedColor}
+              onChange={setSelectedColor}
+              lang={lang}
+            />
+          )}
+
+          {/* Nombre de couleurs dans le design */}
+          {!isPack && product.colorDesignEnabled && (
+            <div className="rounded-2xl border-2 p-4 transition-all"
+              style={{ borderColor: nbColors > 0 ? PURPLE : '#e5e7eb', background: nbColors > 0 ? 'rgba(124,58,237,0.04)' : '#f9fafb' }}>
+              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
+                {t('numberOfColors')}
+              </p>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setNumberOfColors(v => String(Math.max(1, Number(v) - 1)))}
+                  className="w-10 h-10 rounded-xl font-black text-lg flex items-center justify-center transition-all hover:opacity-80 active:scale-95 flex-shrink-0"
+                  style={{ background: YELLOW, color: PURPLE_DARK, fontWeight: 900 }}>−</button>
+                <span className="flex-1 text-center font-black text-xl" style={{ color: NAVY }}>{numberOfColors}</span>
+                <button
+                  onClick={() => setNumberOfColors(v => {
+                    const max = product.colorDesignMaxColors
+                    return String(max ? Math.min(max, Number(v) + 1) : Number(v) + 1)
+                  })}
+                  className="w-10 h-10 rounded-xl font-black text-lg flex items-center justify-center transition-all hover:opacity-80 active:scale-95 flex-shrink-0"
+                  style={{ background: YELLOW, color: PURPLE_DARK, fontWeight: 900 }}>+</button>
+              </div>
+              <p className="text-xs mt-1.5" style={{ color: PURPLE_DARK }}>
+                {lang === 'ar'
+                  ? `1 لون مجاني · +${(product.colorDesignPricePerColor ?? 0).toLocaleString('fr-DZ')} دج لكل لون إضافي`
+                  : `1 couleur incluse · +${(product.colorDesignPricePerColor ?? 0).toLocaleString('fr-DZ')} DA par couleur supplémentaire`}
+              </p>
+              {product.colorDesignMaxColors && (
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {t('colorDesignMax', { max: product.colorDesignMaxColors })}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Double impression */}
+          {!isPack && product.doubleSided && (
+            <div className="rounded-2xl border-2 p-4 cursor-pointer transition-all"
+              style={{ borderColor: doubleSided ? YELLOW : '#e5e7eb', background: doubleSided ? 'rgba(124,58,237,0.04)' : '#f9fafb' }}
+              onClick={() => setDoubleSided(d => !d)}>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <div className="flex-1">
+                  <p className="text-sm font-bold" style={{ color: NAVY }}>{t('doubleSided')}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {product.doubleSidedPrice > 0 ? `+${product.doubleSidedPrice.toLocaleString('fr-DZ')} DA` : (t('included'))}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="relative w-11 h-6 rounded-full transition-colors"
+                    style={{ background: doubleSided ? YELLOW : '#d1d5db' }}>
+                    <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${doubleSided ? 'left-5' : 'left-0.5'}`} />
+                  </div>
+                </div>
+              </label>
+            </div>
+          )}
+
+          {/* Quantité */}
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>{t('quantity')}</p>
+            <QuantitySelector value={quantity} onChange={setQuantity} />
+          </div>
+
+          {/* Total */}
+          <div className="rounded-2xl p-4 flex items-center justify-between"
+            style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.15)' }}>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t('estimatedTotal')}</p>
+              <p className="text-xs text-gray-400 mt-0.5">{quantity.toLocaleString()} × {unitPrice.toLocaleString('fr-DZ')} DA</p>
+            </div>
+            <p className="font-black text-2xl" style={{ color: YELLOW }}>
+              {totalPrice.toLocaleString('fr-DZ')}<span className="text-sm font-normal text-gray-400 ml-1">DA</span>
+            </p>
+          </div>
+
+
+          {/* Logo upload mobile */}
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
+              {lang === 'ar' ? 'صورة الشعار *' : 'Logo *'}
+              <span className="ml-2 text-gray-400 font-normal normal-case" style={{ fontSize: 10 }}>
+                {lang === 'ar' ? '(مطلوب — 3 كحد أقصى)' : '(obligatoire — 3 max)'}
+              </span>
+            </p>
+            {logoFiles.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {logoFiles.map((file, idx) => (
+                  <div key={idx} className="relative w-16 h-16 rounded-xl overflow-hidden border-2"
+                    style={{ borderColor: PURPLE }}>
+                    <img src={URL.createObjectURL(file)} alt="logo" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => removeLogo(idx)}
+                      className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                      <X size={10} className="text-white" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {logoFiles.length < 3 && (
+              <label className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed cursor-pointer transition-all text-sm font-medium hover:border-purple-400 hover:bg-purple-50"
+                style={{ borderColor: 'rgba(124,58,237,0.35)', color: PURPLE }}>
+                <input type="file" accept="image/*" multiple className="hidden"
+                  onChange={e => handleLogoUpload(e.target.files)} disabled={logoUploading} />
+                {logoUploading
+                  ? <><Loader2 size={15} className="animate-spin" /> {lang === 'ar' ? 'جارٍ الرفع...' : 'Upload...'}</>
+                  : <><Upload size={15} /> {lang === 'ar' ? 'رفع الشعار' : 'Uploader le logo'}</>}
+              </label>
+            )}
+          </div>
+
+          {/* Description / instructions mobile */}
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
+              {lang === 'ar' ? 'تعليمات / وصف' : 'Instructions / Description'}
+              <span className="ml-2 font-normal normal-case text-gray-400" style={{ fontSize: 10 }}>
+                ({lang === 'ar' ? 'اختياري' : 'optionnel'})
+              </span>
+            </p>
+            <textarea
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={3}
+              placeholder={lang === 'ar'
+                ? 'اللون المطلوب، النص المراد طباعته، تعليمات خاصة...'
+                : 'Couleur souhaitée, texte à imprimer, instructions spéciales...'}
+              className="w-full px-4 py-3 rounded-xl border-2 text-sm outline-none resize-none transition-all"
+              style={{ borderColor: 'rgba(108,43,217,0.2)', background: 'white' }}
+              onFocus={e => e.target.style.borderColor = '#6C2BD9'}
+              onBlur={e => e.target.style.borderColor = 'rgba(108,43,217,0.2)'}
+            />
+          </div>
+          {/* Boutons */}
+          <div className="flex flex-col gap-3">
+            <button onClick={handleAddToCart}
+              className="flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-base
+                         border-2 transition-all hover:bg-purple-50"
+              style={{ borderColor: YELLOW, color: PURPLE_DARK, background: 'rgba(255,214,0,0.1)' }}>
+              <ShoppingBag size={20} /> {t('addToCart')}
+            </button>
+            <button onClick={handleBuyNow}
+              className="flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-base
+                         transition-all hover:opacity-90 shadow-lg"
+              style={{ background: PURPLE }}>
+              <Zap size={20} /> {t('orderNow')}
+            </button>
+          </div>
+
+          {/* Livraison */}
+          <div className="rounded-2xl p-4 flex items-start gap-3"
+            style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.15)' }}>
+            <span className="text-2xl">🚚</span>
+            <div>
+              <p className="font-bold text-sm" style={{ color: NAVY }}>{t('deliveryInfo')}</p>
+              <p className="text-gray-500 text-xs mt-0.5">{t('deliveryDetail')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ════════════════════════════════════════
+          POPUP APRÈS AJOUT AU PANIER
+          Mobile : plein écran | Desktop : demi-écran droit
+      ════════════════════════════════════════ */}
+      {showCartPopup && (
+        <>
+          {/* Overlay sombre */}
+          <div
+            className="fixed inset-0 z-50"
+            style={{ background: 'rgba(30,10,74,0.6)', backdropFilter: 'blur(4px)' }}
+            onClick={() => setShowCartPopup(false)}
+          />
+
+          {/* Panel mobile : plein écran depuis le bas */}
+          <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
+            <div className="bg-white rounded-t-3xl shadow-2xl p-6 space-y-5 animate-slide-up"
+              dir={isRTL ? 'rtl' : 'ltr'}>
+
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center"
+                    style={{ background: 'rgba(16,185,129,0.12)' }}>
+                    <span className="text-xl">✅</span>
+                  </div>
+                  <p className="font-black text-base" style={{ color: NAVY }}>
+                    {lang === 'ar' ? 'أُضيف إلى السلة!' : 'Ajouté au panier !'}
+                  </p>
+                </div>
+                <button onClick={() => setShowCartPopup(false)}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center bg-gray-100">
+                  <X size={16} className="text-gray-500" />
+                </button>
+              </div>
+
+              {/* Aperçu produit */}
+              <div className="flex items-center gap-3 p-3 rounded-2xl"
+                style={{ background: '#f8f7ff', border: '1px solid rgba(108,43,217,0.1)' }}>
+                <img src={product.images?.[0]} alt={product.name}
+                  className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm truncate" style={{ color: NAVY }}>{product.name}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{selectedSize} · {quantity.toLocaleString()} {lang === 'ar' ? 'وحدة' : 'unités'}</p>
+                  <p className="font-black text-sm mt-1" style={{ color: PURPLE }}>{totalPrice.toLocaleString('fr-DZ')} DA</p>
+                </div>
+              </div>
+
+              {/* Logos uploadés */}
+              {logoFiles.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400">{lang === 'ar' ? 'الشعار:' : 'Logo :'}</span>
+                  {logoFiles.map((f, i) => (
+                    <img key={i} src={URL.createObjectURL(f)} alt="logo"
+                      className="w-8 h-8 rounded-lg object-cover border" style={{ borderColor: 'rgba(108,43,217,0.3)' }} />
+                  ))}
+                </div>
+              )}
+
+              {/* Boutons */}
+              <div className="flex flex-col gap-3 pb-2">
+                <button onClick={() => navigate('/cart')}
+                  className="w-full py-4 rounded-2xl font-black text-base text-white shadow-lg"
+                  style={{ background: PURPLE }}>
+                  {lang === 'ar' ? '🛒 الذهاب إلى السلة' : '🛒 Voir le panier'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCartPopup(false)
+                    // Scroll vers les catégories sur la homepage
+                    navigate('/#categories')
+                    setTimeout(() => {
+                      const el = document.getElementById('categories-section')
+                      if (el) el.scrollIntoView({ behavior: 'smooth' })
+                    }, 100)
+                  }}
+                  className="w-full py-4 rounded-2xl font-bold text-base border-2"
+                  style={{ borderColor: YELLOW, color: PURPLE_DARK, background: 'rgba(255,214,0,0.08)' }}>
+                  {lang === 'ar' ? '🛍️ مواصلة التسوق' : '🛍️ Continuer les achats'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Panel desktop : demi-écran droit */}
+          <div className="hidden lg:flex fixed top-0 right-0 bottom-0 z-50 w-1/2 flex-col justify-center p-10"
+            style={{ background: 'white', boxShadow: '-8px 0 48px rgba(30,10,74,0.18)' }}
+            dir={isRTL ? 'rtl' : 'ltr'}>
+
+            <button onClick={() => setShowCartPopup(false)}
+              className="absolute top-6 right-6 w-10 h-10 rounded-2xl flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors">
+              <X size={18} className="text-gray-600" />
+            </button>
+
+            <div className="space-y-6 max-w-md mx-auto w-full">
+              {/* Header */}
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(16,185,129,0.12)' }}>
+                  <span className="text-3xl">✅</span>
+                </div>
+                <div>
+                  <p className="font-black text-xl" style={{ color: NAVY }}>
+                    {lang === 'ar' ? 'أُضيف إلى السلة!' : 'Ajouté au panier !'}
+                  </p>
+                  <p className="text-sm text-gray-400 mt-0.5">
+                    {lang === 'ar' ? 'ماذا تريد أن تفعل بعد ذلك؟' : 'Que souhaitez-vous faire ensuite ?'}
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ height: 1, background: '#f3f4f6' }} />
+
+              {/* Aperçu produit */}
+              <div className="flex items-center gap-4 p-4 rounded-2xl"
+                style={{ background: '#f8f7ff', border: '1.5px solid rgba(108,43,217,0.12)' }}>
+                <img src={product.images?.[0]} alt={product.name}
+                  className="w-20 h-20 rounded-xl object-cover flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold truncate" style={{ color: NAVY }}>{product.name}</p>
+                  <p className="text-sm text-gray-400 mt-1">{selectedSize} · {quantity.toLocaleString()} {lang === 'ar' ? 'وحدة' : 'unités'}</p>
+                  <p className="font-black text-lg mt-1" style={{ color: PURPLE }}>{totalPrice.toLocaleString('fr-DZ')} DA</p>
+                </div>
+              </div>
+
+              {/* Logos */}
+              {logoFiles.length > 0 && (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-400">{lang === 'ar' ? 'الشعار:' : 'Logo :'}</span>
+                  {logoFiles.map((f, i) => (
+                    <img key={i} src={URL.createObjectURL(f)} alt="logo"
+                      className="w-10 h-10 rounded-xl object-cover border-2" style={{ borderColor: 'rgba(108,43,217,0.3)' }} />
+                  ))}
+                </div>
+              )}
+
+              {/* Boutons */}
+              <div className="flex flex-col gap-3">
+                <button onClick={() => navigate('/cart')}
+                  className="w-full py-4 rounded-2xl font-black text-lg text-white shadow-lg hover:opacity-90 transition-opacity"
+                  style={{ background: PURPLE }}>
+                  {lang === 'ar' ? '🛒 الذهاب إلى السلة' : '🛒 Voir le panier'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCartPopup(false)
+                    navigate('/')
+                    setTimeout(() => {
+                      const el = document.getElementById('categories-section')
+                      if (el) el.scrollIntoView({ behavior: 'smooth' })
+                    }, 150)
+                  }}
+                  className="w-full py-4 rounded-2xl font-bold text-base border-2 hover:bg-yellow-50 transition-colors"
+                  style={{ borderColor: YELLOW, color: PURPLE_DARK }}>
+                  {lang === 'ar' ? '🛍️ مواصلة التسوق' : '🛍️ Continuer les achats'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+    </div>
+  )
+}
+
+export default ProductDetailPage

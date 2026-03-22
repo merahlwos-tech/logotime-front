@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLang } from '../../context/LanguageContext'
 import { useSEO } from '../../utils/UseSEO'
@@ -86,133 +86,138 @@ function FAQItem({ q, a }) {
 }
 
 
-/* ─── Before / After — deux photos côte à côte ─── */
+/* ─── Before / After — deux photos côte à côte, effet au hover ─── */
 function BeforeAfterSlider({ lang }) {
-  const [activeBefore, setActiveBefore] = useState(false)
-  const [activeAfter, setActiveAfter]   = useState(false)
-
-  const cardStyle = (active, color) => ({
-    position: 'relative', flex: 1, borderRadius: 16, overflow: 'hidden',
-    cursor: 'pointer', userSelect: 'none',
-    boxShadow: active
-      ? `0 0 0 3px ${color}, 0 8px 32px ${color}55`
-      : '0 4px 20px rgba(0,0,0,0.12)',
-    transition: 'box-shadow 0.25s, transform 0.25s',
-    transform: active ? 'scale(1.02)' : 'scale(1)',
-    aspectRatio: '3/4',
-  })
-
   return (
     <div style={{ display: 'flex', gap: 12 }}>
 
       {/* ── AVANT ── */}
-      <div
-        style={cardStyle(activeBefore, '#ef4444')}
-        onClick={() => setActiveBefore(v => !v)}
-        onMouseEnter={e => { if (!activeBefore) e.currentTarget.style.transform = 'scale(1.01)' }}
-        onMouseLeave={e => { if (!activeBefore) e.currentTarget.style.transform = 'scale(1)' }}
+      <div style={{ position: 'relative', flex: 1, borderRadius: 16, overflow: 'hidden', aspectRatio: '3/4', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', transition: 'transform 0.25s', cursor: 'default' }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 0 0 3px #ef4444, 0 8px 32px #ef444455' }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.12)' }}
       >
         <img src="/before.webp" alt="Avant" draggable={false}
-          style={{
-            width: '100%', height: '100%', objectFit: 'cover', display: 'block',
-            transition: 'filter 0.3s',
-            filter: activeBefore
-              ? 'brightness(0.55) saturate(0.4) sepia(0.3)'
-              : 'brightness(1)',
-          }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'filter 0.3s' }}
           onError={e => { e.target.src = '/boite.webp' }}
         />
-
-        {/* Overlay rouge au clic */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: activeBefore ? 'rgba(220,38,38,0.45)' : 'transparent',
-          transition: 'background 0.3s', pointerEvents: 'none',
+        {/* Overlay rouge au hover via CSS — géré avec un pseudo-element inline */}
+        <div className="before-overlay" style={{
+          position: 'absolute', inset: 0, background: 'rgba(220,38,38,0)', transition: 'background 0.3s', pointerEvents: 'none',
         }} />
-
-        {/* Icône centrale */}
-        {activeBefore && (
-          <div style={{
-            position: 'absolute', inset: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            pointerEvents: 'none',
-          }}>
-            <span style={{ fontSize: 72, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}>❌</span>
-          </div>
-        )}
-
-        {/* Légende bas */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0,
-          padding: '32px 14px 14px',
-          background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+        <div className="before-icon" style={{
+          position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          opacity: 0, transition: 'opacity 0.3s', pointerEvents: 'none',
         }}>
+          <span style={{ fontSize: 72, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}>❌</span>
+        </div>
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '32px 14px 14px', background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
           <span style={{ fontSize: 18 }}>❌</span>
-          <span style={{
-            fontSize: 15, fontWeight: 800, color: 'white',
-            textShadow: '0 1px 6px rgba(0,0,0,0.6)',
-            letterSpacing: '0.5px',
-          }}>
+          <span style={{ fontSize: 15, fontWeight: 800, color: 'white', textShadow: '0 1px 6px rgba(0,0,0,0.6)', letterSpacing: '0.5px' }}>
             {lang === 'ar' ? 'قبل' : 'Avant'}
           </span>
         </div>
+        <style>{`.before-wrap:hover .before-overlay { background: rgba(220,38,38,0.45) !important } .before-wrap:hover .before-icon { opacity: 1 !important }`}</style>
       </div>
 
       {/* ── APRÈS ── */}
-      <div
-        style={cardStyle(activeAfter, '#10b981')}
-        onClick={() => setActiveAfter(v => !v)}
-        onMouseEnter={e => { if (!activeAfter) e.currentTarget.style.transform = 'scale(1.01)' }}
-        onMouseLeave={e => { if (!activeAfter) e.currentTarget.style.transform = 'scale(1)' }}
+      <div style={{ position: 'relative', flex: 1, borderRadius: 16, overflow: 'hidden', aspectRatio: '3/4', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', transition: 'transform 0.25s', cursor: 'default' }}
+        onMouseEnter={e => {
+          e.currentTarget.style.transform = 'scale(1.02)'
+          e.currentTarget.style.boxShadow = '0 0 0 3px #10b981, 0 8px 32px #10b98155'
+          e.currentTarget.querySelector('.after-overlay').style.background = 'rgba(16,185,129,0.35)'
+          e.currentTarget.querySelector('.after-icon').style.opacity = '1'
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.transform = 'scale(1)'
+          e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.12)'
+          e.currentTarget.querySelector('.after-overlay').style.background = 'transparent'
+          e.currentTarget.querySelector('.after-icon').style.opacity = '0'
+        }}
       >
         <img src="/after.webp" alt="Après" draggable={false}
-          style={{
-            width: '100%', height: '100%', objectFit: 'cover', display: 'block',
-            transition: 'filter 0.3s',
-            filter: activeAfter
-              ? 'brightness(1.05) saturate(1.2)'
-              : 'brightness(1)',
-          }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'filter 0.3s' }}
           onError={e => { e.target.src = '/sacs.webp' }}
         />
-
-        {/* Overlay vert au clic */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: activeAfter ? 'rgba(16,185,129,0.35)' : 'transparent',
-          transition: 'background 0.3s', pointerEvents: 'none',
-        }} />
-
-        {/* Icône centrale */}
-        {activeAfter && (
-          <div style={{
-            position: 'absolute', inset: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            pointerEvents: 'none',
-          }}>
-            <span style={{ fontSize: 72, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' }}>✅</span>
-          </div>
-        )}
-
-        {/* Légende bas */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0,
-          padding: '32px 14px 14px',
-          background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-        }}>
+        <div className="after-overlay" style={{ position: 'absolute', inset: 0, background: 'transparent', transition: 'background 0.3s', pointerEvents: 'none' }} />
+        <div className="after-icon" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.3s', pointerEvents: 'none' }}>
+          <span style={{ fontSize: 72, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' }}>✅</span>
+        </div>
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '32px 14px 14px', background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
           <span style={{ fontSize: 18 }}>✅</span>
-          <span style={{
-            fontSize: 15, fontWeight: 800, color: 'white',
-            textShadow: '0 1px 6px rgba(0,0,0,0.6)',
-            letterSpacing: '0.5px',
-          }}>
+          <span style={{ fontSize: 15, fontWeight: 800, color: 'white', textShadow: '0 1px 6px rgba(0,0,0,0.6)', letterSpacing: '0.5px' }}>
             {lang === 'ar' ? 'بعد' : 'Après'}
           </span>
         </div>
       </div>
 
+    </div>
+  )
+}
+
+
+const API = import.meta.env.VITE_API_URL || ''
+
+/* ─── Retours clients ─── */
+function ClientReviews({ lang }) {
+  const [photos, setPhotos] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [selected, setSelected] = useState(null)
+
+  useEffect(() => {
+    fetch(`${API}/github/reviews`)
+      .then(r => r.json())
+      .then(data => setPhotos(Array.isArray(data) ? data : []))
+      .catch(() => setPhotos([]))
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading || photos.length === 0) return null
+
+  return (
+    <div style={{ padding: '0 20px 48px' }}>
+      <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A', marginBottom: 6 }}>
+        {lang === 'ar' ? 'آراء عملائنا' : 'Retours de nos clients'}
+      </h3>
+      <p style={{ fontSize: 13, color: '#6B6B8A', marginBottom: 20 }}>
+        {lang === 'ar' ? 'ما قالوه عن منتجاتنا 💬' : "Ce qu'ils disent de nous 💬"}
+      </p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
+        {photos.map((photo, i) => (
+          <div key={i}
+            onClick={() => setSelected(photo)}
+            style={{
+              borderRadius: 12, overflow: 'hidden', cursor: 'pointer',
+              aspectRatio: '1/1', background: '#f3f4f6',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(108,43,217,0.18)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)' }}
+          >
+            <img src={photo.url} alt={`retour client ${i+1}`}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              onError={e => { e.target.style.display = 'none' }}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Lightbox */}
+      {selected && (
+        <div
+          onClick={() => setSelected(null)}
+          style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <img src={selected.url} alt="retour client"
+            style={{ maxWidth: '90vw', maxHeight: '90vh', borderRadius: 16, objectFit: 'contain', boxShadow: '0 24px 80px rgba(0,0,0,0.6)' }}
+            onClick={e => e.stopPropagation()}
+          />
+          <button onClick={() => setSelected(null)}
+            style={{ position: 'absolute', top: 20, right: 20, width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -287,11 +292,7 @@ function HomePage() {
             </p>
 
             <div className="animate-fade-up" style={{ display: 'flex', gap: 16, flexWrap: 'wrap', animationDelay: '0.3s' }}>
-              <button className="btn-yellow" onClick={() => navigate('/products')} style={{ fontSize: 16, padding: '16px 32px' }}>
-                {lang === 'ar' ? 'اطلب الآن' : 'Commander maintenant'}
-                <span style={{ fontSize: 20 }}>→</span>
-              </button>
-              <a href={`https://wa.me/213554691650`} target="_blank" rel="noreferrer"
+              <a href={`https://wa.me/213772793771`} target="_blank" rel="noreferrer"
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                   padding: '16px 28px', borderRadius: 10, fontSize: 15, fontWeight: 700,
@@ -378,10 +379,7 @@ function HomePage() {
           />
         </div>
 
-        <button className="animate-fade-up btn-yellow" onClick={() => navigate('/products')} style={{ animationDelay: '0.3s' }}>
-          {lang === 'ar' ? 'اطلب الآن' : 'Commander maintenant'}
-          <span style={{ fontSize: 18 }}>→</span>
-        </button>
+
       </section>
 
       {/* ══════════════════════════════════
@@ -408,7 +406,7 @@ function HomePage() {
             </p>
           </div>
           <div style={{
-            background: PURPLE, color: '#1E0A4A',
+            background: PURPLE, color: 'white',
             fontSize: 22, fontWeight: 900,
             padding: '12px 16px', borderRadius: 12,
             flexShrink: 0, textAlign: 'center',
@@ -667,6 +665,11 @@ function HomePage() {
         </h3>
         {faqs.map(faq => <FAQItem key={faq.q} q={faq.q} a={faq.a} />)}
       </div>
+
+      {/* ══════════════════════════════════
+          RETOURS CLIENTS
+      ══════════════════════════════════ */}
+      <ClientReviews lang={lang} />
 
     </div>
   )
