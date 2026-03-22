@@ -572,8 +572,8 @@ function HomePage() {
                   {w.icon}
                 </div>
                 <div>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, color: '#1E0A4A', marginBottom: 3 }}>{w.title}</h4>
-                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>{w.desc}</p>
+                  <h4 style={{ fontSize: 17, fontWeight: 800, color: '#1E0A4A', marginBottom: 6 }}>{w.title}</h4>
+                  <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>{w.desc}</p>
                 </div>
               </div>
             ))}
@@ -586,7 +586,7 @@ function HomePage() {
       ══════════════════════════════════ */}
       <div style={{ padding: '28px 20px', maxWidth: 900, margin: '0 auto' }}>
         <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A', marginBottom: 6 }}>
-          {lang === 'ar' ? 'لماذا التغليف مهم؟' : 'Pourquoi un emballage ?'}
+          {lang === 'ar' ? 'لماذا التغليف المخصص؟' : 'Pourquoi un emballage ?'}
         </h3>
         <BeforeAfterSlider lang={lang} />
       </div>
