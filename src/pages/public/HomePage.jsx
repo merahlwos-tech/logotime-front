@@ -366,7 +366,7 @@ function HomePage() {
               {lang === 'ar' ? 'توصيل مجاني!' : 'Livraison gratuite !'}
             </h4>
             <p style={{ fontSize: 12, color: PURPLE_DARK, opacity: 0.75, marginTop: 3 }}>
-              {lang === 'ar' ? 'من 500 وحدة مشتراة' : 'À partir de 500 unités achetées'}
+              {lang === 'ar' ? 'من 400 وحدة مشتراة' : 'À partir de 400 unités achetées'}
             </p>
           </div>
           <div style={{
@@ -379,7 +379,7 @@ function HomePage() {
             <small style={{ fontSize: 11, fontWeight: 600, display: 'block', opacity: 0.8 }}>
               {lang === 'ar' ? 'من' : 'dès'}
             </small>
-            {lang === 'ar' ? '500 وحدة' : '500 unités'}
+            {lang === 'ar' ? '400 وحدة' : '400 unités'}
           </div>
         </div>
       </div>

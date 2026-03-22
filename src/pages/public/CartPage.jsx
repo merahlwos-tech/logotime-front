@@ -96,7 +96,7 @@ function CartPage() {
 
   const totalUnits = items.reduce((s, i) => s + Number(i.quantity), 0)
   const hasPackItem = items.some(item => item.freeDelivery || item.isPack)
-  const isFreeDelivery = hasPackItem || (totalUnits >= 500 && deliveryInfo.method === 'Stop Desk')
+  const isFreeDelivery = hasPackItem || (totalUnits >= 400 && deliveryInfo.method === 'Stop Desk')
   const effectiveDeliveryFee = isFreeDelivery ? 0 : Number(deliveryInfo.fee ?? 0)
   const totalWithDelivery = Number(total) + effectiveDeliveryFee
 
@@ -196,7 +196,7 @@ function CartPage() {
 
             {items.map(item => <CartItem key={item.key} item={item} />)}
 
-            {totalUnits >= 500 ? (
+            {totalUnits >= 400 ? (
               <div className="rounded-2xl px-4 py-4 text-center font-bold text-sm animate-pulse"
                 style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.08))', border: '2px solid rgba(16,185,129,0.5)', color: '#065f46' }}>
                 <div className="text-2xl mb-1">🎉</div>
@@ -205,16 +205,16 @@ function CartPage() {
                 </p>
                 <p className="text-xs font-medium mt-1 opacity-75">
                   {lang === 'ar'
-                    ? 'لديك 500 وحدة أو أكثر — اختر "Stop Desk" وادفع صفر دينار للتوصيل 🚚'
-                    : 'Tu as 500+ unités — choisis "Stop Desk" et paie 0 DA de livraison 🚚'}
+                    ? 'لديك 400 وحدة أو أكثر — اختر "Stop Desk" وادفع صفر دينار للتوصيل 🚚'
+                    : 'Tu as 400+ unités — choisis "Stop Desk" et paie 0 DA de livraison 🚚'}
                 </p>
               </div>
             ) : totalUnits > 0 && (
               <div className="rounded-2xl px-4 py-3 text-center text-xs font-medium"
                 style={{ background: 'rgba(255,214,0,0.12)', border: '1px dashed rgba(255,214,0,0.6)', color: '#4A1A9E' }}>
                 {lang === 'ar'
-                  ? 'توصيل مجاني إلى المكتب عند شراء 500 وحدة أو أكثر 🚚'
-                  : 'Livraison Stop Desk gratuite dès 500 unités achetées 🚚'}
+                  ? 'توصيل مجاني إلى المكتب عند شراء 400 وحدة أو أكثر 🚚'
+                  : 'Livraison Stop Desk gratuite dès 400 unités achetées 🚚'}
               </div>
             )}
 
