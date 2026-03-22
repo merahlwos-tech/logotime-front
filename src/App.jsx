@@ -34,6 +34,7 @@ const AdminProductsPage = lazyWithRetry(() => import('./pages/admin/AdminProduct
 const AdminOrdersPage   = lazyWithRetry(() => import('./pages/admin/AdminOrdersPage'))
 const AdminOrderDetailPage = lazyWithRetry(() => import('./pages/admin/AdminOrderDetailPage'))
 const AdminImagesPage      = lazyWithRetry(() => import('./pages/admin/AdminImagesPage'))
+const AdminReviewsPage     = lazyWithRetry(() => import('./pages/admin/AdminReviewsPage'))
 
 function PageLoader() {
   return (
@@ -140,6 +141,7 @@ function App() {
                   <Route path="orders"      element={<AdminOrdersPage />} />
                   <Route path="orders/:id"  element={<AdminOrderDetailPage />} />
                   <Route path="images"       element={<AdminImagesPage />} />
+                  <Route path="reviews"      element={<AdminReviewsPage />} />
                 </Route>
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

@@ -3,7 +3,11 @@ import { Upload, CheckCircle, AlertCircle, RefreshCw, Image, Monitor, Smartphone
 import api from '../../utils/api'
 import toast from 'react-hot-toast'
 
+const API = import.meta.env.VITE_API_URL || ''
+
 const PURPLE      = '#6C2BD9'
+const API = import.meta.env.VITE_API_URL || ''
+
 const PURPLE_DARK = '#4A1A9E'
 const NAVY        = '#1E0A4A'
 const YELLOW      = '#FFD600'
@@ -222,6 +226,8 @@ function AdminImagesPage() {
     setImages(prev => prev.map(img => img.key === key ? { ...img, sha: newSha, exists: true } : img))
   }
 
+
+
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
       <RefreshCw size={32} style={{ color: PURPLE, animation: 'spin 1s linear infinite' }} />
@@ -289,6 +295,7 @@ function AdminImagesPage() {
           })}
         </div>
       ))}
+
     </div>
   )
 }

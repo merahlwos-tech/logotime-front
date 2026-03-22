@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Package, ClipboardList, LogOut, Menu, X, ChevronRight, Image } from 'lucide-react'
+import { LayoutDashboard, Package, ClipboardList, LogOut, Menu, X, ChevronRight, Image, Star } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { to: '/admin/products', label: 'Produits',         icon: Package },
   { to: '/admin/orders',   label: 'Commandes',        icon: ClipboardList },
   { to: '/admin/images',   label: 'Images du site',   icon: Image },
+  { to: '/admin/reviews',  label: 'Retours clients',  icon: Star },
 ]
 
 /* ── SidebarContent défini EN DEHORS du composant principal ──────────────────
