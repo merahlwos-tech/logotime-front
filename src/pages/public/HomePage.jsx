@@ -46,12 +46,10 @@ const FAQS_AR = [
 const WHY_FR = [
   { icon: '⚡', title: 'Livraison rapide',        desc: 'Livraison en 2 à 5 jours partout en Algérie' },
   { icon: '📦', title: 'Qualité professionnelle', desc: 'Matériaux premium, finitions soignées' },
-  { icon: '💰', title: 'Prix grossiste',           desc: 'Tarifs dégressifs dès 100 unités' },
 ]
 const WHY_AR = [
-  { icon: '⚡', title: 'توصيل سريع',     desc: 'توصيل خلال 2 إلى 5 أيام عمل في كل أنحاء الجزائر' },
+  { icon: '⚡', title: 'تعديل على توصيل سريع', desc: 'توصيل خلال 2 إلى 5 أيام عمل في كل أنحاء الجزائر' },
   { icon: '📦', title: 'جودة احترافية', desc: 'مواد فاخرة وتشطيبات عالية الجودة' },
-  { icon: '💰', title: 'أسعار الجملة',  desc: 'أسعار تنازلية من 100 وحدة' },
 ]
 
 /* ─── FAQ Item ─── */
@@ -165,7 +163,6 @@ function ClientReviews({ lang }) {
   const [photos, setPhotos]   = useState([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
-  const [showAll, setShowAll]   = useState(false)
 
   useEffect(() => {
     fetch(`${API}/github/reviews`)
@@ -184,7 +181,7 @@ function ClientReviews({ lang }) {
       </h3>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
-        {(showAll ? photos : photos.slice(0, 4)).map((photo, i) => (
+        {photos.slice(0, 4).map((photo, i) => (
           <div key={i}
             onClick={() => setSelected(photo)}
             style={{
@@ -204,27 +201,6 @@ function ClientReviews({ lang }) {
         ))}
       </div>
 
-      {/* Bouton Afficher plus */}
-      {photos.length > 4 && (
-        <div style={{ textAlign: 'center', marginTop: 16 }}>
-          <button
-            onClick={() => setShowAll(v => !v)}
-            style={{
-              padding: '10px 28px', borderRadius: 50,
-              border: '2px solid rgba(108,43,217,0.3)',
-              background: 'white', color: '#6C2BD9',
-              fontSize: 14, fontWeight: 700, cursor: 'pointer',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#6C2BD9'; e.currentTarget.style.color = 'white' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.color = '#6C2BD9' }}
-          >
-            {showAll
-              ? (lang === 'ar' ? 'عرض أقل ↑' : 'Voir moins ↑')
-              : (lang === 'ar' ? `عرض الكل (${photos.length}) ↓` : `Afficher tout (${photos.length}) ↓`)}
-          </button>
-        </div>
-      )}
 
       {/* Lightbox */}
       {selected && (
@@ -457,9 +433,7 @@ function HomePage() {
               {lang === 'ar' ? 'حلول مخصصة لعلامتك التجارية' : 'Solutions sur mesure pour votre marque'}
             </p>
           </div>
-          <Link to="/products" style={{ fontSize: 13, fontWeight: 600, color: '#6C2BD9', textDecoration: 'none' }}>
-            {lang === 'ar' ? 'عرض الكل' : 'Voir tout'}
-          </Link>
+
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, desc_fr, desc_ar, isPack }) => {
@@ -501,16 +475,7 @@ function HomePage() {
               {lang === 'ar' ? 'حلول مخصصة لعلامتك التجارية' : 'Solutions sur mesure pour votre marque'}
             </p>
           </div>
-          <Link to="/products"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              padding: '10px 24px', borderRadius: 50,
-              background: YELLOW, color: PURPLE_DARK,
-              fontSize: 14, fontWeight: 800, textDecoration: 'none',
-              boxShadow: '0 4px 12px rgba(255,214,0,0.35)',
-            }}>
-            {lang === 'ar' ? 'عرض الكل' : 'Voir tout'} →
-          </Link>
+
         </div>
 
         {/* Grille desktop : 4 colonnes pour les catégories, Pack centré sur 2 colonnes en dessous */}
