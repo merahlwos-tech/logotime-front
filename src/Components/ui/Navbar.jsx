@@ -40,7 +40,7 @@ function Navbar() {
       className={fontCls}
       style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
-        background: PURPLE,
+        background: 'linear-gradient(135deg, #2d1a6e 0%, #6C2BD9 45%, #a0359e 75%, #c23b8a 100%)',
         padding: '14px 20px 18px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         boxShadow: scrolled ? '0 4px 20px rgba(108,43,217,0.25)' : 'none',

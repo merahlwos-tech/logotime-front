@@ -59,7 +59,7 @@ function Footer() {
   return (
     <footer
       className={fontCls}
-      style={{ background: PURPLE_DEEP, color: 'white', padding: '40px 24px 100px' }}
+      style={{ background: 'linear-gradient(135deg, #2d1a6e 0%, #6C2BD9 45%, #a0359e 75%, #c23b8a 100%)', color: 'white', padding: '40px 24px 100px' }}
     >
       {/* Logo & tagline */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
