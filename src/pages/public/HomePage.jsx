@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLang } from '../../context/LanguageContext'
 import { useSEO } from '../../utils/UseSEO'
@@ -86,95 +86,133 @@ function FAQItem({ q, a }) {
 }
 
 
-/* ─── Before / After Slider ─── */
+/* ─── Before / After — deux photos côte à côte ─── */
 function BeforeAfterSlider({ lang }) {
-  const [pos, setPos]   = useState(50)
-  const [drag, setDrag] = useState(false)
-  const containerRef    = useRef(null)
+  const [activeBefore, setActiveBefore] = useState(false)
+  const [activeAfter, setActiveAfter]   = useState(false)
 
-  const calc = useCallback((clientX) => {
-    const rect = containerRef.current?.getBoundingClientRect()
-    if (!rect) return
-    const x = Math.min(Math.max(clientX - rect.left, 0), rect.width)
-    setPos(Math.round((x / rect.width) * 100))
-  }, [])
+  const cardStyle = (active, color) => ({
+    position: 'relative', flex: 1, borderRadius: 16, overflow: 'hidden',
+    cursor: 'pointer', userSelect: 'none',
+    boxShadow: active
+      ? `0 0 0 3px ${color}, 0 8px 32px ${color}55`
+      : '0 4px 20px rgba(0,0,0,0.12)',
+    transition: 'box-shadow 0.25s, transform 0.25s',
+    transform: active ? 'scale(1.02)' : 'scale(1)',
+    aspectRatio: '3/4',
+  })
 
   return (
-    <div
-      ref={containerRef}
-      style={{
-        position: 'relative', width: '100%', overflow: 'hidden',
-        borderRadius: 16, cursor: 'col-resize', userSelect: 'none',
-        aspectRatio: '16/9', maxHeight: 420,
-        boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
-      }}
-      onMouseMove={e => { if (drag) calc(e.clientX) }}
-      onMouseUp={() => setDrag(false)}
-      onMouseLeave={() => setDrag(false)}
-      onTouchMove={e => calc(e.touches[0].clientX)}
-      onTouchEnd={() => setDrag(false)}
-    >
-      {/* AFTER — full image background */}
-      <img src="/after.webp" alt="Après" draggable={false}
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-        onError={e => { e.target.src = '/sacs.webp' }}
-      />
+    <div style={{ display: 'flex', gap: 12 }}>
 
-      {/* BEFORE — clipped left */}
-      <div style={{
-        position: 'absolute', inset: 0, overflow: 'hidden',
-        clipPath: `inset(0 ${100 - pos}% 0 0)`,
-      }}>
-        <img src="/before.webp" alt="Avant" draggable={false}
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(70%) brightness(0.75)' }}
-          onError={e => { e.target.src = '/boite.webp'; e.target.style.filter = 'grayscale(70%) brightness(0.75)' }}
-        />
-      </div>
-
-      {/* Labels */}
-      <span style={{
-        position: 'absolute', top: 10, left: 10,
-        fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px',
-        background: 'rgba(0,0,0,0.55)', color: '#1E0A4A',
-        padding: '4px 10px', borderRadius: 50,
-      }}>
-        {lang === 'ar' ? 'قبل' : 'Avant'}
-      </span>
-      <span style={{
-        position: 'absolute', top: 10, right: 10,
-        fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px',
-        background: '#FFD600', color: '#1E0A4A',
-        padding: '4px 10px', borderRadius: 50,
-      }}>
-        {lang === 'ar' ? 'بعد ✓' : 'Après ✓'}
-      </span>
-
-      {/* Divider line */}
-      <div style={{
-        position: 'absolute', inset: 0, width: 3,
-        left: `${pos}%`, transform: 'translateX(-50%)',
-        background: 'white', boxShadow: '0 0 8px rgba(0,0,0,0.4)',
-        pointerEvents: 'none',
-      }} />
-
-      {/* Handle */}
+      {/* ── AVANT ── */}
       <div
-        style={{
-          position: 'absolute', top: '50%', left: `${pos}%`,
-          transform: 'translate(-50%, -50%)',
-          width: 36, height: 36, borderRadius: '50%',
-          background: 'white', border: '3px solid #6C2BD9',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.25)',
-          cursor: 'grab', zIndex: 10, touchAction: 'none',
-        }}
-        onMouseDown={e => { e.preventDefault(); setDrag(true) }}
-        onTouchStart={() => setDrag(true)}
+        style={cardStyle(activeBefore, '#ef4444')}
+        onClick={() => setActiveBefore(v => !v)}
+        onMouseEnter={e => { if (!activeBefore) e.currentTarget.style.transform = 'scale(1.01)' }}
+        onMouseLeave={e => { if (!activeBefore) e.currentTarget.style.transform = 'scale(1)' }}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C2BD9" strokeWidth="2.5">
-          <path d="M9 18l-6-6 6-6M15 6l6 6-6 6"/>
-        </svg>
+        <img src="/before.webp" alt="Avant" draggable={false}
+          style={{
+            width: '100%', height: '100%', objectFit: 'cover', display: 'block',
+            transition: 'filter 0.3s',
+            filter: activeBefore
+              ? 'brightness(0.55) saturate(0.4) sepia(0.3)'
+              : 'brightness(1)',
+          }}
+          onError={e => { e.target.src = '/boite.webp' }}
+        />
+
+        {/* Overlay rouge au clic */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: activeBefore ? 'rgba(220,38,38,0.45)' : 'transparent',
+          transition: 'background 0.3s', pointerEvents: 'none',
+        }} />
+
+        {/* Icône centrale */}
+        {activeBefore && (
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            pointerEvents: 'none',
+          }}>
+            <span style={{ fontSize: 72, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}>❌</span>
+          </div>
+        )}
+
+        {/* Légende bas */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          padding: '32px 14px 14px',
+          background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+        }}>
+          <span style={{ fontSize: 18 }}>❌</span>
+          <span style={{
+            fontSize: 15, fontWeight: 800, color: 'white',
+            textShadow: '0 1px 6px rgba(0,0,0,0.6)',
+            letterSpacing: '0.5px',
+          }}>
+            {lang === 'ar' ? 'قبل' : 'Avant'}
+          </span>
+        </div>
       </div>
+
+      {/* ── APRÈS ── */}
+      <div
+        style={cardStyle(activeAfter, '#10b981')}
+        onClick={() => setActiveAfter(v => !v)}
+        onMouseEnter={e => { if (!activeAfter) e.currentTarget.style.transform = 'scale(1.01)' }}
+        onMouseLeave={e => { if (!activeAfter) e.currentTarget.style.transform = 'scale(1)' }}
+      >
+        <img src="/after.webp" alt="Après" draggable={false}
+          style={{
+            width: '100%', height: '100%', objectFit: 'cover', display: 'block',
+            transition: 'filter 0.3s',
+            filter: activeAfter
+              ? 'brightness(1.05) saturate(1.2)'
+              : 'brightness(1)',
+          }}
+          onError={e => { e.target.src = '/sacs.webp' }}
+        />
+
+        {/* Overlay vert au clic */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: activeAfter ? 'rgba(16,185,129,0.35)' : 'transparent',
+          transition: 'background 0.3s', pointerEvents: 'none',
+        }} />
+
+        {/* Icône centrale */}
+        {activeAfter && (
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            pointerEvents: 'none',
+          }}>
+            <span style={{ fontSize: 72, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' }}>✅</span>
+          </div>
+        )}
+
+        {/* Légende bas */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          padding: '32px 14px 14px',
+          background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+        }}>
+          <span style={{ fontSize: 18 }}>✅</span>
+          <span style={{
+            fontSize: 15, fontWeight: 800, color: 'white',
+            textShadow: '0 1px 6px rgba(0,0,0,0.6)',
+            letterSpacing: '0.5px',
+          }}>
+            {lang === 'ar' ? 'بعد' : 'Après'}
+          </span>
+        </div>
+      </div>
+
     </div>
   )
 }
@@ -567,7 +605,7 @@ function HomePage() {
           {lang === 'ar' ? 'قبل / بعد' : 'Avant / Après'}
         </h3>
         <p style={{ fontSize: 13, color: '#6B6B8A', marginBottom: 16 }}>
-          {lang === 'ar' ? 'اسحب لترى الفرق' : 'Faites glisser pour voir la différence'}
+          {lang === 'ar' ? 'انقر على الصورة لترى الفرق' : 'Cliquez sur une photo pour voir la différence'}
         </p>
         <BeforeAfterSlider lang={lang} />
       </div>
