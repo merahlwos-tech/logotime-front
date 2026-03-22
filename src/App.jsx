@@ -10,19 +10,30 @@ import Footer        from './Components/ui/Footer'
 import PrivateRoute  from './Components/ui/PrivateRoute'
 import AdminLayout   from './Components/admin/AdminLayout'
 
-const HomePage          = lazy(() => import('./pages/public/HomePage'))
-const ProductsPage      = lazy(() => import('./pages/public/ProductsPage'))
-const ProductDetailPage = lazy(() => import('./pages/public/ProductDetailPage'))
-const CartPage          = lazy(() => import('./pages/public/CartPage'))
-const ConfirmationPage  = lazy(() => import('./pages/public/ConfirmationPage'))
-const AboutPage         = lazy(() => import('./pages/public/AboutPage'))
-const ServerOverloadPage= lazy(() => import('./pages/public/ServerOverloadPage'))
-const AdminLoginPage    = lazy(() => import('./pages/admin/AdminLoginPage'))
-const AdminDashboardPage= lazy(() => import('./pages/admin/AdminDashboardPage'))
-const AdminProductsPage = lazy(() => import('./pages/admin/AdminProductsPage'))
-const AdminOrdersPage   = lazy(() => import('./pages/admin/AdminOrdersPage'))
-const AdminOrderDetailPage = lazy(() => import('./pages/admin/AdminOrderDetailPage'))
-const AdminImagesPage      = lazy(() => import('./pages/admin/AdminImagesPage'))
+// Retry automatique si un chunk ne se charge pas (ex: après redéploiement Cloudflare)
+function lazyWithRetry(importFn) {
+  return lazy(() =>
+    importFn().catch(() => {
+      // Chunk introuvable → recharger la page pour récupérer les nouveaux assets
+      window.location.reload()
+      return new Promise(() => {}) // suspend le rendu le temps du reload
+    })
+  )
+}
+
+const HomePage          = lazyWithRetry(() => import('./pages/public/HomePage'))
+const ProductsPage      = lazyWithRetry(() => import('./pages/public/ProductsPage'))
+const ProductDetailPage = lazyWithRetry(() => import('./pages/public/ProductDetailPage'))
+const CartPage          = lazyWithRetry(() => import('./pages/public/CartPage'))
+const ConfirmationPage  = lazyWithRetry(() => import('./pages/public/ConfirmationPage'))
+const AboutPage         = lazyWithRetry(() => import('./pages/public/AboutPage'))
+const ServerOverloadPage= lazyWithRetry(() => import('./pages/public/ServerOverloadPage'))
+const AdminLoginPage    = lazyWithRetry(() => import('./pages/admin/AdminLoginPage'))
+const AdminDashboardPage= lazyWithRetry(() => import('./pages/admin/AdminDashboardPage'))
+const AdminProductsPage = lazyWithRetry(() => import('./pages/admin/AdminProductsPage'))
+const AdminOrdersPage   = lazyWithRetry(() => import('./pages/admin/AdminOrdersPage'))
+const AdminOrderDetailPage = lazyWithRetry(() => import('./pages/admin/AdminOrderDetailPage'))
+const AdminImagesPage      = lazyWithRetry(() => import('./pages/admin/AdminImagesPage'))
 
 function PageLoader() {
   return (

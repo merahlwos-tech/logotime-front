@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Plus, Edit2, Trash2, X, AlertTriangle, Loader2, Search } from 'lucide-react'
 import api from '../../utils/api'
 import AdminProductForm from '../../Components/admin/AdminProductForm'
@@ -6,39 +6,85 @@ import toast from 'react-hot-toast'
 
 const NAVY   = '#1e1b4b'
 const PURPLE = '#7c3aed'
-const CAT_LABELS = { Board: 'Boites', Bags: 'Sacs', Autocollants: 'Cartes et Autocollants', Paper: 'Papier' }
+const GREEN  = '#10b981'
+
+const CAT_LABELS = {
+  Board:        'Boites',
+  Bags:         'Sacs',
+  Autocollants: 'Cartes',
+  Paper:        'Papier',
+  Pack:         '🎁 Pack',
+}
+const CAT_COLORS = {
+  Board:        '#7c3aed',
+  Bags:         '#2563eb',
+  Autocollants: '#d97706',
+  Paper:        '#059669',
+  Pack:         '#10b981',
+}
 
 function AdminProductsPage() {
-  const [products, setProducts]   = useState([])
-  const [loading, setLoading]     = useState(true)
-  const [search, setSearch]       = useState('')
-  const [showForm, setShowForm]   = useState(false)
+  const [products, setProducts]             = useState([])
+  const [loading, setLoading]               = useState(true)
+  const [search, setSearch]                 = useState('')
+  const [showForm, setShowForm]             = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
   const [deletingId, setDeletingId]         = useState(null)
   const [deleteConfirm, setDeleteConfirm]   = useState(null)
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true)
-    try { const res = await api.get('/products'); setProducts(res.data || []) }
-    catch { toast.error('Erreur chargement produits') }
-    finally { setLoading(false) }
-  }
+    try {
+      // Cache-busting : timestamp pour forcer une requête fraîche
+      const res = await api.get(`/products?_t=${Date.now()}`)
+      setProducts(res.data || [])
+    } catch {
+      toast.error('Erreur chargement produits')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
-  useEffect(() => { fetchProducts() }, [])
+  useEffect(() => { fetchProducts() }, [fetchProducts])
 
   const handleDelete = async id => {
     setDeletingId(id)
-    try { await api.delete(`/products/${id}`); toast.success('Produit supprimé'); setProducts(p => p.filter(x => x._id !== id)) }
-    catch { toast.error('Erreur suppression') }
-    finally { setDeletingId(null); setDeleteConfirm(null) }
+    try {
+      await api.delete(`/products/${id}`)
+      toast.success('Produit supprimé')
+      setProducts(p => p.filter(x => x._id !== id))
+    } catch (err) {
+      const status = err?.response?.status
+      if (status === 404) {
+        // Produit déjà supprimé → retirer de la liste locale
+        setProducts(p => p.filter(x => x._id !== id))
+        toast.success('Produit retiré')
+      } else {
+        toast.error('Erreur suppression')
+      }
+    } finally {
+      setDeletingId(null)
+      setDeleteConfirm(null)
+    }
   }
 
-  const handleFormSuccess = () => { setShowForm(false); setEditingProduct(null); fetchProducts() }
+  const handleFormSuccess = () => {
+    setShowForm(false)
+    setEditingProduct(null)
+    fetchProducts()   // Recharge depuis la BDD (sans cache grâce au timestamp)
+  }
+
   const openCreate = () => { setEditingProduct(null); setShowForm(true) }
   const openEdit   = p  => { setEditingProduct(p);   setShowForm(true) }
 
-  const filtered = products.filter(p => !search || p.name?.toLowerCase().includes(search.toLowerCase()))
-  const minPrice = p => p.sizes?.length ? Math.min(...p.sizes.map(s => s.price ?? 0)) : 0
+  const filtered = products.filter(p =>
+    !search || p.name?.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const minPrice = p => {
+    if (!p.sizes?.length) return 0
+    return Math.min(...p.sizes.map(s => s.price ?? 0))
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -48,11 +94,18 @@ function AdminProductsPage() {
           <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: PURPLE }}>Catalogue</p>
           <h1 className="text-3xl font-black italic" style={{ color: NAVY }}>Produits</h1>
         </div>
-        <button onClick={openCreate}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white font-bold text-sm shadow-lg"
-          style={{ background: PURPLE }}>
-          <Plus size={16} /> Ajouter un produit
-        </button>
+        <div className="flex gap-2">
+          <button onClick={fetchProducts}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm border-2 transition-all hover:bg-purple-50"
+            style={{ borderColor: PURPLE, color: PURPLE }}>
+            ↻ Actualiser
+          </button>
+          <button onClick={openCreate}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white font-bold text-sm shadow-lg"
+            style={{ background: PURPLE }}>
+            <Plus size={16} /> Ajouter un produit
+          </button>
+        </div>
       </div>
 
       <div className="relative max-w-sm">
@@ -80,68 +133,106 @@ function AdminProductsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-          {filtered.map(product => (
-            <div key={product._id}
-              className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md
-                         transition-all border border-gray-100 group">
-              {/* Image pleine largeur */}
-              <div className="w-full overflow-hidden bg-gray-50" style={{ aspectRatio: '4/3' }}>
-                {product.images?.[0] ? (
-                  <img src={product.images[0]} alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-5xl">📦</div>
-                )}
-              </div>
+          {filtered.map(product => {
+            const isPack  = product.category === 'Pack'
+            const catColor = CAT_COLORS[product.category] || PURPLE
+            return (
+              <div key={product._id}
+                className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md
+                           transition-all group"
+                style={{
+                  border: isPack
+                    ? `2px solid rgba(16,185,129,0.4)`
+                    : '1px solid #f3f4f6',
+                }}>
 
-              <div className="p-4">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-bold text-sm truncate flex-1" style={{ color: NAVY }}>{product.name}</h3>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white flex-shrink-0"
-                    style={{ background: PURPLE }}>
-                    {CAT_LABELS[product.category] || product.category}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-black text-lg" style={{ color: PURPLE }}>
-                    {minPrice(product).toLocaleString('fr-DZ')}
-                    <span className="text-xs font-normal text-gray-400 ml-1">DA</span>
-                  </span>
-                  <span className="text-xs text-gray-400">{product.sizes?.length ?? 0} taille{product.sizes?.length !== 1 ? 's' : ''}</span>
-                </div>
-
-                <div className="flex gap-2 mb-4 flex-wrap">
-                  {product.colors?.length > 0 && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 font-medium">
-                      {product.colors.length} couleur{product.colors.length > 1 ? 's' : ''}
-                    </span>
+                {/* Image */}
+                <div className="w-full overflow-hidden bg-gray-50" style={{ aspectRatio: '4/3', position: 'relative' }}>
+                  {product.images?.[0] ? (
+                    <img src={product.images[0]} alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-5xl">
+                      {isPack ? '🎁' : '📦'}
+                    </div>
                   )}
-                  {product.doubleSided && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-medium">
-                      Recto-verso
-                    </span>
+                  {isPack && (
+                    <div style={{
+                      position: 'absolute', top: 8, left: 8,
+                      background: GREEN, color: 'white',
+                      fontSize: 10, fontWeight: 800,
+                      padding: '3px 10px', borderRadius: 50,
+                    }}>
+                      🚚 Livraison gratuite
+                    </div>
                   )}
                 </div>
 
-                <div className="flex gap-2">
-                  <button onClick={() => openEdit(product)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl
-                               text-xs font-bold border-2 transition-all"
-                    style={{ borderColor: PURPLE, color: PURPLE }}
-                    onMouseEnter={e => { e.currentTarget.style.background = PURPLE; e.currentTarget.style.color = 'white' }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = PURPLE }}>
-                    <Edit2 size={12} /> Modifier
-                  </button>
-                  <button onClick={() => setDeleteConfirm(product)}
-                    className="flex items-center justify-center px-3 py-2 rounded-xl border-2
-                               border-gray-200 text-gray-400 hover:border-red-300 hover:text-red-500 transition-all">
-                    <Trash2 size={14} />
-                  </button>
+                <div className="p-4">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <h3 className="font-bold text-sm truncate flex-1" style={{ color: NAVY }}>{product.name}</h3>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white flex-shrink-0"
+                      style={{ background: catColor }}>
+                      {CAT_LABELS[product.category] || product.category}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-black text-lg" style={{ color: isPack ? GREEN : PURPLE }}>
+                      {minPrice(product).toLocaleString('fr-DZ')}
+                      <span className="text-xs font-normal text-gray-400 ml-1">DA</span>
+                    </span>
+                    {isPack && product.packItems?.length > 0 ? (
+                      <span className="text-xs text-gray-400">{product.packItems.length} article{product.packItems.length > 1 ? 's' : ''}</span>
+                    ) : (
+                      <span className="text-xs text-gray-400">{product.sizes?.length ?? 0} taille{product.sizes?.length !== 1 ? 's' : ''}</span>
+                    )}
+                  </div>
+
+                  {/* Composition pack */}
+                  {isPack && product.packItems?.length > 0 && (
+                    <div className="mb-3 text-xs text-gray-500 space-y-0.5">
+                      {product.packItems.slice(0, 2).map((item, i) => (
+                        <p key={i}>• {item.productName} × {item.quantity.toLocaleString()}</p>
+                      ))}
+                      {product.packItems.length > 2 && (
+                        <p className="text-gray-400">+ {product.packItems.length - 2} autre{product.packItems.length - 2 > 1 ? 's' : ''}…</p>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 mb-3 flex-wrap">
+                    {product.colors?.length > 0 && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 font-medium">
+                        {product.colors.length} couleur{product.colors.length > 1 ? 's' : ''}
+                      </span>
+                    )}
+                    {product.doubleSided && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-medium">
+                        Recto-verso
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button onClick={() => openEdit(product)}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl
+                                 text-xs font-bold border-2 transition-all"
+                      style={{ borderColor: catColor, color: catColor }}
+                      onMouseEnter={e => { e.currentTarget.style.background = catColor; e.currentTarget.style.color = 'white' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = catColor }}>
+                      <Edit2 size={12} /> Modifier
+                    </button>
+                    <button onClick={() => setDeleteConfirm(product)}
+                      className="flex items-center justify-center px-3 py-2 rounded-xl border-2
+                                 border-gray-200 text-gray-400 hover:border-red-300 hover:text-red-500 transition-all">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
@@ -153,20 +244,23 @@ function AdminProductsPage() {
           <div className="bg-white w-full sm:max-w-xl sm:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col overflow-hidden"
             style={{ maxHeight: '92dvh', minHeight: 0 }}
             onClick={e => e.stopPropagation()}>
-              <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0"
-                style={{ background: NAVY }}>
-                <h2 className="text-white font-black italic text-sm sm:text-base">
-                  {editingProduct ? 'Modifier le produit' : 'Nouveau produit'}
-                </h2>
-                <button onClick={() => { setShowForm(false); setEditingProduct(null) }}
-                  className="p-1.5 rounded-lg" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                  <X size={18} />
-                </button>
-              </div>
-              <div className="p-4 sm:p-6 overflow-y-auto flex-1 overscroll-contain">
-                <AdminProductForm initialData={editingProduct} onSuccess={handleFormSuccess}
-                  onCancel={() => { setShowForm(false); setEditingProduct(null) }} />
-              </div>
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0"
+              style={{ background: NAVY }}>
+              <h2 className="text-white font-black italic text-sm sm:text-base">
+                {editingProduct ? 'Modifier le produit' : 'Nouveau produit'}
+              </h2>
+              <button onClick={() => { setShowForm(false); setEditingProduct(null) }}
+                className="p-1.5 rounded-lg" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-4 sm:p-6 overflow-y-auto flex-1 overscroll-contain">
+              <AdminProductForm
+                initialData={editingProduct}
+                onSuccess={handleFormSuccess}
+                onCancel={() => { setShowForm(false); setEditingProduct(null) }}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -186,7 +280,9 @@ function AdminProductsPage() {
               <span className="font-bold text-gray-700">{deleteConfirm.name}</span> sera supprimé définitivement.
             </p>
             <div className="flex gap-3">
-              <button onClick={() => handleDelete(deleteConfirm._id)} disabled={deletingId === deleteConfirm._id}
+              <button
+                onClick={() => handleDelete(deleteConfirm._id)}
+                disabled={deletingId === deleteConfirm._id}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl
                            text-white font-bold text-sm bg-red-500 hover:opacity-90">
                 {deletingId === deleteConfirm._id && <Loader2 size={14} className="animate-spin" />}
