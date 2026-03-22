@@ -4,7 +4,7 @@ import { ShoppingBag, ArrowLeft, ChevronLeft, ChevronRight, Zap, ChevronDown, Ch
 import api from '../../utils/api'
 import { useCart } from '../../context/CartContext'
 import SizeSelector from '../../Components/public/SizeSelector'
-import QuantitySelector from '../../Components/public/QuantitySelector'
+import QuantitySelector, { getPriceForQty } from '../../Components/public/QuantitySelector'
 import { useLang } from '../../context/LanguageContext'
 import { trackViewContent, trackAddToCart, trackHighQualityVisitor, trackScrollToForm } from '../../utils/metaPixel'
 import { useSEO } from '../../utils/UseSEO'
@@ -217,10 +217,15 @@ function ProductDetailPage() {
   const catLabels     = lang === 'ar' ? CAT_LABELS_AR : CAT_LABELS_FR
   const catLabel      = catLabels[product.category] || product.category
   const sizeObj       = product.sizes?.find(s => s.size === selectedSize)
-  const basePrice     = sizeObj?.price ?? 0
+  const basePrice     = getPriceForQty(
+    sizeObj?.price ?? 0,
+    sizeObj?.priceTiers || [],
+    quantity
+  )
   const extraDouble   = (doubleSided && product.doubleSided) ? (product.doubleSidedPrice ?? 0) : 0
   const nbColors      = numberOfColors !== '' ? Math.max(1, Number(numberOfColors)) : 1
-  const extraColors   = (product.colorDesignEnabled && nbColors > 0) ? nbColors * (product.colorDesignPricePerColor ?? 0) : 0
+  // 1 couleur = incluse dans le prix de base, extra commence à partir de 2 couleurs
+  const extraColors   = (product.colorDesignEnabled && nbColors > 1) ? (nbColors - 1) * (product.colorDesignPricePerColor ?? 0) : 0
   const extraPrice    = extraDouble + extraColors
   const unitPrice     = basePrice + extraPrice
   const totalPrice    = unitPrice * quantity
@@ -334,6 +339,21 @@ function ProductDetailPage() {
                   {unitPrice.toLocaleString('fr-DZ')}
                   <span className="text-base font-normal text-gray-400 ml-2">DA / {t('units').slice(0,-1) || 'unité'}</span>
                 </p>
+                {sizeObj?.priceTiers?.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {[...sizeObj.priceTiers].sort((a,b) => a.minQty-b.minQty).map((t, ti) => (
+                      <span key={ti}
+                        className="text-xs font-bold px-2.5 py-1 rounded-full transition-all"
+                        style={{
+                          background: quantity >= t.minQty ? 'rgba(16,185,129,0.15)' : 'rgba(0,0,0,0.05)',
+                          color: quantity >= t.minQty ? '#065f46' : '#9ca3af',
+                          border: quantity >= t.minQty ? '1px solid rgba(16,185,129,0.3)' : '1px solid #e5e7eb',
+                        }}>
+                        {t.minQty.toLocaleString()}+ → {t.price.toLocaleString('fr-DZ')} DA
+                      </span>
+                    ))}
+                  </div>
+                )}
                 {doubleSided && extraDouble > 0 && (
                   <p className="text-xs text-gray-400 mt-1">
                     {lang === 'ar' ? `يشمل +${extraDouble.toLocaleString('fr-DZ')} دج (وجهان)` : `Inclut +${extraDouble.toLocaleString('fr-DZ')} DA (recto-verso)`}
@@ -434,8 +454,8 @@ function ProductDetailPage() {
                   </div>
                   <p className="text-xs mt-1.5" style={{ color: PURPLE_DARK }}>
                     {lang === 'ar'
-                      ? t('colorDesignInfo', { price: product.colorDesignPricePerColor })
-                      : t('colorDesignInfo', { price: product.colorDesignPricePerColor })}
+                      ? `1 لون مجاني · +${(product.colorDesignPricePerColor ?? 0).toLocaleString('fr-DZ')} دج لكل لون إضافي`
+                      : `1 couleur incluse · +${(product.colorDesignPricePerColor ?? 0).toLocaleString('fr-DZ')} DA par couleur supplémentaire`}
                   </p>
                   {product.colorDesignMaxColors && (
                     <p className="text-xs text-gray-400 mt-0.5">
@@ -477,7 +497,7 @@ function ProductDetailPage() {
                 <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
                   {t('quantity')}
                 </p>
-                <QuantitySelector value={quantity} onChange={setQuantity} />
+                <QuantitySelector value={quantity} onChange={setQuantity} basePrice={sizeObj?.price ?? 0} priceTiers={sizeObj?.priceTiers || []} lang={lang} />
               </div>
 
               {/* Total */}
@@ -622,6 +642,19 @@ function ProductDetailPage() {
               {unitPrice.toLocaleString('fr-DZ')}
               <span className="text-xs opacity-70 ml-1">DA / {t('units')}</span>
             </p>
+            {sizeObj?.priceTiers?.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-1">
+                {[...sizeObj.priceTiers].sort((a,b) => a.minQty-b.minQty).map((t, ti) => (
+                  <span key={ti} className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                    style={{
+                      background: quantity >= t.minQty ? 'rgba(16,185,129,0.9)' : 'rgba(255,255,255,0.2)',
+                      color: 'white',
+                    }}>
+                    {t.minQty.toLocaleString()}+ → {t.price.toLocaleString('fr-DZ')} DA
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -710,7 +743,9 @@ function ProductDetailPage() {
                   style={{ background: YELLOW, color: PURPLE_DARK, fontWeight: 900 }}>+</button>
               </div>
               <p className="text-xs mt-1.5" style={{ color: PURPLE_DARK }}>
-                {t('colorDesignInfo', { price: product.colorDesignPricePerColor })}
+                {lang === 'ar'
+                  ? `1 لون مجاني · +${(product.colorDesignPricePerColor ?? 0).toLocaleString('fr-DZ')} دج لكل لون إضافي`
+                  : `1 couleur incluse · +${(product.colorDesignPricePerColor ?? 0).toLocaleString('fr-DZ')} DA par couleur supplémentaire`}
               </p>
               {product.colorDesignMaxColors && (
                 <p className="text-xs text-gray-400 mt-0.5">
@@ -745,7 +780,7 @@ function ProductDetailPage() {
           {/* Quantité */}
           <div>
             <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>{t('quantity')}</p>
-            <QuantitySelector value={quantity} onChange={setQuantity} />
+            <QuantitySelector value={quantity} onChange={setQuantity} basePrice={sizeObj?.price ?? 0} priceTiers={sizeObj?.priceTiers || []} lang={lang} />
           </div>
 
           {/* Total */}

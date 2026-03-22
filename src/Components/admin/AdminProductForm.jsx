@@ -40,7 +40,7 @@ const PRESET_COLORS = [
 
 const EMPTY = {
   name: '', category: 'Board',
-  sizes: [{ size: '', price: '' }],
+  sizes: [{ size: '', price: '', priceTiers: [] }],
   colors: [],
   colorDesignEnabled: false, colorDesignPricePerColor: '', colorDesignMaxColors: '',
   doubleSided: false, doubleSidedPrice: '', images: [],
@@ -270,7 +270,7 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
       name: initialData.name || '',
       category: initialData.category || 'Board',
       sizes: initialData.sizes?.length > 0
-        ? initialData.sizes.map(s => ({ size: String(s.size), price: String(s.price ?? '') }))
+        ? initialData.sizes.map(s => ({ size: String(s.size), price: String(s.price ?? ''), priceTiers: (s.priceTiers || []).map(t => ({ minQty: String(t.minQty), price: String(t.price) })) }))
         : [{ size: '', price: '' }],
       colors: initialData.colors || [],
       colorDesignEnabled: initialData.colorDesignEnabled ?? false,
@@ -298,9 +298,35 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
 
   const set = (key, val) => { setForm(p => ({ ...p, [key]: val })); if (errors[key]) setErrors(p => ({ ...p, [key]: '' })) }
 
-  const addSize    = () => setForm(p => ({ ...p, sizes: [...p.sizes, { size: '', price: '' }] }))
+  const addSize    = () => setForm(p => ({ ...p, sizes: [...p.sizes, { size: '', price: '', priceTiers: [] }] }))
   const removeSize = i  => setForm(p => ({ ...p, sizes: p.sizes.filter((_, idx) => idx !== i) }))
   const updateSize = (i, field, val) => setForm(p => ({ ...p, sizes: p.sizes.map((s, idx) => idx === i ? { ...s, [field]: val } : s) }))
+
+  // Gestion des paliers de prix par taille
+  const addTier = (sizeIdx) => setForm(p => ({
+    ...p,
+    sizes: p.sizes.map((s, i) => i === sizeIdx
+      ? { ...s, priceTiers: [...s.priceTiers, { minQty: '', price: '' }] }
+      : s
+    )
+  }))
+
+  const removeTier = (sizeIdx, tierIdx) => setForm(p => ({
+    ...p,
+    sizes: p.sizes.map((s, i) => i === sizeIdx
+      ? { ...s, priceTiers: s.priceTiers.filter((_, ti) => ti !== tierIdx) }
+      : s
+    )
+  }))
+
+  const updateTier = (sizeIdx, tierIdx, field, val) => setForm(p => ({
+    ...p,
+    sizes: p.sizes.map((s, i) => i === sizeIdx
+      ? { ...s, priceTiers: s.priceTiers.map((t, ti) => ti === tierIdx ? { ...t, [field]: val } : t) }
+      : s
+    )
+  }))
+
 
   const toggleColor = (hex) => setForm(p => ({
     ...p,
@@ -396,7 +422,14 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
         payload = {
           name:     form.name,
           category: form.category,
-          sizes:    form.sizes.filter(s => s.size.trim()).map(s => ({ size: s.size, price: Number(s.price) })),
+          sizes:    form.sizes.filter(s => s.size.trim()).map(s => ({
+            size:  s.size,
+            price: Number(s.price),
+            priceTiers: (s.priceTiers || [])
+              .filter(t => t.minQty !== '' && t.price !== '')
+              .map(t => ({ minQty: Number(t.minQty), price: Number(t.price) }))
+              .sort((a, b) => a.minQty - b.minQty),
+          })),
           colors:   form.colors,
           images:   form.images,
           tags:     form.tags || [],
@@ -486,25 +519,69 @@ function AdminProductForm({ initialData, onSuccess, onCancel }) {
             </div>
             <div className="space-y-2">
               {form.sizes.map((s, i) => (
-                <div key={i} className="flex items-center gap-2 sm:gap-3 bg-gray-50 px-3 sm:px-4 py-3 rounded-xl border border-gray-200">
-                  <div className="flex-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Taille</p>
-                    <input value={s.size} onChange={e => updateSize(i, 'size', e.target.value)}
-                      placeholder="Ex: A4, 30×20..."
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm
-                                 outline-none focus:border-purple-400 transition-all" />
+                <div key={i} className="rounded-xl border-2 border-gray-200 bg-gray-50 overflow-hidden">
+                  {/* Ligne principale : taille + prix de base */}
+                  <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3">
+                    <div className="flex-1">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Taille</p>
+                      <input value={s.size} onChange={e => updateSize(i, 'size', e.target.value)}
+                        placeholder="Ex: A4, 30×20..."
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm
+                                   outline-none focus:border-purple-400 transition-all" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                        Prix de base (DA) <span className="normal-case font-normal text-gray-300">— palier 1</span>
+                      </p>
+                      <input type="number" min="0" value={s.price} onChange={e => updateSize(i, 'price', e.target.value)}
+                        placeholder="1500"
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm
+                                   outline-none focus:border-purple-400 transition-all" />
+                    </div>
+                    <button type="button" onClick={() => removeSize(i)}
+                      className="mt-5 p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                      <Trash2 size={16} />
+                    </button>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Prix (DA)</p>
-                    <input type="number" min="0" value={s.price} onChange={e => updateSize(i, 'price', e.target.value)}
-                      placeholder="1500"
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm
-                                 outline-none focus:border-purple-400 transition-all" />
+
+                  {/* Paliers de prix dégressifs */}
+                  {s.priceTiers?.length > 0 && (
+                    <div className="px-3 pb-2 space-y-1.5" style={{ borderTop: '1px solid #e5e7eb' }}>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 pt-2">
+                        Paliers dégressifs
+                      </p>
+                      {s.priceTiers.map((t, ti) => (
+                        <div key={ti} className="flex items-center gap-2">
+                          <div className="flex-1">
+                            <p className="text-[9px] text-gray-400 mb-0.5">À partir de (unités)</p>
+                            <input type="number" min="1" value={t.minQty}
+                              onChange={e => updateTier(i, ti, 'minQty', e.target.value)}
+                              placeholder="200"
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-purple-400" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-[9px] text-gray-400 mb-0.5">Prix (DA/unité)</p>
+                            <input type="number" min="0" value={t.price}
+                              onChange={e => updateTier(i, ti, 'price', e.target.value)}
+                              placeholder="1200"
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-purple-400" />
+                          </div>
+                          <button type="button" onClick={() => removeTier(i, ti)}
+                            className="mt-4 p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Bouton ajouter un palier */}
+                  <div className="px-3 py-2" style={{ borderTop: '1px dashed #e5e7eb' }}>
+                    <button type="button" onClick={() => addTier(i)}
+                      className="flex items-center gap-1.5 text-xs font-bold text-purple-500 hover:text-purple-700 transition-colors">
+                      <Plus size={12} /> Ajouter un palier de prix
+                    </button>
                   </div>
-                  <button type="button" onClick={() => removeSize(i)}
-                    className="mt-5 p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
-                    <Trash2 size={16} />
-                  </button>
                 </div>
               ))}
             </div>

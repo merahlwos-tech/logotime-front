@@ -6,8 +6,6 @@ import toast from 'react-hot-toast'
 const API = import.meta.env.VITE_API_URL || ''
 
 const PURPLE      = '#6C2BD9'
-const API = import.meta.env.VITE_API_URL || ''
-
 const PURPLE_DARK = '#4A1A9E'
 const NAVY        = '#1E0A4A'
 const YELLOW      = '#FFD600'
