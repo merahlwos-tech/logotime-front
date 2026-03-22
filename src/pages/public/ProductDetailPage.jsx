@@ -193,6 +193,8 @@ function ProductDetailPage() {
       .then(res => {
         setProduct(res.data)
         if (res.data.sizes?.length > 0) setSelectedSize(res.data.sizes[0].size)
+        // Pour les packs : quantité fixe = 1 (le prix = total du pack)
+        if (res.data.category === 'Pack') setQuantity(1)
         // Pour les packs, on sélectionne automatiquement la seule taille
         setDoubleSided(false)  // toujours désactivé par défaut, le client l'active si besoin
         // ViewContent : on utilise le prix de la première taille disponible
@@ -492,13 +494,15 @@ function ProductDetailPage() {
                 </div>
               )}
 
-              {/* Quantité */}
-              <div>
-                <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
-                  {t('quantity')}
-                </p>
-                <QuantitySelector value={quantity} onChange={setQuantity} basePrice={sizeObj?.price ?? 0} priceTiers={sizeObj?.priceTiers || []} lang={lang} />
-              </div>
+              {/* Quantité — masquée pour les packs (quantité fixe) */}
+              {!isPack && (
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
+                    {t('quantity')}
+                  </p>
+                  <QuantitySelector value={quantity} onChange={setQuantity} basePrice={sizeObj?.price ?? 0} priceTiers={sizeObj?.priceTiers || []} lang={lang} />
+                </div>
+              )}
 
               {/* Total */}
               <div className="rounded-2xl p-5 flex items-center justify-between"
@@ -506,7 +510,9 @@ function ProductDetailPage() {
                 <div>
                   <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t('estimatedTotal')}</p>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    {quantity.toLocaleString()} × {unitPrice.toLocaleString('fr-DZ')} DA
+                    {isPack
+                      ? (lang === 'ar' ? 'سعر العرض الشامل' : 'Prix du pack complet')
+                      : `${quantity.toLocaleString()} × ${unitPrice.toLocaleString('fr-DZ')} DA`}
                   </p>
                 </div>
                 <p className="font-black text-3xl" style={{ color: PURPLE_DARK }}>
@@ -777,18 +783,24 @@ function ProductDetailPage() {
             </div>
           )}
 
-          {/* Quantité */}
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>{t('quantity')}</p>
-            <QuantitySelector value={quantity} onChange={setQuantity} basePrice={sizeObj?.price ?? 0} priceTiers={sizeObj?.priceTiers || []} lang={lang} />
-          </div>
+          {/* Quantité — masquée pour les packs (quantité fixe) */}
+          {!isPack && (
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>{t('quantity')}</p>
+              <QuantitySelector value={quantity} onChange={setQuantity} basePrice={sizeObj?.price ?? 0} priceTiers={sizeObj?.priceTiers || []} lang={lang} />
+            </div>
+          )}
 
           {/* Total */}
           <div className="rounded-2xl p-4 flex items-center justify-between"
             style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.15)' }}>
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t('estimatedTotal')}</p>
-              <p className="text-xs text-gray-400 mt-0.5">{quantity.toLocaleString()} × {unitPrice.toLocaleString('fr-DZ')} DA</p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {isPack
+                  ? (lang === 'ar' ? 'سعر العرض الشامل' : 'Prix du pack complet')
+                  : `${quantity.toLocaleString()} × ${unitPrice.toLocaleString('fr-DZ')} DA`}
+              </p>
             </div>
             <p className="font-black text-2xl" style={{ color: YELLOW }}>
               {totalPrice.toLocaleString('fr-DZ')}<span className="text-sm font-normal text-gray-400 ml-1">DA</span>
