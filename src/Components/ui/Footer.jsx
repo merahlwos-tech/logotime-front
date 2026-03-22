@@ -115,7 +115,7 @@ function Footer() {
               <span style={{ color: YELLOW }}>📞</span>
               <a href={`tel:${PHONE}`} dir="ltr"
                 style={{ color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>
-                +213 554 69 16 50
+                +213 0772793771
               </a>
             </li>
             <li style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.65)', fontSize: 13 }}>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Plus, Trash2, Upload, X, Loader2, Package, Search } from 'lucide-react'
 import api from '../../utils/api'
+import { getPriceForQty } from '../public/QuantitySelector'
 import toast from 'react-hot-toast'
 
 const NAVY   = '#1E0A4A'
@@ -71,8 +72,11 @@ function PackBuilder({ packItems, onChange, error }) {
             const prod = prods.find(p => p._id === item.productId)
             if (!prod) return item
             const sizeObj = prod.sizes?.find(s => s.size === item.size)
-            if (sizeObj && sizeObj.price !== item.unitPrice) {
-              return { ...item, unitPrice: sizeObj.price }
+            if (sizeObj) {
+              const correctPrice = getPriceForQty(sizeObj.price, sizeObj.priceTiers || [], Number(item.quantity) || 1)
+              if (correctPrice !== item.unitPrice) {
+                return { ...item, unitPrice: correctPrice, priceTiers: sizeObj.priceTiers || [], basePrice: sizeObj.price }
+              }
             }
             return item
           })
@@ -103,8 +107,11 @@ function PackBuilder({ packItems, onChange, error }) {
           newItem.productName = prod.name
           // Auto-sélectionner la première taille
           if (prod.sizes?.length > 0) {
-            newItem.size      = prod.sizes[0].size
-            newItem.unitPrice = prod.sizes[0].price
+            const firstSize = prod.sizes[0]
+            newItem.size       = firstSize.size
+            newItem.priceTiers = firstSize.priceTiers || []
+            newItem.basePrice  = firstSize.price
+            newItem.unitPrice  = getPriceForQty(firstSize.price, firstSize.priceTiers || [], Number(newItem.quantity) || 1)
           } else {
             newItem.size      = ''
             newItem.unitPrice = 0
@@ -116,7 +123,22 @@ function PackBuilder({ packItems, onChange, error }) {
         const prod = allProducts.find(p => p._id === item.productId)
         if (prod) {
           const sizeObj = prod.sizes?.find(s => s.size === value)
-          newItem.unitPrice = sizeObj?.price ?? 0
+          if (sizeObj) {
+            newItem.unitPrice  = getPriceForQty(sizeObj.price, sizeObj.priceTiers || [], Number(newItem.quantity) || 1)
+            newItem.priceTiers = sizeObj.priceTiers || []
+            newItem.basePrice  = sizeObj.price
+          }
+        }
+      }
+
+      // Recalculer le prix si la quantité change et qu'il y a des paliers
+      if (field === 'quantity') {
+        const prod = allProducts.find(p => p._id === item.productId)
+        if (prod) {
+          const sizeObj = prod.sizes?.find(s => s.size === item.size)
+          if (sizeObj) {
+            newItem.unitPrice = getPriceForQty(sizeObj.price, sizeObj.priceTiers || [], Number(value) || 1)
+          }
         }
       }
 
@@ -126,7 +148,13 @@ function PackBuilder({ packItems, onChange, error }) {
   }
 
   const totalPackPrice = packItems.reduce((sum, item) => {
-    return sum + (Number(item.unitPrice) || 0) * (Number(item.quantity) || 0)
+    // Toujours recalculer depuis les paliers pour éviter les désynchronisations
+    const prod = allProducts.find(p => p._id === item.productId)
+    const sizeObj = prod?.sizes?.find(s => s.size === item.size)
+    const price = sizeObj
+      ? getPriceForQty(sizeObj.price, sizeObj.priceTiers || [], Number(item.quantity) || 1)
+      : (Number(item.unitPrice) || 0)
+    return sum + price * (Number(item.quantity) || 0)
   }, 0)
 
   const filteredProducts = allProducts.filter(p =>
@@ -205,11 +233,17 @@ function PackBuilder({ packItems, onChange, error }) {
                     onChange={e => updateItem(i, 'size', e.target.value)}
                     className={inputCls(false)}
                   >
-                    {prod.sizes.map(s => (
-                      <option key={s.size} value={s.size}>
-                        {s.size} — {s.price.toLocaleString('fr-DZ')} DA/unité
-                      </option>
-                    ))}
+                    {prod.sizes.map(s => {
+                      const hasTiers = s.priceTiers?.length > 0
+                      const priceDisplay = hasTiers
+                        ? `${s.price.toLocaleString('fr-DZ')} DA → dès ${s.priceTiers[0].minQty} u: ${s.priceTiers[0].price.toLocaleString('fr-DZ')} DA`
+                        : `${s.price.toLocaleString('fr-DZ')} DA/unité`
+                      return (
+                        <option key={s.size} value={s.size}>
+                          {s.size} — {priceDisplay}
+                        </option>
+                      )
+                    })}
                   </select>
                 </div>
               )}
@@ -237,6 +271,31 @@ function PackBuilder({ packItems, onChange, error }) {
                   />
                 </div>
               </div>
+
+              {/* Paliers applicables */}
+              {item.productId && item.priceTiers?.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {(() => {
+                    const prod = allProducts.find(p => p._id === item.productId)
+                    const sizeObj = prod?.sizes?.find(s => s.size === item.size)
+                    if (!sizeObj?.priceTiers?.length) return null
+                    const sorted = [...sizeObj.priceTiers].sort((a, b) => a.minQty - b.minQty)
+                    return sorted.map((t, ti) => {
+                      const active = Number(item.quantity) >= t.minQty
+                      return (
+                        <span key={ti} className="text-xs font-bold px-2 py-0.5 rounded-full transition-all"
+                          style={{
+                            background: active ? 'rgba(16,185,129,0.15)' : 'rgba(0,0,0,0.05)',
+                            color:      active ? '#065f46'               : '#9ca3af',
+                            border:     active ? '1px solid rgba(16,185,129,0.3)' : '1px solid #e5e7eb',
+                          }}>
+                          {t.minQty.toLocaleString()}+ → {t.price.toLocaleString('fr-DZ')} DA
+                        </span>
+                      )
+                    })
+                  })()}
+                </div>
+              )}
 
               {/* Sous-total */}
               {item.productId && item.quantity > 0 && (
