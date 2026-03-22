@@ -586,7 +586,7 @@ function HomePage() {
       ══════════════════════════════════ */}
       <div style={{ padding: '28px 20px', maxWidth: 900, margin: '0 auto' }}>
         <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A', marginBottom: 6 }}>
-          {lang === 'ar' ? 'لماذا التغليف المخصص؟' : 'Pourquoi un emballage ?'}
+          {lang === 'ar' ? 'لماذا التغليف مهم؟' : 'Pourquoi un emballage ?'}
         </h3>
         <BeforeAfterSlider lang={lang} />
       </div>
