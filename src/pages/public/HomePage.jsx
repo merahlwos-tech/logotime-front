@@ -403,7 +403,7 @@ function HomePage() {
           </Link>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, desc_fr, desc_ar }) => {
+          {CAT_IMAGES.map(({ label_fr, label_ar, cat, image, desc_fr, desc_ar, isPack }) => {
             const label = lang === 'ar' ? label_ar : label_fr
             const desc  = lang === 'ar' ? desc_ar  : desc_fr
             return (
