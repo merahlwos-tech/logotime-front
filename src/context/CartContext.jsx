@@ -20,6 +20,8 @@ function cartReducer(state, action) {
       const colorKey  = [...selectedColors].sort().join(',')
       const key       = `${product._id}-${size}-${doubleSided ? '2' : '1'}-${colorKey}-${numberOfColors ?? 0}`
       const existing  = state.find(item => item.key === key)
+      const isPack    = product.category === 'Pack'
+
       if (existing) {
         return state.map(item =>
           item.key === key ? { ...item, quantity } : item
@@ -31,6 +33,9 @@ function cartReducer(state, action) {
         size, doubleSided: !!doubleSided,
         selectedColors, numberOfColors,
         quantity,
+        isPack,
+        freeDelivery: product.freeDelivery || isPack,
+        packItems: isPack ? (product.packItems || []) : undefined,
       }]
     }
 

@@ -95,7 +95,8 @@ function CartPage() {
   const [pendingOrder, setPendingOrder] = useState(null)
 
   const totalUnits = items.reduce((s, i) => s + Number(i.quantity), 0)
-  const isFreeDelivery = totalUnits >= 500 && deliveryInfo.method === 'Stop Desk'
+  const hasPackItem = items.some(item => item.freeDelivery || item.isPack)
+  const isFreeDelivery = hasPackItem || (totalUnits >= 500 && deliveryInfo.method === 'Stop Desk')
   const effectiveDeliveryFee = isFreeDelivery ? 0 : Number(deliveryInfo.fee ?? 0)
   const totalWithDelivery = Number(total) + effectiveDeliveryFee
 

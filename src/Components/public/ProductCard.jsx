@@ -5,9 +5,12 @@ const PURPLE      = '#6C2BD9'
 const PURPLE_DARK = '#4A1A9E'
 const YELLOW      = '#FFD600'
 const NAVY        = '#1E0A4A'
+const GREEN       = '#10b981'
 
 function ProductCard({ product }) {
   const { lang } = useLang()
+
+  const isPack = product.category === 'Pack'
 
   const minPrice = product.sizes?.length
     ? Math.min(...product.sizes.map(s => s.price ?? 0))
@@ -25,21 +28,28 @@ function ProductCard({ product }) {
           background: 'white',
           borderRadius: 20,
           overflow: 'hidden',
-          boxShadow: '0 2px 16px rgba(0,0,0,0.07)',
+          boxShadow: isPack
+            ? '0 4px 20px rgba(16,185,129,0.15)'
+            : '0 2px 16px rgba(0,0,0,0.07)',
+          border: isPack ? `2px solid rgba(16,185,129,0.35)` : '2px solid transparent',
           transition: 'transform 0.25s, box-shadow 0.25s',
           cursor: 'pointer',
         }}
         onMouseEnter={e => {
           e.currentTarget.style.transform = 'translateY(-4px)'
-          e.currentTarget.style.boxShadow = '0 12px 32px rgba(108,43,217,0.18)'
+          e.currentTarget.style.boxShadow = isPack
+            ? '0 16px 36px rgba(16,185,129,0.25)'
+            : '0 12px 32px rgba(108,43,217,0.18)'
         }}
         onMouseLeave={e => {
           e.currentTarget.style.transform = ''
-          e.currentTarget.style.boxShadow = '0 2px 16px rgba(0,0,0,0.07)'
+          e.currentTarget.style.boxShadow = isPack
+            ? '0 4px 20px rgba(16,185,129,0.15)'
+            : '0 2px 16px rgba(0,0,0,0.07)'
         }}
       >
         {/* Image */}
-        <div style={{ width: '100%', aspectRatio: '4/3', background: '#f3f4f6', overflow: 'hidden' }}>
+        <div style={{ width: '100%', aspectRatio: '4/3', background: '#f3f4f6', overflow: 'hidden', position: 'relative' }}>
           {image ? (
             <img
               src={image}
@@ -52,7 +62,24 @@ function ProductCard({ product }) {
             />
           ) : (
             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48 }}>
-              📦
+              {isPack ? '🎁' : '📦'}
+            </div>
+          )}
+
+          {/* Badge livraison gratuite pour les packs */}
+          {isPack && (
+            <div style={{
+              position: 'absolute', top: 10, left: 10,
+              background: GREEN,
+              color: 'white',
+              fontSize: 10,
+              fontWeight: 800,
+              padding: '4px 9px',
+              borderRadius: 20,
+              boxShadow: '0 2px 8px rgba(16,185,129,0.4)',
+              display: 'flex', alignItems: 'center', gap: 4,
+            }}>
+              🚚 {lang === 'ar' ? 'توصيل مجاني' : 'Livraison gratuite'}
             </div>
           )}
         </div>
@@ -73,13 +100,26 @@ function ProductCard({ product }) {
             {product.name}
           </h3>
 
+          {/* Contenu du pack */}
+          {isPack && product.packItems?.length > 0 && (
+            <div style={{ marginBottom: 8 }}>
+              {product.packItems.map((item, i) => (
+                <p key={i} style={{ fontSize: 11, color: '#6B6B8A', margin: '1px 0' }}>
+                  • {item.productName} — {item.quantity.toLocaleString('fr-DZ')} {lang === 'ar' ? 'وحدة' : 'unités'}
+                </p>
+              ))}
+            </div>
+          )}
+
           {minPrice > 0 && (
             <p style={{ fontSize: 12, color: '#6B6B8A', marginBottom: 12 }}>
-              {lang === 'ar' ? 'ابتداءً من' : 'à partir de'}{' '}
-              <span style={{ fontWeight: 800, color: PURPLE, fontSize: 14 }}>
+              {isPack
+                ? (lang === 'ar' ? 'السعر الإجمالي' : 'Prix total')
+                : (lang === 'ar' ? 'ابتداءً من' : 'à partir de')}{' '}
+              <span style={{ fontWeight: 800, color: isPack ? GREEN : PURPLE, fontSize: 14 }}>
                 {minPrice.toLocaleString('fr-DZ')} DA
               </span>
-              {' '}<span style={{ fontSize: 11 }}>/ {lang === 'ar' ? 'وحدة' : 'unité'}</span>
+              {!isPack && <span style={{ fontSize: 11 }}> / {lang === 'ar' ? 'وحدة' : 'unité'}</span>}
             </p>
           )}
 
@@ -90,12 +130,14 @@ function ProductCard({ product }) {
             gap: 6,
             padding: '10px 0',
             borderRadius: 12,
-            background: YELLOW,
-            color: PURPLE_DARK,
+            background: isPack ? GREEN : YELLOW,
+            color: isPack ? 'white' : PURPLE_DARK,
             fontWeight: 800,
             fontSize: 13,
           }}>
-            {lang === 'ar' ? 'اطلب الآن →' : 'Commander →'}
+            {isPack
+              ? (lang === 'ar' ? '🎁 اطلب العرض →' : '🎁 Commander →')
+              : (lang === 'ar' ? 'اطلب الآن →' : 'Commander →')}
           </div>
         </div>
       </div>

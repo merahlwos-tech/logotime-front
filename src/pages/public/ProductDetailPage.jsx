@@ -14,8 +14,8 @@ const NAVY        = '#1E0A4A'
 const PURPLE      = '#6C2BD9'
 const YELLOW      = '#FFD600'
 const PURPLE_DARK = '#4A1A9E'
-const CAT_LABELS_FR = { Board: 'Boites', Bags: 'Sacs', Autocollants: 'Cartes et Autocollants', Paper: 'Papier' }
-const CAT_LABELS_AR = { Board: 'صناديق', Bags: 'أكياس', Autocollants: 'بطاقات', Paper: 'ورق' }
+const CAT_LABELS_FR = { Board: 'Boites', Bags: 'Sacs', Autocollants: 'Cartes et Autocollants', Paper: 'Papier', Pack: 'Packs' }
+const CAT_LABELS_AR = { Board: 'صناديق', Bags: 'أكياس', Autocollants: 'بطاقات', Paper: 'ورق', Pack: 'العروض' }
 
 const COLOR_NAMES = {
   '#000000': { fr: 'Noir',        ar: 'أسود' },
@@ -181,6 +181,7 @@ function ProductDetailPage() {
       .then(res => {
         setProduct(res.data)
         if (res.data.sizes?.length > 0) setSelectedSize(res.data.sizes[0].size)
+        // Pour les packs, on sélectionne automatiquement la seule taille
         setDoubleSided(false)  // toujours désactivé par défaut, le client l'active si besoin
         // ViewContent : on utilise le prix de la première taille disponible
         const firstPrice = res.data.sizes?.[0]?.price ?? 0
@@ -197,6 +198,9 @@ function ProductDetailPage() {
     </div>
   )
   if (!product) return null
+
+  const isPack = product.category === 'Pack'
+  const GREEN = '#10b981'
 
   const catLabels     = lang === 'ar' ? CAT_LABELS_AR : CAT_LABELS_FR
   const catLabel      = catLabels[product.category] || product.category
@@ -312,18 +316,60 @@ function ProductDetailPage() {
               </div>
               <div className="h-px bg-purple-100" />
 
-              {/* Tailles */}
-              <div>
+              {/* Livraison gratuite — Pack uniquement */}
+              {isPack && (
+                <div className="rounded-2xl px-5 py-4 flex items-center gap-3"
+                  style={{ background: 'rgba(16,185,129,0.1)', border: '2px solid rgba(16,185,129,0.4)' }}>
+                  <span className="text-3xl">🚚</span>
+                  <div>
+                    <p className="font-black text-base" style={{ color: '#065f46' }}>
+                      {lang === 'ar' ? 'توصيل مجاني 🎉' : 'Livraison GRATUITE 🎉'}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {lang === 'ar' ? 'هذا العرض يشمل التوصيل مجاناً' : 'Ce pack inclut la livraison gratuite'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Composition du pack */}
+              {isPack && product.packItems?.length > 0 && (
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
+                    {lang === 'ar' ? 'محتوى العرض' : 'Contenu du pack'}
+                  </p>
+                  <div className="space-y-2 rounded-2xl p-4"
+                    style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                    {product.packItems.map((item, i) => (
+                      <div key={i} className="flex items-center justify-between py-1.5 text-sm"
+                        style={{ borderBottom: i < product.packItems.length - 1 ? '1px solid rgba(16,185,129,0.15)' : 'none' }}>
+                        <span className="font-semibold" style={{ color: NAVY }}>
+                          📦 {item.productName}
+                          {item.size && item.size !== 'Pack Complet' && (
+                            <span className="text-gray-400 font-normal ml-1">({item.size})</span>
+                          )}
+                        </span>
+                        <span className="font-black" style={{ color: '#065f46' }}>
+                          × {item.quantity.toLocaleString('fr-DZ')} {lang === 'ar' ? 'وحدة' : 'unités'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Tailles (masquées pour les packs) */}
+              {!isPack && <div>
                 <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
                   {t('availableSizes')}
                   {selectedSize && <span style={{ color: YELLOW }} className="ml-2">— {selectedSize}</span>}
                 </p>
                 <SizeSelector sizes={product.sizes || []} selected={selectedSize}
                   onChange={s => setSelectedSize(s)} />
-              </div>
+              </div>}
 
-              {/* Couleurs */}
-              {product.colors?.length > 0 && (
+              {/* Couleurs (non applicable aux packs) */}
+              {!isPack && product.colors?.length > 0 && (
                 <ColorDropdown
                   colors={product.colors}
                   value={selectedColor}
@@ -332,8 +378,8 @@ function ProductDetailPage() {
                 />
               )}
 
-              {/* Nombre de couleurs dans le design */}
-              {product.colorDesignEnabled && (
+              {/* Nombre de couleurs dans le design (non applicable aux packs) */}
+              {!isPack && product.colorDesignEnabled && (
                 <div className="rounded-2xl border-2 p-4 transition-all"
                   style={{ borderColor: nbColors > 0 ? PURPLE : '#e5e7eb', background: nbColors > 0 ? 'rgba(124,58,237,0.04)' : '#f9fafb' }}>
                   <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
@@ -366,8 +412,8 @@ function ProductDetailPage() {
                 </div>
               )}
 
-              {/* Double impression */}
-              {product.doubleSided && (
+              {/* Double impression (non applicable aux packs) */}
+              {!isPack && product.doubleSided && (
                 <div className="rounded-2xl border-2 p-4 cursor-pointer transition-all"
                   style={{
                     borderColor: doubleSided ? YELLOW : '#e5e7eb',
@@ -493,16 +539,58 @@ function ProductDetailPage() {
         {/* Panel mobile */}
         <div className="px-4 py-8 space-y-6 max-w-3xl mx-auto">
 
-          {/* Tailles */}
-          <div>
+          {/* Livraison gratuite — Pack uniquement mobile */}
+          {isPack && (
+            <div className="rounded-2xl px-4 py-4 flex items-center gap-3"
+              style={{ background: 'rgba(16,185,129,0.1)', border: '2px solid rgba(16,185,129,0.4)' }}>
+              <span className="text-2xl">🚚</span>
+              <div>
+                <p className="font-black text-sm" style={{ color: '#065f46' }}>
+                  {lang === 'ar' ? 'توصيل مجاني 🎉' : 'Livraison GRATUITE 🎉'}
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {lang === 'ar' ? 'هذا العرض يشمل التوصيل مجاناً' : 'Ce pack inclut la livraison gratuite'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Composition du pack — mobile */}
+          {isPack && product.packItems?.length > 0 && (
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
+                {lang === 'ar' ? 'محتوى العرض' : 'Contenu du pack'}
+              </p>
+              <div className="space-y-2 rounded-2xl p-4"
+                style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                {product.packItems.map((item, i) => (
+                  <div key={i} className="flex items-center justify-between py-1.5 text-sm"
+                    style={{ borderBottom: i < product.packItems.length - 1 ? '1px solid rgba(16,185,129,0.15)' : 'none' }}>
+                    <span className="font-semibold" style={{ color: NAVY }}>
+                      📦 {item.productName}
+                      {item.size && item.size !== 'Pack Complet' && (
+                        <span className="text-gray-400 font-normal ml-1">({item.size})</span>
+                      )}
+                    </span>
+                    <span className="font-black" style={{ color: '#065f46' }}>
+                      × {item.quantity.toLocaleString('fr-DZ')} {lang === 'ar' ? 'وحدة' : 'unités'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tailles (masquées pour les packs) */}
+          {!isPack && <div>
             <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: NAVY }}>
               {t('availableSizes')}{selectedSize && <span style={{ color: YELLOW }} className="ml-2">— {selectedSize}</span>}
             </p>
             <SizeSelector sizes={product.sizes || []} selected={selectedSize} onChange={s => setSelectedSize(s)} />
-          </div>
+          </div>}
 
           {/* Couleurs */}
-          {product.colors?.length > 0 && (
+          {!isPack && product.colors?.length > 0 && (
             <ColorDropdown
               colors={product.colors}
               value={selectedColor}
@@ -512,7 +600,7 @@ function ProductDetailPage() {
           )}
 
           {/* Nombre de couleurs dans le design */}
-          {product.colorDesignEnabled && (
+          {!isPack && product.colorDesignEnabled && (
             <div className="rounded-2xl border-2 p-4 transition-all"
               style={{ borderColor: nbColors > 0 ? PURPLE : '#e5e7eb', background: nbColors > 0 ? 'rgba(124,58,237,0.04)' : '#f9fafb' }}>
               <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: NAVY }}>
@@ -544,7 +632,7 @@ function ProductDetailPage() {
           )}
 
           {/* Double impression */}
-          {product.doubleSided && (
+          {!isPack && product.doubleSided && (
             <div className="rounded-2xl border-2 p-4 cursor-pointer transition-all"
               style={{ borderColor: doubleSided ? YELLOW : '#e5e7eb', background: doubleSided ? 'rgba(124,58,237,0.04)' : '#f9fafb' }}
               onClick={() => setDoubleSided(d => !d)}>

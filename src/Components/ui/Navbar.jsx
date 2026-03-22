@@ -31,6 +31,7 @@ function Navbar() {
     { to: '/products?category=Bags',         label: lang === 'ar' ? 'الأكياس'   : 'Sacs' },
     { to: '/products?category=Autocollants', label: lang === 'ar' ? 'البطاقات'  : 'Cartes' },
     { to: '/products?category=Paper',        label: lang === 'ar' ? 'الورق'     : 'Papier' },
+    { to: '/products?category=Pack',         label: lang === 'ar' ? 'العروض'    : 'Packs',  isPack: true },
     { to: '/about',                          label: lang === 'ar' ? 'من نحن'    : 'À propos' },
   ]
 
@@ -74,13 +75,15 @@ function Navbar() {
             style={{
               padding: '6px 12px', borderRadius: 8,
               fontSize: 13, fontWeight: 600,
-              color: 'rgba(255,255,255,0.75)',
+              color: l.isPack ? YELLOW : 'rgba(255,255,255,0.75)',
               textDecoration: 'none',
               transition: 'color 0.15s, background 0.15s',
+              ...(l.isPack ? { fontWeight: 800 } : {}),
             }}
             onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.background = 'rgba(255,255,255,0.12)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; e.currentTarget.style.background = 'transparent' }}
+            onMouseLeave={e => { e.currentTarget.style.color = l.isPack ? YELLOW : 'rgba(255,255,255,0.75)'; e.currentTarget.style.background = 'transparent' }}
           >
+            {l.isPack && <span style={{ marginRight: 3 }}>🎁</span>}
             {l.label}
           </Link>
         ))}
