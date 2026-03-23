@@ -548,10 +548,10 @@ function HomePage() {
       ══════════════════════════════════ */}
       <div style={{ padding: '28px 20px 24px' }}>
         <div style={{
-          background: PURPLE, borderRadius: 24,
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f2027 100%)', borderRadius: 24,
           padding: '28px 20px',
         }}>
-          <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A', textAlign: 'center', marginBottom: 6 }}>
+          <h3 style={{ fontSize: 20, fontWeight: 800, color: 'white', textAlign: 'center', marginBottom: 6 }}>
             {lang === 'ar' ? 'لماذا تختارنا؟' : 'Pourquoi nous choisir ?'}
           </h3>
           <div style={{ width: 40, height: 4, background: YELLOW, borderRadius: 2, margin: '0 auto 24px' }} />
@@ -586,7 +586,7 @@ function HomePage() {
       ══════════════════════════════════ */}
       <div style={{ padding: '28px 20px', maxWidth: 900, margin: '0 auto' }}>
         <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1E0A4A', marginBottom: 6 }}>
-          {lang === 'ar' ? 'لماذا التغليف مهم؟' : 'Pourquoi un emballage ?'}
+          {lang === 'ar' ? 'لماذا التغليف المخصص؟' : 'Pourquoi un emballage ?'}
         </h3>
         <BeforeAfterSlider lang={lang} />
       </div>
