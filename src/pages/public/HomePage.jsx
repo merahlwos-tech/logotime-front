@@ -558,8 +558,8 @@ function HomePage() {
           <div className="grid md:grid-cols-3 gap-4">
             {why.map((w, i) => (
               <div key={i} style={{
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.15)',
+                background: 'white',
+                border: '1px solid rgba(108,43,217,0.12)',
                 borderRadius: 10, padding: 18,
                 display: 'flex', alignItems: 'center', gap: 16,
               }}>
@@ -572,8 +572,8 @@ function HomePage() {
                   {w.icon}
                 </div>
                 <div>
-                  <h4 style={{ fontSize: 17, fontWeight: 800, color: '#1E0A4A', marginBottom: 6 }}>{w.title}</h4>
-                  <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>{w.desc}</p>
+                  <h4 style={{ fontSize: 17, fontWeight: 800, color: '#111827', marginBottom: 6 }}>{w.title}</h4>
+                  <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.6 }}>{w.desc}</p>
                 </div>
               </div>
             ))}
